@@ -19,7 +19,10 @@ O projeto esta organizado como um monorepo simples, com separacao entre:
 - a estrutura do monorepo ja esta consolidada
 - o backend ja possui runtime NestJS inicial versionado
 - o backend ja integra `ConfigModule`, `PrismaModule` e `PrismaService`
+- a autenticacao administrativa inicial com JWT ja esta implementada
 - os primeiros modulos de dominio ja foram iniciados:
+  - `admins`
+  - `auth`
   - `categories`
   - `subcategories`
   - `products`
