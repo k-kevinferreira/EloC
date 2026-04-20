@@ -2,127 +2,137 @@
 
 ## Objetivo
 
-Este documento registra a modelagem inicial do banco de dados com base no arquivo de referência do domínio do catálogo de joias e do painel administrativo.
+Este documento registra a modelagem inicial do banco de dados com base no arquivo de referencia do dominio do catalogo de joias e do painel administrativo.
 
-O foco desta etapa é estabelecer uma base relacional consistente para:
+O foco desta etapa e estabelecer uma base relacional consistente para:
 
-- catálogo público
+- catalogo publico
 - painel administrativo
 - controle financeiro
 - remessas
-- autenticação administrativa
+- autenticacao administrativa
 
-## Fonte de domínio
+## Fonte de dominio
 
-A modelagem foi derivada do documento funcional/técnico de referência do projeto, que define:
+A modelagem foi derivada do documento funcional e tecnico de referencia do projeto, que define:
 
 - contextos principais do sistema
-- entidades do domínio
+- entidades do dominio
 - relacionamentos
-- regras de negócio
-- restrições de integridade
+- regras de negocio
+- restricoes de integridade
 
 ## Entidades modeladas
 
 ### Admin
 
-Responsável por representar usuários com acesso ao painel administrativo.
+Representa usuarios com acesso ao painel administrativo.
 
 Campos principais:
 
-- identificação
+- identificacao
 - nome
-- email único
+- email unico
 - hash de senha
 - papel de acesso
-- timestamps de criação e atualização
+- timestamps de criacao e atualizacao
 
 ### Category
 
-Categoria principal do catálogo.
-
-Responsabilidades:
-
-- organizar o catálogo em grupos macro
-- controlar ativação e exibição lógica
-
-### Subcategory
-
-Subdivisão de uma categoria principal.
-
-Responsabilidades:
-
-- refinar navegação do catálogo
-- permitir filtragem mais específica dos produtos
-
-Restrição importante:
-
-- `slug` único dentro da categoria, não globalmente
-
-### Product
-
-Entidade central do catálogo.
+Categoria principal do catalogo.
 
 Campos principais:
 
-- categoria obrigatória
+- nome
+- slug unico
+- status de ativacao
+- ordem de exibicao
+
+### Subcategory
+
+Subdivisao de uma categoria principal.
+
+Campos principais:
+
+- categoria pai
+- nome
+- slug unico dentro da categoria
+- status de ativacao
+- ordem de exibicao
+
+### Product
+
+Entidade central do catalogo publico e da administracao interna.
+
+Campos principais:
+
+- categoria obrigatoria
 - subcategoria opcional
-- código único
-- título
-- descrição curta opcional
-- preço
+- codigo unico
+- slug unico
+- titulo
+- descricao curta opcional
+- descricao completa opcional
+- preco
 - imagem opcional
-- status de ativação
+- destaque editorial
+- status de ativacao
+- ordem de exibicao
 
 ### SaleEntry
 
-Representa uma entrada financeira decorrente de uma venda registrada.
+Representa o registro administrativo de uma venda manual. Nao modela checkout online, pedido, carrinho ou fluxo de e-commerce.
 
 Campos principais:
 
 - produto
-- valor
+- quantidade
+- preco unitario
+- valor total
 - forma de pagamento
+- status administrativo
 - cliente opcional
-- observações opcionais
+- observacoes opcionais
 - data da venda
 
 ### Expense
 
-Representa um gasto operacional.
+Representa um gasto operacional, com vinculo opcional a uma remessa.
 
 Campos principais:
 
 - tipo
-- descrição
+- descricao
 - valor
 - data
-- observações opcionais
-- vínculo opcional com remessa
+- observacoes opcionais
+- remessa opcional
 
 ### Shipment
 
-Representa um pedido ou remessa feita ao fornecedor.
+Representa uma remessa ou pedido feito ao fornecedor.
 
 Campos principais:
 
-- código único
+- codigo unico
 - fornecedor
 - data da remessa
 - custo total
-- observações opcionais
+- observacoes opcionais
 
 ### ShipmentItem
 
-Entidade de composição de remessa.
+Representa os itens vinculados a uma remessa.
 
-Função:
+Campos principais:
 
-- vincular produtos à remessa
-- registrar quantidade
-- registrar custo unitário e custo total
+- remessa
+- produto
+- quantidade
+- custo unitario
+- custo total
 
-## Relações implementadas
+## Relacoes implementadas
 
 - `Category 1:N Subcategory`
 - `Category 1:N Product`
@@ -130,104 +140,145 @@ Função:
 - `Product 1:N SaleEntry`
 - `Shipment 1:N ShipmentItem`
 - `Product 1:N ShipmentItem`
-- `Shipment 1:N Expense` com vínculo opcional do lado de `Expense`
+- `Shipment 1:N Expense` com vinculo opcional em `Expense`
 
-## Decisões técnicas adotadas
+## Decisoes tecnicas adotadas
 
 ### Identificadores
 
-Foi adotado `UUID` como identificador primário em todas as entidades.
+Foi adotado `UUID` como chave primaria em todas as entidades.
 
 Motivos:
 
 - reduz previsibilidade de identificadores expostos
-- favorece integração futura entre camadas e ambientes
+- facilita integracao futura entre camadas
 - evita acoplamento ao incremento sequencial do banco
 
 ### Nomenclatura
 
 No Prisma, foram usados:
 
-- nomes de modelos em singular e PascalCase
-- nomes de campos em camelCase
+- modelos em singular e PascalCase
+- campos em camelCase
 
-No banco, foi preservado o padrão do domínio em snake_case com `@map` e `@@map`.
+No banco, foi preservado o padrao snake_case com `@map` e `@@map`.
 
-Motivos:
+### Tipos monetarios
 
-- ergonomia melhor no TypeScript e no NestJS
-- banco continua consistente com convenções SQL e com o documento de domínio
-
-### Tipos monetários
-
-Valores financeiros usam `Decimal(12,2)`.
+Campos financeiros usam `Decimal(12,2)`.
 
 Motivo:
 
-- evita erro de precisão de ponto flutuante
+- evita erro de precisao de ponto flutuante
 
 ### Datas
 
-- campos de auditoria e eventos com horário usam `timestamp with time zone`
-- campos estritamente de calendário usam `date`
+- campos de auditoria e eventos com horario usam `timestamp with time zone`
+- campos estritamente de calendario usam `date`
 
-Aplicação:
+Aplicacao:
 
 - `createdAt`, `updatedAt`, `soldAt` usam timestamp
 - `expenseDate` e `shipmentDate` usam date
 
-### Exclusão e integridade referencial
+### Catalogo publico
 
-Foram definidos comportamentos explícitos de relacionamento:
+O modelo foi ampliado para atender melhor o catalogo publico sem transformar o sistema em e-commerce.
 
-- `Product -> Category`: `Restrict`
-- `Product -> Subcategory`: `SetNull`
-- `SaleEntry -> Product`: `Restrict`
-- `Expense -> Shipment`: `SetNull`
-- `ShipmentItem -> Shipment`: `Cascade`
-- `ShipmentItem -> Product`: `Restrict`
+Foram adicionados:
 
-Racional:
+- `Product.slug`
+- `Product.description`
+- `Product.isFeatured`
+- `displayOrder` em categorias, subcategorias e produtos
 
-- preservar histórico financeiro e operacional
-- evitar exclusões que quebrem rastreabilidade
-- permitir desvinculação opcional quando isso fizer sentido sem apagar histórico
+Motivos:
 
-## Restrições implementadas diretamente no schema
+- URLs amigaveis
+- separacao entre descricao curta e detalhada
+- destaque editorial na vitrine
+- controle de ordenacao sem depender apenas de data de criacao
 
-- unicidade de `Admin.email`
-- unicidade de `Category.slug`
-- unicidade de `Product.code`
-- unicidade de `Shipment.code`
-- unicidade composta de `Subcategory.categoryId + slug`
-- índices para chaves estrangeiras e campos usados em filtros operacionais
+### Registro de vendas
 
-## Restrições que permanecem como responsabilidade de serviço ou migration manual
+`SaleEntry` foi refinada para representar melhor uma venda administrativa manual.
 
-Algumas validações do documento de domínio não são expressas diretamente no schema Prisma de forma completa e devem ser garantidas pelo backend e, se necessário, por migration SQL manual:
+Em vez de um campo generico de valor, o modelo agora usa:
 
-- `price >= 0`
-- `SaleEntry.amount > 0`
-- `Expense.amount > 0`
+- `quantity`
+- `unitPrice`
+- `totalAmount`
+- `paymentMethod`
+- `status`
+
+Isso reduz ambiguidade e melhora rastreabilidade sem forcar um modelo de pedido completo.
+
+## Restricoes implementadas no banco
+
+### Unicidade
+
+- `Admin.email`
+- `Category.slug`
+- `Product.code`
+- `Product.slug`
+- `Shipment.code`
+- `Subcategory(categoryId, slug)`
+
+### Indices operacionais
+
+Foram adicionados indices para:
+
+- chaves estrangeiras
+- status de exibicao
+- destaque
+- ordenacao
+- data de venda
+- forma de pagamento
+- status da venda
+- tipo de despesa
+
+### Check constraints
+
+Foram adicionadas restricoes de banco para impedir lixo estrutural:
+
+- `Product.price >= 0`
+- `SaleEntry.quantity > 0`
+- `SaleEntry.unitPrice >= 0`
+- `SaleEntry.totalAmount >= 0`
+- `SaleEntry.totalAmount = quantity * unitPrice`
+- `Shipment.totalCost >= 0`
 - `ShipmentItem.quantity > 0`
 - `ShipmentItem.unitCost >= 0`
 - `ShipmentItem.totalCost >= 0`
-- coerência entre `Product.categoryId` e a categoria da `Subcategory` vinculada
-- coerência entre `Shipment.totalCost` e a soma dos itens da remessa
+- `ShipmentItem.totalCost = quantity * unitCost`
+- `Expense.amount >= 0`
 
-Esses pontos não devem ser tratados apenas no frontend.
+Essas restricoes nao substituem o backend, mas aumentam a confiabilidade estrutural do sistema.
 
-## Cuidados arquiteturais para as próximas etapas
+## Regras que continuam no backend
 
-- `Dashboard` não deve virar tabela por padrão; ele é um contexto de leitura e agregação
-- `Auth` não exige entidade separada neste momento, porque o acesso administrativo já está representado por `Admin`
-- enums não foram introduzidos ainda para `role`, `paymentMethod` e `Expense.type`, porque o domínio ainda não definiu conjuntos fechados de valores
-- se esses valores forem estabilizados depois, a migração para enums deve ser feita com critério para não gerar rigidez prematura
+Algumas validacoes devem continuar na camada de aplicacao, principalmente nos services:
 
-## Próximos passos recomendados
+- verificar se a subcategoria informada pertence realmente a `categoryId` do produto
+- calcular `SaleEntry.totalAmount` no backend, sem confiar no valor vindo do frontend
+- calcular `ShipmentItem.totalCost` no backend, sem confiar no valor vindo do frontend
+- padronizar `paymentMethod`
+- padronizar `Expense.type`
+- decidir regras de alteracao de `status` da venda
 
-1. adicionar dependências reais de Prisma no backend
-2. gerar o client Prisma
-3. criar a primeira migration
-4. implementar `PrismaService` e módulo de integração em `src/prisma`
-5. criar DTOs e services respeitando as validações de domínio não cobertas diretamente pelo schema
+Esses pontos nao devem ser delegados apenas ao frontend.
+
+## Cuidados arquiteturais
+
+- `Dashboard` continua sendo contexto de leitura e agregacao, nao uma tabela
+- `Auth` continua representado por `Admin` neste momento
+- `paymentMethod`, `Expense.type` e `Admin.role` seguem como `VARCHAR` por enquanto para evitar rigidez prematura
+- se esses conjuntos estabilizarem, a evolucao natural e migrar para enums
+
+## Proximos passos recomendados
+
+1. manter `schema.prisma`, migrations e banco real sempre alinhados
+2. implementar `PrismaService` e `PrismaModule`
+3. criar DTOs e services com validacoes de dominio
+4. padronizar valores aceitos para `paymentMethod`, `Expense.type` e `status`
+5. avaliar futuramente `product_images` se o catalogo precisar de multiplas imagens por produto
