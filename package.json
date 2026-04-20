@@ -1,0 +1,16 @@
+{
+  "name": "eloc",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/frontend",
+    "apps/backend"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev --workspace @eloc/frontend",
+    "dev:backend": "npm run dev --workspace @eloc/backend",
+    "build:frontend": "npm run build --workspace @eloc/frontend",
+    "build:backend": "npm run build --workspace @eloc/backend"
+  }
+}
+

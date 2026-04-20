@@ -1,0 +1,12 @@
+{
+  "name": "@eloc/backend",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "node dist/main.js",
+    "start:prod": "node dist/main.js"
+  }
+}
+
