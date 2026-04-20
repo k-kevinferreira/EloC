@@ -12,6 +12,16 @@ O foco desta etapa e estabelecer uma base relacional consistente para:
 - remessas
 - autenticacao administrativa
 
+## Estado atual da implementacao
+
+No momento, esta modelagem ja esta refletida em:
+
+- `apps/backend/prisma/schema.prisma`
+- migration inicial em `apps/backend/prisma/migrations/20260420_init`
+- banco local de desenvolvimento `eloc`
+
+O schema foi validado com Prisma e o client foi gerado localmente.
+
 ## Fonte de dominio
 
 A modelagem foi derivada do documento funcional e tecnico de referencia do projeto, que define:
@@ -282,3 +292,11 @@ Esses pontos nao devem ser delegados apenas ao frontend.
 3. criar DTOs e services com validacoes de dominio
 4. padronizar valores aceitos para `paymentMethod`, `Expense.type` e `status`
 5. avaliar futuramente `product_images` se o catalogo precisar de multiplas imagens por produto
+
+## Ponto de retomada
+
+Se o projeto for retomado depois de uma pausa, o ponto tecnico atual e este:
+
+- banco de dados inicial ja modelado e aplicado localmente
+- backend ainda sem runtime NestJS real implementado
+- proximo passo recomendado: integrar Prisma ao backend NestJS e iniciar os primeiros modulos de dominio

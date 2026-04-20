@@ -19,6 +19,26 @@ O objetivo desta organizacao e facilitar manutencao, onboarding, revisao tecnica
 - Banco de dados: PostgreSQL
 - ORM: Prisma
 
+## Estado atual
+
+O repositorio ja possui a base estrutural do monorepo e a primeira etapa do banco de dados concluida.
+
+Situacao atual:
+
+- monorepo organizado em `apps/frontend`, `apps/backend` e `docs`
+- Prisma instalado no backend
+- `schema.prisma` modelado a partir do dominio do catalogo de joias
+- migration inicial criada em `apps/backend/prisma/migrations/20260420_init`
+- banco local `eloc` criado e migration inicial aplicada em PostgreSQL local
+- documentacao tecnica do banco registrada em `docs/technical/database-model.md`
+
+Pendencias atuais de desenvolvimento:
+
+- estruturar a aplicacao real do backend em NestJS
+- integrar `PrismaService` e `PrismaModule`
+- implementar os primeiros modulos de dominio
+- iniciar a base real do frontend
+
 ## Estrutura do monorepo
 
 ```text
@@ -71,6 +91,28 @@ Quando a API backend estiver com o codigo de aplicacao e dependencias instaladas
 npm install
 npm run dev:backend
 ```
+
+Comandos de banco ja disponiveis no backend:
+
+```bash
+npm run prisma:validate --workspace @eloc/backend
+npm run prisma:generate --workspace @eloc/backend
+npm run prisma:migrate:dev --workspace @eloc/backend
+npm run prisma:migrate:deploy --workspace @eloc/backend
+```
+
+## Como retomar depois
+
+Se o projeto for retomado em outra sessao, consultar primeiro:
+
+- `docs/codex-guide.md`
+- `docs/technical/database-model.md`
+- `apps/backend/prisma/schema.prisma`
+- `apps/backend/README.md`
+
+Proximo passo recomendado no retorno:
+
+- estruturar a base real do backend NestJS e integrar Prisma ao runtime
 
 ## Convencoes basicas
 

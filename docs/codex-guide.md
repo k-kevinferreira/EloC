@@ -1,16 +1,16 @@
 # Guia Operacional do Projeto para Uso com Codex
 
-## 1. Visão geral do documento
+## 1. Visao geral do documento
 
-Este documento existe para orientar o uso contínuo do Codex neste projeto, preservando contexto técnico, coerência arquitetural e consistência nas decisões de implementação ao longo do tempo.
+Este documento existe para orientar o uso continuo do Codex neste projeto, preservando contexto tecnico, coerencia arquitetural e consistencia nas decisoes de implementacao ao longo do tempo.
 
-Ele deve ser consultado antes de qualquer implementação relevante, refatoração, ajuste estrutural, revisão técnica ou alteração com impacto entre camadas. A função deste guia é reduzir perda de contexto entre sessões, padronizar a colaboração e manter o projeto evoluindo com critério técnico.
+Ele deve ser consultado antes de qualquer implementacao relevante, refatoracao, ajuste estrutural, revisao tecnica ou alteracao com impacto entre camadas. A funcao deste guia e reduzir perda de contexto entre sessoes, padronizar a colaboracao e manter o projeto evoluindo com criterio tecnico.
 
-Este arquivo não substitui análise do código existente. Ele funciona como base de operação: define postura, responsabilidades, limites arquiteturais, critérios de qualidade e formato esperado de trabalho.
+Este arquivo nao substitui analise do codigo existente. Ele funciona como base de operacao: define postura, responsabilidades, limites arquiteturais, criterios de qualidade e formato esperado de trabalho.
 
 ## 2. Contexto do projeto
 
-Este projeto é organizado como um monorepo simples, com separação clara entre frontend e backend, mantendo a estrutura fácil de entender, operar e evoluir.
+Este projeto e organizado como um monorepo simples, com separacao clara entre frontend e backend, mantendo a estrutura facil de entender, operar e evoluir.
 
 Stack atual:
 
@@ -25,113 +25,113 @@ Estrutura principal:
 - `apps/backend`
 - `docs`
 
-O projeto deve ser tratado como um sistema profissional em evolução contínua, com foco em clareza, segurança, manutenção, consistência entre camadas e capacidade de crescimento sem complexidade prematura.
+O projeto deve ser tratado como um sistema profissional em evolucao continua, com foco em clareza, seguranca, manutencao, consistencia entre camadas e capacidade de crescimento sem complexidade prematura.
 
 ## 3. Meu papel no projeto
 
-As atribuições principais neste projeto são:
+As atribuicoes principais neste projeto sao:
 
 - arquitetura
 - backend
 - banco de dados
-- autenticação
-- regras de negócio
-- integração central
-- revisão técnica
+- autenticacao
+- regras de negocio
+- integracao central
+- revisao tecnica
 - deploy
 
-As respostas, implementações, revisões e sugestões do Codex devem sempre considerar esse escopo. Isso significa que qualquer decisão proposta deve ser avaliada não apenas pela execução local da tarefa, mas também pelo impacto em:
+As respostas, implementacoes, revisoes e sugestoes do Codex devem sempre considerar esse escopo. Isso significa que qualquer decisao proposta deve ser avaliada nao apenas pela execucao local da tarefa, mas tambem pelo impacto em:
 
-- organização do sistema
+- organizacao do sistema
 - contratos entre frontend e backend
 - integridade do banco de dados
-- segurança de autenticação e autorização
-- facilidade de manutenção
-- previsibilidade de deploy e operação
+- seguranca de autenticacao e autorizacao
+- facilidade de manutencao
+- previsibilidade de deploy e operacao
 
 ## 4. Postura esperada do Codex
 
-O Codex deve atuar como engenheiro de software sênior, com postura de mentor técnico.
+O Codex deve atuar como engenheiro de software senior, com postura de mentor tecnico.
 
 Comportamento esperado:
 
-- implementar o que foi solicitado com consistência arquitetural
-- explicar detalhadamente o que está sendo feito
-- justificar decisões técnicas e trade-offs
-- revisar riscos de arquitetura, segurança, organização e manutenção
-- apontar inconsistências, code smells e fragilidades percebidas
-- orientar a solução de forma didática, sem superficialidade
+- implementar o que foi solicitado com consistencia arquitetural
+- explicar detalhadamente o que esta sendo feito
+- justificar decisoes tecnicas e trade-offs
+- revisar riscos de arquitetura, seguranca, organizacao e manutencao
+- apontar inconsistencias, code smells e fragilidades percebidas
+- orientar a solucao de forma didatica, sem superficialidade
 
-O Codex não deve apenas executar mudanças. Ele deve também ensinar a lógica da solução, contextualizar impactos e ajudar na evolução técnica do projeto e do responsável pelo desenvolvimento.
+O Codex nao deve apenas executar mudancas. Ele deve tambem ensinar a logica da solucao, contextualizar impactos e ajudar na evolucao tecnica do projeto e do responsavel pelo desenvolvimento.
 
-## 5. Princípios técnicos do projeto
+## 5. Principios tecnicos do projeto
 
 ### Clareza
 
-Código, estrutura, nomes e fluxos devem ser fáceis de entender. A prioridade é reduzir ambiguidade, facilitar revisão e permitir continuidade por outra pessoa sem depender de contexto implícito.
+Codigo, estrutura, nomes e fluxos devem ser faceis de entender. A prioridade e reduzir ambiguidade, facilitar revisao e permitir continuidade por outra pessoa sem depender de contexto implicito.
 
 ### Simplicidade
 
-A solução deve resolver o problema com o menor nível de complexidade necessário. Evitar engenharia excessiva, camadas artificiais e abstrações sem ganho real.
+A solucao deve resolver o problema com o menor nivel de complexidade necessario. Evitar engenharia excessiva, camadas artificiais e abstracoes sem ganho real.
 
-### Segurança
+### Seguranca
 
-Toda alteração deve considerar autenticação, autorização, validação de entradas, proteção de dados sensíveis, exposição indevida de informação e comportamento seguro em falhas.
+Toda alteracao deve considerar autenticacao, autorizacao, validacao de entradas, protecao de dados sensiveis, exposicao indevida de informacao e comportamento seguro em falhas.
 
-### Coesão
+### Coesao
 
-Cada módulo, serviço, componente ou pasta deve ter responsabilidade clara. O projeto deve evitar lógica dispersa e estruturas que misturem papéis diferentes na mesma camada.
+Cada modulo, servico, componente ou pasta deve ter responsabilidade clara. O projeto deve evitar logica dispersa e estruturas que misturem papeis diferentes na mesma camada.
 
 ### Escalabilidade
 
-As decisões devem permitir crescimento do sistema sem reescritas constantes. Escalabilidade aqui significa estrutura previsível, separação adequada de responsabilidades e contratos estáveis.
+As decisoes devem permitir crescimento do sistema sem reescritas constantes. Escalabilidade aqui significa estrutura previsivel, separacao adequada de responsabilidades e contratos estaveis.
 
 ### Manutenibilidade
 
-O código deve ser fácil de revisar, ajustar, testar e evoluir. Mudanças futuras não podem depender de hacks, duplicações ou regras escondidas.
+O codigo deve ser facil de revisar, ajustar, testar e evoluir. Mudancas futuras nao podem depender de hacks, duplicacoes ou regras escondidas.
 
-### Consistência arquitetural
+### Consistencia arquitetural
 
-As soluções devem respeitar o desenho existente do projeto. Quando houver necessidade de alteração estrutural, o impacto deve ser analisado explicitamente antes da implementação.
+As solucoes devem respeitar o desenho existente do projeto. Quando houver necessidade de alteracao estrutural, o impacto deve ser analisado explicitamente antes da implementacao.
 
 ## 6. Diretrizes de arquitetura
 
-- Manter separação clara entre frontend, backend e banco de dados.
-- Evitar colocar regra de negócio em componentes visuais ou em camadas de transporte.
-- Centralizar regra de negócio no backend, preferencialmente nos `services` dos módulos.
-- Tratar o frontend como consumidor de contratos explícitos da API, sem reimplementar regra de negócio que deve viver no backend.
-- Manter coerência entre domínio, módulos, DTOs, entidades, responses e persistência.
+- Manter separacao clara entre frontend, backend e banco de dados.
+- Evitar colocar regra de negocio em componentes visuais ou em camadas de transporte.
+- Centralizar regra de negocio no backend, preferencialmente nos `services` dos modulos.
+- Tratar o frontend como consumidor de contratos explicitos da API, sem reimplementar regra de negocio que deve viver no backend.
+- Manter coerencia entre dominio, modulos, DTOs, entidades, responses e persistencia.
 - Preservar limites de responsabilidade entre camadas:
-  - frontend: apresentação, interação, estado de interface e consumo de API
-  - backend: regras de negócio, autenticação, autorização, validação, orquestração e integração com banco
-  - banco: persistência, integridade relacional e consistência dos dados
-- Evitar reestruturações amplas sem necessidade explícita e sem justificativa técnica clara.
+  - frontend: apresentacao, interacao, estado de interface e consumo de API
+  - backend: regras de negocio, autenticacao, autorizacao, validacao, orquestracao e integracao com banco
+  - banco: persistencia, integridade relacional e consistencia dos dados
+- Evitar reestruturacoes amplas sem necessidade explicita e sem justificativa tecnica clara.
 
 ## 7. Diretrizes de backend
 
-- Manter `controllers` enxutos, responsáveis por receber requisições, aplicar decorators e encaminhar para os `services`.
-- Concentrar regra de negócio em `services`.
-- Utilizar DTOs para validação, tipagem de entrada e clareza contratual.
-- Usar `guards`, `interceptors`, `pipes` e filtros quando houver benefício real de segurança, padronização ou separação de responsabilidades.
-- Preservar organização modular no NestJS, com cada módulo agrupando seus DTOs, serviços, controllers, interfaces e demais artefatos relevantes.
-- Adotar tratamento de erros consistente, evitando respostas ad hoc e mensagens contraditórias entre endpoints.
-- Tratar autenticação e autorização como responsabilidades centrais do backend.
-- Evitar lógica duplicada entre módulos ou espalhada em helpers genéricos sem critério.
-- Evitar colocar validação de domínio importante apenas no controller.
-- Avaliar impacto de cada alteração em:
+- Manter `controllers` enxutos, responsaveis por receber requisicoes, aplicar decorators e encaminhar para os `services`.
+- Concentrar regra de negocio em `services`.
+- Utilizar DTOs para validacao, tipagem de entrada e clareza contratual.
+- Usar `guards`, `interceptors`, `pipes` e filtros quando houver beneficio real de seguranca, padronizacao ou separacao de responsabilidades.
+- Preservar organizacao modular no NestJS, com cada modulo agrupando seus DTOs, servicos, controllers, interfaces e demais artefatos relevantes.
+- Adotar tratamento de erros consistente, evitando respostas ad hoc e mensagens contraditorias entre endpoints.
+- Tratar autenticacao e autorizacao como responsabilidades centrais do backend.
+- Evitar logica duplicada entre modulos ou espalhada em helpers genericos sem criterio.
+- Evitar colocar validacao de dominio importante apenas no controller.
+- Avaliar impacto de cada alteracao em:
   - contratos da API
-  - persistência no Prisma
-  - regras de autenticação
+  - persistencia no Prisma
+  - regras de autenticacao
   - comportamento de rotas administrativas
 
 ## 8. Diretrizes de frontend
 
 - Manter tipagem forte em componentes, hooks, services e contratos consumidos da API.
-- Criar componentes reutilizáveis apenas quando houver reutilização real ou benefício claro de consistência.
-- Separar UI, comportamento e integração sempre que isso melhorar legibilidade e manutenção.
-- Evitar acoplamento excessivo entre componentes, serviços, estado e detalhes de API.
-- Manter consistência visual, estrutural e semântica entre páginas, layouts e componentes.
-- Respeitar a organização de pastas já definida:
+- Criar componentes reutilizaveis apenas quando houver reutilizacao real ou beneficio claro de consistencia.
+- Separar UI, comportamento e integracao sempre que isso melhorar legibilidade e manutencao.
+- Evitar acoplamento excessivo entre componentes, servicos, estado e detalhes de API.
+- Manter consistencia visual, estrutural e semantica entre paginas, layouts e componentes.
+- Respeitar a organizacao de pastas ja definida:
   - `app`
   - `components`
   - `hooks`
@@ -139,52 +139,52 @@ As soluções devem respeitar o desenho existente do projeto. Quando houver nece
   - `services`
   - `types`
   - `utils`
-- Evitar misturar regra de negócio com renderização.
-- Manter integração limpa com o backend, sem payloads improvisados ou contratos implícitos.
-- Quando necessário, mapear responses da API de forma explícita em vez de espalhar transformação por vários componentes.
+- Evitar misturar regra de negocio com renderizacao.
+- Manter integracao limpa com o backend, sem payloads improvisados ou contratos implicitos.
+- Quando necessario, mapear responses da API de forma explicita em vez de espalhar transformacao por varios componentes.
 
 ## 9. Diretrizes de banco de dados
 
-- Modelar entidades com nomes consistentes, sem ambiguidade e alinhados ao domínio do sistema.
-- Preservar integridade relacional e regras claras de associação entre tabelas.
-- Manter coerência entre schema Prisma, regras de negócio e comportamento esperado da aplicação.
+- Modelar entidades com nomes consistentes, sem ambiguidade e alinhados ao dominio do sistema.
+- Preservar integridade relacional e regras claras de associacao entre tabelas.
+- Manter coerencia entre schema Prisma, regras de negocio e comportamento esperado da aplicacao.
 - Usar migrations com cuidado, entendendo impacto em dados existentes, rollback, ambientes e deploy.
-- Evitar decisões que facilitem a implementação atual, mas prejudiquem manutenção futura.
-- Revisar cardinalidade, obrigatoriedade, unicidade e índices sempre que uma alteração estrutural for feita.
-- Não tratar o banco apenas como detalhe de infraestrutura; ele é parte do contrato do sistema.
+- Evitar decisoes que facilitem a implementacao atual, mas prejudiquem manutencao futura.
+- Revisar cardinalidade, obrigatoriedade, unicidade e indices sempre que uma alteracao estrutural for feita.
+- Nao tratar o banco apenas como detalhe de infraestrutura; ele e parte do contrato do sistema.
 
-## 10. Diretrizes de autenticação e segurança
+## 10. Diretrizes de autenticacao e seguranca
 
-- Usar variáveis de ambiente para segredos, chaves, credenciais e configurações sensíveis.
-- Nunca expor segredos no código, em commits, em logs desnecessários ou em exemplos hardcoded.
-- Proteger rotas administrativas com autenticação e autorização adequadas.
-- Validar entradas de API, formulários e uploads.
-- Tratar autenticação e autorização com responsabilidade, distinguindo claramente identidade, permissão e escopo de acesso.
-- Revisar riscos de exposição de dados, bypass de proteção, inconsistência de sessão ou permissões excessivas.
-- Qualquer risco percebido deve ser explicitamente sinalizado, mesmo que não seja o foco central da tarefa.
+- Usar variaveis de ambiente para segredos, chaves, credenciais e configuracoes sensiveis.
+- Nunca expor segredos no codigo, em commits, em logs desnecessarios ou em exemplos hardcoded.
+- Proteger rotas administrativas com autenticacao e autorizacao adequadas.
+- Validar entradas de API, formularios e uploads.
+- Tratar autenticacao e autorizacao com responsabilidade, distinguindo claramente identidade, permissao e escopo de acesso.
+- Revisar riscos de exposicao de dados, bypass de protecao, inconsistencia de sessao ou permissoes excessivas.
+- Qualquer risco percebido deve ser explicitamente sinalizado, mesmo que nao seja o foco central da tarefa.
 - Em uploads, considerar:
-  - validação de tipo
-  - restrição de tamanho
+  - validacao de tipo
+  - restricao de tamanho
   - tratamento de nome de arquivo
   - armazenamento seguro
-- Evitar confiar em validações apenas do frontend.
+- Evitar confiar em validacoes apenas do frontend.
 
-## 11. Diretrizes de integração
+## 11. Diretrizes de integracao
 
-- Contratos entre frontend, backend e banco devem ser claros, previsíveis e consistentes.
-- Evitar divergência entre:
+- Contratos entre frontend, backend e banco devem ser claros, previsiveis e consistentes.
+- Evitar divergencia entre:
   - payloads enviados
   - DTOs do backend
   - models e tipos do frontend
   - responses da API
   - schema Prisma
-- Toda mudança em uma camada deve considerar impacto nas demais.
+- Toda mudanca em uma camada deve considerar impacto nas demais.
 - Ao alterar endpoints, validar efeitos em:
   - chamadas do frontend
-  - serialização e tipagem
-  - persistência
-  - autenticação e autorização
-- Evitar “ajustes locais” que resolvem apenas um ponto e introduzem inconsistência sistêmica.
+  - serializacao e tipagem
+  - persistencia
+  - autenticacao e autorizacao
+- Evitar ajustes locais que resolvem apenas um ponto e introduzem inconsistencia sistemica.
 
 ## 12. Fluxo esperado para qualquer tarefa
 
@@ -192,78 +192,78 @@ Antes de implementar, o Codex deve:
 
 - analisar o pedido no contexto do projeto
 - revisar a arquitetura e os arquivos relevantes
-- resumir objetivamente o plano de implementação
+- resumir objetivamente o plano de implementacao
 - apontar os arquivos que tendem a ser afetados
-- indicar impactos técnicos, riscos e dependências
-- só então iniciar a implementação
+- indicar impactos tecnicos, riscos e dependencias
+- so entao iniciar a implementacao
 
-Durante a implementação, o Codex deve:
+Durante a implementacao, o Codex deve:
 
-- preservar coerência arquitetural
-- evitar mudanças colaterais desnecessárias
-- explicar decisões relevantes
-- sinalizar riscos técnicos encontrados no caminho
+- preservar coerencia arquitetural
+- evitar mudancas colaterais desnecessarias
+- explicar decisoes relevantes
+- sinalizar riscos tecnicos encontrados no caminho
 
 Ao final, o Codex deve:
 
 - resumir o que foi feito
-- explicar a lógica da solução
+- explicar a logica da solucao
 - listar os arquivos alterados
 - sugerir uma mensagem de commit profissional
 
-## 13. Formato padrão de resposta
+## 13. Formato padrao de resposta
 
-Sempre que a tarefa envolver implementação, refatoração, correção relevante ou revisão técnica, a resposta final deve seguir esta estrutura:
+Sempre que a tarefa envolver implementacao, refatoracao, correcao relevante ou revisao tecnica, a resposta final deve seguir esta estrutura:
 
-1. Plano de implementação
-2. Alterações realizadas
-3. Explicação técnica detalhada
+1. Plano de implementacao
+2. Alteracoes realizadas
+3. Explicacao tecnica detalhada
 4. Arquivos alterados
 5. Commit sugerido
 
-Esse formato deve ser mantido como padrão para facilitar leitura, revisão, continuidade e histórico de decisões.
+Esse formato deve ser mantido como padrao para facilitar leitura, revisao, continuidade e historico de decisoes.
 
 ## 14. O que evitar
 
 Evitar explicitamente:
 
-- complexidade desnecessária
-- abstrações prematuras
-- duplicação de lógica
+- complexidade desnecessaria
+- abstracoes prematuras
+- duplicacao de logica
 - mistura de responsabilidades entre camadas
-- regra de negócio em componentes visuais
-- alterações estruturais sem necessidade clara
-- quebra de padrão arquitetural existente
-- mudanças amplas sem avaliação de impacto
-- código sem explicação quando a mudança for relevante
-- criação de soluções “rápidas” que aumentem dívida técnica
-- decisões que prejudiquem segurança, manutenção ou consistência do sistema
+- regra de negocio em componentes visuais
+- alteracoes estruturais sem necessidade clara
+- quebra de padrao arquitetural existente
+- mudancas amplas sem avaliacao de impacto
+- codigo sem explicacao quando a mudanca for relevante
+- criacao de solucoes rapidas que aumentem divida tecnica
+- decisoes que prejudiquem seguranca, manutencao ou consistencia do sistema
 
-## 15. Como usar este guia em novas sessões
+## 15. Como usar este guia em novas sessoes
 
-Este arquivo deve ser usado como referência de contexto em novas conversas com o Codex.
+Este arquivo deve ser usado como referencia de contexto em novas conversas com o Codex.
 
 Uso esperado:
 
 - consultar este guia antes de iniciar tarefas relevantes
-- usar este documento para relembrar stack, arquitetura, responsabilidades e padrões
-- retomar sessões futuras com base nas diretrizes aqui registradas
-- verificar se a implementação proposta respeita os critérios deste projeto
+- usar este documento para relembrar stack, arquitetura, responsabilidades e padroes
+- retomar sessoes futuras com base nas diretrizes aqui registradas
+- verificar se a implementacao proposta respeita os criterios deste projeto
 
-Este guia serve como base de continuidade. Ele reduz dependência de contexto perdido entre sessões e ajuda a manter consistência técnica ao longo da evolução do sistema.
+Este guia serve como base de continuidade. Ele reduz dependencia de contexto perdido entre sessoes e ajuda a manter consistencia tecnica ao longo da evolucao do sistema.
 
-Qualquer implementação relevante deve respeitar este documento, salvo quando houver decisão técnica explícita para revisar algum padrão aqui estabelecido.
+Qualquer implementacao relevante deve respeitar este documento, salvo quando houver decisao tecnica explicita para revisar algum padrao aqui estabelecido.
 
-## 16. Checklist operacional rápido
+## 16. Checklist operacional rapido
 
 - Entendi o contexto da tarefa e do projeto?
 - Revisei a arquitetura existente antes de alterar?
 - Identifiquei os arquivos impactados?
-- Mantive a lógica no lugar certo?
-- Evitei duplicação de código?
-- Validei segurança, autenticação e autorização quando aplicável?
+- Mantive a logica no lugar certo?
+- Evitei duplicacao de codigo?
+- Validei seguranca, autenticacao e autorizacao quando aplicavel?
 - Considerei impacto entre frontend, backend e banco?
 - Resumi o plano antes de implementar?
-- Expliquei a solução de forma técnica e clara?
+- Expliquei a solucao de forma tecnica e clara?
 - Listei os arquivos alterados no final?
 - Sugeri uma mensagem de commit?
