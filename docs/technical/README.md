@@ -10,6 +10,9 @@
 - schema validado
 - Prisma Client gerado
 - migration inicial criada e aplicada no banco local
+- backend NestJS inicial compilando com sucesso
+- `PrismaModule` e `PrismaService` integrados ao runtime
+- DTOs e services iniciais implementados para catalogo
 
 ## Retomada recomendada
 
@@ -17,5 +20,6 @@ Ao retomar o projeto, usar esta sequencia:
 
 1. revisar `database-model.md`
 2. revisar `apps/backend/prisma/schema.prisma`
-3. revisar `apps/backend/package.json`
-4. continuar pela estruturacao do backend NestJS
+3. revisar `apps/backend/src/app.module.ts`
+4. revisar os modulos em `apps/backend/src/modules`
+5. continuar pela autenticacao e pelas operacoes administrativas de escrita

@@ -21,7 +21,7 @@ O objetivo desta organizacao e facilitar manutencao, onboarding, revisao tecnica
 
 ## Estado atual
 
-O repositorio ja possui a base estrutural do monorepo e a primeira etapa do banco de dados concluida.
+O repositorio agora possui a base estrutural do monorepo, a primeira etapa do banco de dados concluida e o bootstrap inicial do backend implementado.
 
 Situacao atual:
 
@@ -31,12 +31,16 @@ Situacao atual:
 - migration inicial criada em `apps/backend/prisma/migrations/20260420_init`
 - banco local `eloc` criado e migration inicial aplicada em PostgreSQL local
 - documentacao tecnica do banco registrada em `docs/technical/database-model.md`
+- backend NestJS inicial configurado com `ConfigModule`, `PrismaModule` e healthcheck
+- primeiros modulos de dominio iniciados no backend:
+  - `categories`
+  - `subcategories`
+  - `products`
 
 Pendencias atuais de desenvolvimento:
 
-- estruturar a aplicacao real do backend em NestJS
-- integrar `PrismaService` e `PrismaModule`
-- implementar os primeiros modulos de dominio
+- implementar autenticacao administrativa
+- iniciar operacoes de escrita e regras administrativas no backend
 - iniciar a base real do frontend
 
 ## Estrutura do monorepo
@@ -112,7 +116,7 @@ Se o projeto for retomado em outra sessao, consultar primeiro:
 
 Proximo passo recomendado no retorno:
 
-- estruturar a base real do backend NestJS e integrar Prisma ao runtime
+- implementar autenticacao administrativa e contratos iniciais do painel
 
 ## Convencoes basicas
 

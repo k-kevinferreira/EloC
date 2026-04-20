@@ -288,9 +288,9 @@ Esses pontos nao devem ser delegados apenas ao frontend.
 ## Proximos passos recomendados
 
 1. manter `schema.prisma`, migrations e banco real sempre alinhados
-2. implementar `PrismaService` e `PrismaModule`
-3. criar DTOs e services com validacoes de dominio
-4. padronizar valores aceitos para `paymentMethod`, `Expense.type` e `status`
+2. evoluir os services do backend para regras administrativas de escrita
+3. padronizar valores aceitos para `paymentMethod`, `Expense.type` e `status`
+4. implementar autenticacao e protecao das rotas administrativas
 5. avaliar futuramente `product_images` se o catalogo precisar de multiplas imagens por produto
 
 ## Ponto de retomada
@@ -298,5 +298,6 @@ Esses pontos nao devem ser delegados apenas ao frontend.
 Se o projeto for retomado depois de uma pausa, o ponto tecnico atual e este:
 
 - banco de dados inicial ja modelado e aplicado localmente
-- backend ainda sem runtime NestJS real implementado
-- proximo passo recomendado: integrar Prisma ao backend NestJS e iniciar os primeiros modulos de dominio
+- backend NestJS inicial ja implementado e integrado ao Prisma
+- modulos iniciais de leitura para `categories`, `subcategories` e `products` ja disponiveis
+- proximo passo recomendado: avancar para autenticacao administrativa e operacoes de escrita com regras de negocio
