@@ -1,10 +1,18 @@
+import { ProductManagement } from '@/components/admin/product-management';
+import { requireAuthenticatedAdmin } from '@/lib/auth/session';
+import { listCategories } from '@/services/categories/list-categories';
 import { listProducts } from '@/services/products/list-products';
-import { formatCurrency } from '@/utils/formatters/currency';
+import { listSubcategories } from '@/services/subcategories/list-subcategories';
 
 export default async function AdminProductsPage() {
-  const products = await listProducts({
-    limit: 200,
-  });
+  const [admin, categories, subcategories, products] = await Promise.all([
+    requireAuthenticatedAdmin(),
+    listCategories(),
+    listSubcategories(),
+    listProducts({
+      limit: 200,
+    }),
+  ]);
 
   return (
     <section className="space-y-6">
@@ -13,107 +21,19 @@ export default async function AdminProductsPage() {
           Catalogo
         </p>
         <h1 className="text-3xl font-semibold sm:text-4xl">Produtos</h1>
-        <p className="max-w-2xl text-base leading-7 text-[var(--muted)]">
-          Esta tela ja traz categoria, subcategoria, destaque e status. O foco aqui
-          e consolidar o fluxo administrativo de leitura antes da camada de escrita.
+        <p className="max-w-3xl text-base leading-7 text-[var(--muted)]">
+          O modulo principal do catalogo agora tambem permite escrita
+          administrativa, combinando classificacao, precificacao e sinais
+          editoriais sem deslocar as regras criticas para o frontend.
         </p>
       </div>
 
-      <div className="grid gap-3 md:hidden">
-        {products.map((product) => (
-          <article
-            key={product.id}
-            className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow-md)]"
-          >
-            <div className="space-y-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="font-semibold">{product.title}</p>
-                  <p className="break-all text-sm text-[var(--muted)]">{product.slug}</p>
-                </div>
-                <p className="shrink-0 text-sm font-semibold text-[var(--warning)]">
-                  {formatCurrency(product.price)}
-                </p>
-              </div>
-
-              <div className="space-y-1 text-sm text-[var(--muted)]">
-                <p>Codigo: {product.code}</p>
-                <p>
-                  Categoria: {product.category.name}
-                  {product.subcategory ? ` - ${product.subcategory.name}` : ''}
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                    product.isActive
-                      ? 'bg-[var(--accent-soft)] text-[var(--accent)]'
-                      : 'bg-[rgba(177,59,46,0.12)] text-[var(--danger)]'
-                  }`}
-                >
-                  {product.isActive ? 'Ativo' : 'Inativo'}
-                </span>
-                {product.isFeatured ? (
-                  <span className="rounded-full bg-[rgba(183,121,31,0.15)] px-3 py-1 text-xs font-semibold text-[var(--warning)]">
-                    Destaque
-                  </span>
-                ) : null}
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
-
-      <div className="hidden overflow-x-auto rounded-[1.75rem] border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-md)] md:block">
-        <table className="min-w-full border-collapse text-left">
-          <thead className="bg-[rgba(15,45,43,0.04)]">
-            <tr className="text-sm uppercase tracking-[0.18em] text-[var(--muted)]">
-              <th className="px-6 py-4 font-semibold">Produto</th>
-              <th className="px-6 py-4 font-semibold">Codigo</th>
-              <th className="px-6 py-4 font-semibold">Categoria</th>
-              <th className="px-6 py-4 font-semibold">Preco</th>
-              <th className="px-6 py-4 font-semibold">Indicadores</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((product) => (
-              <tr key={product.id} className="border-t border-[var(--border)] align-top">
-                <td className="px-6 py-4">
-                  <p className="font-medium">{product.title}</p>
-                  <p className="text-sm text-[var(--muted)]">{product.slug}</p>
-                </td>
-                <td className="px-6 py-4 text-[var(--muted)]">{product.code}</td>
-                <td className="px-6 py-4 text-[var(--muted)]">
-                  {product.category.name}
-                  {product.subcategory ? ` - ${product.subcategory.name}` : ''}
-                </td>
-                <td className="px-6 py-4 font-medium text-[var(--warning)]">
-                  {formatCurrency(product.price)}
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex flex-wrap gap-2">
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                        product.isActive
-                          ? 'bg-[var(--accent-soft)] text-[var(--accent)]'
-                          : 'bg-[rgba(177,59,46,0.12)] text-[var(--danger)]'
-                      }`}
-                    >
-                      {product.isActive ? 'Ativo' : 'Inativo'}
-                    </span>
-                    {product.isFeatured ? (
-                      <span className="rounded-full bg-[rgba(183,121,31,0.15)] px-3 py-1 text-xs font-semibold text-[var(--warning)]">
-                        Destaque
-                      </span>
-                    ) : null}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <ProductManagement
+        categories={categories}
+        canDelete={admin.role === 'super_admin'}
+        products={products}
+        subcategories={subcategories}
+      />
     </section>
   );
 }

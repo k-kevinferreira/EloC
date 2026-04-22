@@ -54,3 +54,18 @@ export type Product = {
   category: Category;
   subcategory: Subcategory | null;
 };
+
+export type ProductMutationInput = {
+  categoryId: string;
+  subcategoryId: string | null;
+  code: string;
+  slug: string;
+  title: string;
+  shortDescription: string | null;
+  description: string | null;
+  price: number;
+  imageUrl: string | null;
+  isFeatured: boolean;
+  isActive: boolean;
+  displayOrder: number;
+};
