@@ -107,15 +107,15 @@ export function AdminSidebar({
                     onClick={onCloseMobile}
                     className={`group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition ${
                       isActive
-                        ? 'bg-[#eef5f2] text-[#102F2D] shadow-[inset_0_0_0_1px_rgba(16,47,45,0.06)]'
-                        : 'text-white/74 hover:bg-[#eef5f2] hover:text-[#102F2D] hover:shadow-[inset_0_0_0_1px_rgba(16,47,45,0.06)]'
+                        ? 'text-[#f7f1e8]'
+                        : 'text-white/74 hover:text-[#f1ebe2]'
                     }`}
                   >
                     <span
                       className={`h-2.5 w-2.5 rounded-full transition ${
                         isActive
                           ? 'bg-[#0f766e]'
-                          : 'bg-white/20 group-hover:bg-[#0f766e]'
+                          : 'bg-white/20 group-hover:bg-[#d8c7a6]'
                       }`}
                     />
                     <span>{item.label}</span>
