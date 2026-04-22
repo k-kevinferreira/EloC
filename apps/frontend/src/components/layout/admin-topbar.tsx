@@ -22,7 +22,7 @@ export function AdminTopbar({ admin, onOpenNavigation }: AdminTopbarProps) {
             className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--border-strong)] bg-[var(--surface-strong)] text-lg text-[var(--foreground)] transition hover:border-[var(--accent)] hover:text-[var(--accent)] lg:hidden"
             aria-label="Abrir menu"
           >
-            ≡
+            &#8801;
           </button>
 
           <div>

@@ -48,16 +48,21 @@ Situacao atual:
 - autenticacao administrativa do frontend integrada ao backend com cookie `httpOnly`
 - fluxo de sessao do frontend ajustado para o App Router sem mutacao indevida de cookies durante renderizacao
 - shell administrativo revisado para melhor responsividade e hierarquia visual em desktop e mobile
-- paginas administrativas iniciais disponiveis para:
+- painel administrativo do catalogo agora com escrita disponivel para:
   - `dashboard`
   - `categories`
   - `subcategories`
   - `products`
+- placeholders estruturais mantidos para:
+  - `entries`
+  - `expenses`
+  - `shipments`
+- tratamento de erro do cliente HTTP do frontend ajustado para expor melhor mensagens de validacao do backend
 
 Pendencias atuais de desenvolvimento:
 
-- evoluir o frontend administrativo da leitura para escrita do catalogo
-- consolidar formularios, feedback de erro e estados de carregamento do painel
+- consolidar primitivas reutilizaveis do painel administrativo sem abstrair cedo demais
+- padronizar ainda mais formularios, feedback de erro e estados de carregamento do painel
 - refinar a UI do painel por tela conforme os modulos crescerem, sem reabrir a base do shell sem necessidade
 - evoluir os contextos financeiros e operacionais (`entries`, `expenses`, `shipments`)
 
@@ -140,7 +145,7 @@ Se o projeto for retomado em outra sessao, consultar primeiro:
 
 Proximo passo recomendado no retorno:
 
-- evoluir o frontend administrativo do catalogo para incluir escrita e formularios
+- consolidar o padrao tecnico do CRUD administrativo do catalogo e entao avancar para `entries`, `expenses` e `shipments`
 
 ## Convencoes basicas
 

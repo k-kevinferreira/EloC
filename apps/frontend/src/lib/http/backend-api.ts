@@ -59,13 +59,20 @@ export async function requestBackend<T>(
 }
 
 function extractErrorMessage(body: unknown, status: number) {
-  if (
-    body &&
-    typeof body === 'object' &&
-    'message' in body &&
-    typeof body.message === 'string'
-  ) {
-    return body.message;
+  if (body && typeof body === 'object' && 'message' in body) {
+    const { message } = body;
+
+    if (typeof message === 'string') {
+      return message;
+    }
+
+    if (Array.isArray(message)) {
+      const firstMessage = message.find((item) => typeof item === 'string');
+
+      if (firstMessage) {
+        return firstMessage;
+      }
+    }
   }
 
   return `Backend request failed with status ${status}.`;

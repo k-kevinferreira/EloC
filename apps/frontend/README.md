@@ -9,19 +9,22 @@ Estado atual da entrega:
 - sessao protegida por cookie `httpOnly` no frontend
 - fluxo de sessao corrigido para o App Router sem limpeza de cookie durante renderizacao server-side
 - shell administrativo revisado para uso responsivo em desktop e mobile
-- shell administrativo inicial com:
+- shell administrativo com escrita do catalogo implementada em:
   - dashboard
   - categorias
   - subcategorias
   - produtos
-  - placeholders de `entries`, `expenses` e `shipments`
-- leitura inicial do catalogo integrada ao backend
+- placeholders de `entries`, `expenses` e `shipments`
+- leitura e escrita do catalogo integradas ao backend por server actions + services server-side autenticados
+- tratamento de erro do cliente HTTP ajustado para aproveitar melhor mensagens de validacao do NestJS
 
 Ponto atual de continuidade:
 
 - o shell administrativo ja esta funcional para uso e iteracao visual
-- o proximo passo principal continua sendo escrita administrativa de `categories`, `subcategories` e `products`
+- o CRUD administrativo de `categories`, `subcategories` e `products` ja esta implementado
+- o proximo passo principal e consolidar primitivas reutilizaveis do painel sem introduzir abstracoes prematuras
 - ajustes de UI restantes devem ser tratados por tela e por componente, evitando reabrir a arquitetura base sem necessidade
+- a sequencia mais coerente agora e avancar para `entries`, `expenses` e `shipments`
 
 Configuracao local:
 

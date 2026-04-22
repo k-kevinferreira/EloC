@@ -107,8 +107,8 @@ npm run admin:create --workspace @eloc/backend -- --name="Admin" --email="admin@
 
 ## Proximo passo recomendado
 
-Com a base administrativa do catalogo pronta, a evolucao mais coerente agora e:
+Com a base administrativa do catalogo pronta no backend e integrada ao frontend, a evolucao mais coerente agora e:
 
-- iniciar o frontend administrativo consumindo esses contratos protegidos
+- consolidar o padrao do painel administrativo sem revisitar contratos do catalogo sem necessidade real
 - padronizar tratamento de erros e feedback de formulario no painel
 - evoluir os modulos de `entries`, `expenses` e `shipments`

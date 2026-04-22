@@ -50,7 +50,7 @@ Estado consolidado:
 - autenticacao administrativa do frontend integrada ao backend usando cookie `httpOnly`
 - fluxo de sessao do frontend corrigido para o App Router sem mutacao de cookie durante renderizacao server-side
 - shell administrativo revisado para melhor responsividade e hierarquia visual
-- shell administrativo inicial ja disponivel para:
+- CRUD administrativo do catalogo implementado no frontend para:
   - `dashboard`
   - `categories`
   - `subcategories`
@@ -59,44 +59,37 @@ Estado consolidado:
   - `entries`
   - `expenses`
   - `shipments`
+- client HTTP do frontend ajustado para expor melhor mensagens de validacao retornadas pelo backend
 
 Validacao mais recente:
 
 - `npm run build:backend` executado com sucesso
-- `npm run build:frontend` executado com sucesso
 - `npm run lint --workspace @eloc/frontend` executado com sucesso
 
 Limites atuais do estado do sistema:
 
-- o frontend administrativo ainda esta concentrado em autenticacao, layout e leitura do catalogo
-- o CRUD do catalogo no frontend ainda nao foi implementado
+- o CRUD do catalogo no frontend ja existe, mas ainda ha duplicacao intencional entre modulos para permitir uma segunda revisao antes de abstrair
 - a base visual do shell ja foi revisada, mas refinamentos de UX futuros devem acontecer por tela e por componente
 - os contextos de `entries`, `expenses`, `shipments` e `uploads` ainda nao foram implementados no runtime do backend
 - ainda nao ha suite de testes automatizados configurada no backend
 
 ## 2.2. O que foi concluido na ultima etapa
 
-Na ultima etapa relevante, foi concluida a base administrativa inicial do frontend sobre os contratos existentes do backend.
+Na ultima etapa relevante, foi concluido o primeiro ciclo real de escrita do catalogo no frontend administrativo.
 
 Entregas realizadas:
 
-- bootstrap real do frontend com Next.js, TypeScript e Tailwind CSS
-- configuracao base do App Router, tipagem, lint e build do workspace frontend
-- implementacao de login administrativo integrado a `POST /api/auth/login`
-- validacao de sessao integrada a `GET /api/auth/me`
-- persistencia do token administrativo em cookie `httpOnly`
-- correcao do fluxo de sessao para evitar escrita de cookie fora de Server Action
-- implementacao de shell administrativo com navegacao protegida
-- revisao inicial de UX e responsividade do shell administrativo
-- implementacao de telas iniciais de leitura para:
-  - `dashboard`
+- implementacao de escrita administrativa para:
   - `categories`
   - `subcategories`
   - `products`
-- criacao de placeholders estruturais para:
-  - `entries`
-  - `expenses`
-  - `shipments`
+- padrao de integracao do painel consolidado em:
+  - server actions por pagina
+  - services server-side autenticados
+  - tipos de mutacao no frontend
+  - `revalidatePath` apos mutacoes
+- melhoria do client HTTP do frontend para tratar melhor erros de validacao do NestJS
+- correcao de detalhes visuais do shell administrativo que estavam com encoding quebrado
 
 ## 2.3. Ponto exato de parada
 
@@ -104,20 +97,20 @@ O ponto atual de continuidade do projeto e este:
 
 - backend administrativo de catalogo concluido e compilando
 - contratos principais do catalogo ja existem no backend
-- frontend administrativo base implementado, compilando e lintando
-- frontend ainda restrito a autenticacao, shell revisado e leitura inicial do catalogo
+- frontend administrativo do catalogo com escrita implementada e lintando
+- padrao tecnico do CRUD do catalogo ja pode ser revisado como base para os proximos modulos
 
-Em termos de prioridade arquitetural, o projeto parou logo depois de estabilizar a base do painel administrativo sobre os contratos protegidos do backend para o catalogo.
+Em termos de prioridade arquitetural, o projeto agora parou logo depois de fechar o primeiro ciclo de CRUD administrativo do catalogo sobre os contratos protegidos do backend.
 
-Isso significa que o proximo trabalho deve priorizar a evolucao do frontend administrativo do catalogo, especialmente escrita, formularios e feedback de erro. O backend so deve voltar para `categories`, `subcategories` e `products` se surgir bug, refinamento contratual, necessidade de endpoint complementar ou testes. Ajustes visuais adicionais do shell devem ser pontuais, e nao reabrir a fundacao da interface sem necessidade clara.
+Isso significa que o proximo trabalho deve priorizar a consolidacao do padrao do painel e a expansao para os contextos operacionais e financeiros. O backend so deve voltar para `categories`, `subcategories` e `products` se surgir bug, refinamento contratual, necessidade de endpoint complementar ou testes. Ajustes visuais adicionais do shell devem ser pontuais, e nao reabrir a fundacao da interface sem necessidade clara.
 
 ## 2.4. Proximos passos recomendados
 
 Ordem recomendada de continuidade:
 
-1. implementar escrita administrativa de `categories`, `subcategories` e `products` no frontend
-2. padronizar tratamento de erros, estados de carregamento e feedback de formulario
-3. decidir se sera necessario complementar contratos do backend para o painel
+1. revisar o padrao tecnico adotado em `categories`, `subcategories` e `products`
+2. extrair apenas as primitivas reutilizaveis que ja se provaram estaveis
+3. padronizar ainda mais tratamento de erros, estados de carregamento e feedback de formulario
 4. so depois avancar para os contextos operacionais e financeiros:
    - `entries`
    - `expenses`
@@ -129,6 +122,26 @@ Decisao tecnica importante:
 - o frontend deve consumir os contratos atuais do backend, e nao redefinir regra de negocio localmente
 - qualquer ajuste de payload, response ou validacao que aparecer durante a implementacao do painel deve ser revisado considerando o backend como camada de verdade do dominio
 - se houver necessidade de refino contratual, a alteracao deve ser feita primeiro no backend e depois refletida no frontend
+- a duplicacao atual entre formularios administrativos do catalogo e aceitavel por enquanto, porque o padrao acabou de ser estabelecido e ainda precisa ser validado antes de virar abstracao compartilhada
+
+## 2.5. Revisao tecnica recente
+
+Pontos validados na revisao mais recente:
+
+- o frontend permaneceu como camada de orquestracao e UX, sem deslocar regra de negocio do catalogo para a UI
+- os modulos administrativos seguem um padrao coerente de:
+  - service server-side autenticado
+  - server action por pagina
+  - tipagem de payload de mutacao
+  - revalidacao de rota apos escrita
+- a restricao de exclusao por papel continuou protegida no backend, com reflexo de UX no frontend
+- a relacao `categoryId` -> `subcategoryId` em produtos recebeu tratamento de interface sem substituir a validacao real do backend
+
+Riscos e observacoes registrados:
+
+- existe repeticao estrutural entre os modulos administrativos do catalogo, mas ela ainda e aceitavel neste momento; abstrair cedo demais aqui aumentaria risco de criar infra artificial antes da expansao para `entries`, `expenses` e `shipments`
+- o client HTTP do frontend precisava tratar `message` como lista para aproveitar erros do NestJS; esse ajuste ja foi aplicado porque impactava diretamente o feedback dos formularios
+- o shell administrativo tinha caracteres com encoding incorreto nos icones mobile; o problema ja foi corrigido por ser bug visual concreto
 
 ## 3. Meu papel no projeto
 
@@ -363,12 +376,13 @@ Ao retomar o projeto depois de uma pausa, a ordem de consulta recomendada agora 
 - `README.md`
 - `apps/frontend/README.md`
 - `apps/backend/README.md`
+- `docs/decisions/frontend-admin-catalog-pattern.md`
 - `apps/backend/prisma/schema.prisma`
 - modulos de catalogo em `apps/backend/src/modules/categories`, `subcategories` e `products`
 
 Pergunta operacional que deve ser respondida logo no inicio da retomada:
 
-- estamos evoluindo a escrita do frontend administrativo sobre os contratos atuais do backend, ou houve necessidade de revisitar algum contrato do catalogo antes de continuar o painel?
+- estamos consolidando o padrao do painel administrativo e avancando para os modulos operacionais, ou houve necessidade real de revisitar algum contrato do catalogo antes de seguir?
 
 ## 16. Checklist operacional rapido
 

@@ -32,12 +32,15 @@ O projeto esta organizado como um monorepo simples, com separacao entre:
 
 ## Proximo passo arquitetural
 
-O proximo passo recomendado e iniciar a camada administrativa real do frontend sobre os contratos ja consolidados do backend:
+Com o CRUD administrativo do catalogo agora implementado no frontend sobre os contratos ja consolidados do backend, o proximo passo recomendado e:
 
-- base de aplicacao Next.js para o painel
-- autenticacao administrativa consumindo `POST /api/auth/login` e `GET /api/auth/me`
-- telas e fluxos de CRUD para `categories`, `subcategories` e `products`
-- tratamento consistente de erro, carregamento e feedback de formulario no painel
+- consolidar o padrao tecnico adotado no painel administrativo
+- avaliar extracoes reutilizaveis apenas onde a repeticao ja se provou estavel
+- expandir os modulos operacionais e financeiros:
+  - `entries`
+  - `expenses`
+  - `shipments`
+- continuar refinando tratamento de erro, carregamento e feedback por tela
 
 ## Observacao importante
 

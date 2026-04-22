@@ -16,6 +16,8 @@
 - autenticacao administrativa inicial implementada com JWT e `Passport`
 - autorizacao administrativa por papel implementada para rotas de escrita do catalogo
 - DTOs e services de leitura e escrita implementados para catalogo
+- painel administrativo do frontend com CRUD implementado para `categories`, `subcategories` e `products`
+- client HTTP do frontend ajustado para propagar melhor mensagens de validacao do backend
 
 ## Retomada recomendada
 
@@ -25,4 +27,5 @@ Ao retomar o projeto, usar esta sequencia:
 2. revisar `apps/backend/prisma/schema.prisma`
 3. revisar `apps/backend/src/app.module.ts`
 4. revisar os modulos em `apps/backend/src/modules`
-5. iniciar o frontend administrativo consumindo os contratos atuais de autenticacao e catalogo
+5. revisar os modulos administrativos do frontend em `apps/frontend/src/app/(admin)`
+6. avancar para os modulos operacionais e financeiros ou consolidar o padrao do painel
