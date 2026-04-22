@@ -8,6 +8,13 @@ export type Category = {
   updatedAt: string;
 };
 
+export type CategoryMutationInput = {
+  name: string;
+  slug: string;
+  isActive: boolean;
+  displayOrder: number;
+};
+
 export type Subcategory = {
   id: string;
   categoryId: string;
