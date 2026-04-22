@@ -12,14 +12,60 @@ export default async function AdminProductsPage() {
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">
           Catalogo
         </p>
-        <h1 className="text-4xl font-semibold">Produtos</h1>
+        <h1 className="text-3xl font-semibold sm:text-4xl">Produtos</h1>
         <p className="max-w-2xl text-base leading-7 text-[var(--muted)]">
           Esta tela ja traz categoria, subcategoria, destaque e status. O foco aqui
           e consolidar o fluxo administrativo de leitura antes da camada de escrita.
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-[1.75rem] border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-md)]">
+      <div className="grid gap-3 md:hidden">
+        {products.map((product) => (
+          <article
+            key={product.id}
+            className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow-md)]"
+          >
+            <div className="space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-semibold">{product.title}</p>
+                  <p className="break-all text-sm text-[var(--muted)]">{product.slug}</p>
+                </div>
+                <p className="shrink-0 text-sm font-semibold text-[var(--warning)]">
+                  {formatCurrency(product.price)}
+                </p>
+              </div>
+
+              <div className="space-y-1 text-sm text-[var(--muted)]">
+                <p>Codigo: {product.code}</p>
+                <p>
+                  Categoria: {product.category.name}
+                  {product.subcategory ? ` - ${product.subcategory.name}` : ''}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    product.isActive
+                      ? 'bg-[var(--accent-soft)] text-[var(--accent)]'
+                      : 'bg-[rgba(177,59,46,0.12)] text-[var(--danger)]'
+                  }`}
+                >
+                  {product.isActive ? 'Ativo' : 'Inativo'}
+                </span>
+                {product.isFeatured ? (
+                  <span className="rounded-full bg-[rgba(183,121,31,0.15)] px-3 py-1 text-xs font-semibold text-[var(--warning)]">
+                    Destaque
+                  </span>
+                ) : null}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto rounded-[1.75rem] border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-md)] md:block">
         <table className="min-w-full border-collapse text-left">
           <thead className="bg-[rgba(15,45,43,0.04)]">
             <tr className="text-sm uppercase tracking-[0.18em] text-[var(--muted)]">
@@ -40,7 +86,7 @@ export default async function AdminProductsPage() {
                 <td className="px-6 py-4 text-[var(--muted)]">{product.code}</td>
                 <td className="px-6 py-4 text-[var(--muted)]">
                   {product.category.name}
-                  {product.subcategory ? ` · ${product.subcategory.name}` : ''}
+                  {product.subcategory ? ` - ${product.subcategory.name}` : ''}
                 </td>
                 <td className="px-6 py-4 font-medium text-[var(--warning)]">
                   {formatCurrency(product.price)}

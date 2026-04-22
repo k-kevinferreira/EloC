@@ -46,6 +46,8 @@ Situacao atual:
   - `products`
 - frontend administrativo base implementado com Next.js, App Router e Tailwind CSS
 - autenticacao administrativa do frontend integrada ao backend com cookie `httpOnly`
+- fluxo de sessao do frontend ajustado para o App Router sem mutacao indevida de cookies durante renderizacao
+- shell administrativo revisado para melhor responsividade e hierarquia visual em desktop e mobile
 - paginas administrativas iniciais disponiveis para:
   - `dashboard`
   - `categories`
@@ -56,6 +58,7 @@ Pendencias atuais de desenvolvimento:
 
 - evoluir o frontend administrativo da leitura para escrita do catalogo
 - consolidar formularios, feedback de erro e estados de carregamento do painel
+- refinar a UI do painel por tela conforme os modulos crescerem, sem reabrir a base do shell sem necessidade
 - evoluir os contextos financeiros e operacionais (`entries`, `expenses`, `shipments`)
 
 ## Estrutura do monorepo

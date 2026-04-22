@@ -44,7 +44,6 @@ export async function getAuthenticatedAdmin() {
     });
   } catch (error) {
     if (error instanceof BackendApiError && error.status === 401) {
-      await clearAdminAccessTokenCookie();
       return null;
     }
 

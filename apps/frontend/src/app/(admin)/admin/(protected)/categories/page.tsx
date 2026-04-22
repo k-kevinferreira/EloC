@@ -9,7 +9,7 @@ export default async function AdminCategoriesPage() {
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">
           Catalogo
         </p>
-        <h1 className="text-4xl font-semibold">Categorias</h1>
+        <h1 className="text-3xl font-semibold sm:text-4xl">Categorias</h1>
         <p className="max-w-2xl text-base leading-7 text-[var(--muted)]">
           Primeira tela administrativa conectada ao backend. Nesta etapa a base do
           painel consolida leitura, navegacao e autenticacao; a camada de escrita
@@ -17,7 +17,37 @@ export default async function AdminCategoriesPage() {
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-[1.75rem] border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-md)]">
+      <div className="grid gap-3 md:hidden">
+        {categories.map((category) => (
+          <article
+            key={category.id}
+            className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow-md)]"
+          >
+            <div className="flex flex-col gap-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-semibold">{category.name}</p>
+                  <p className="break-all text-sm text-[var(--muted)]">{category.slug}</p>
+                </div>
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    category.isActive
+                      ? 'bg-[var(--accent-soft)] text-[var(--accent)]'
+                      : 'bg-[rgba(177,59,46,0.12)] text-[var(--danger)]'
+                  }`}
+                >
+                  {category.isActive ? 'Ativa' : 'Inativa'}
+                </span>
+              </div>
+              <p className="text-sm text-[var(--muted)]">
+                Ordem de exibicao: <span className="font-semibold">{category.displayOrder}</span>
+              </p>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto rounded-[1.75rem] border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-md)] md:block">
         <table className="min-w-full border-collapse text-left">
           <thead className="bg-[rgba(15,45,43,0.04)]">
             <tr className="text-sm uppercase tracking-[0.18em] text-[var(--muted)]">

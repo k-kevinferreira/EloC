@@ -10,23 +10,23 @@ export function ModulePlaceholder({
   description,
 }: ModulePlaceholderProps) {
   return (
-    <section className="space-y-6">
+    <section className="max-w-4xl space-y-5">
       <div className="space-y-2">
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">
           {eyebrow}
         </p>
-        <h1 className="text-4xl font-semibold">{title}</h1>
-        <p className="max-w-2xl text-base leading-7 text-[var(--muted)]">
+        <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">{title}</h1>
+        <p className="max-w-3xl text-base leading-7 text-[var(--muted)]">
           {description}
         </p>
       </div>
 
-      <div className="rounded-[1.75rem] border border-dashed border-[var(--border-strong)] bg-[var(--surface)] p-8 shadow-[var(--shadow-md)]">
-        <p className="text-lg font-semibold">Base do painel pronta</p>
-        <p className="mt-3 max-w-2xl text-base leading-7 text-[var(--muted)]">
-          O layout, a autenticacao e a navegacao ja suportam a entrada deste modulo
-          sem reestruturacao. O proximo passo e subir os contratos e services do
-          backend correspondentes para que o frontend consuma uma API estavel.
+      <div className="rounded-[1.5rem] border border-dashed border-[var(--border-strong)] bg-[var(--surface)] p-5 shadow-[var(--shadow-md)] sm:p-6">
+        <p className="text-base font-semibold">Proximo passo recomendado</p>
+        <p className="mt-3 max-w-3xl text-base leading-7 text-[var(--muted)]">
+          Consolidar os contratos do backend para este modulo e so depois evoluir a
+          interface de escrita e consulta no painel. A navegacao e o shell ja estao
+          preparados para receber essa etapa sem reestruturacao.
         </p>
       </div>
     </section>

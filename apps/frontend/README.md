@@ -7,6 +7,8 @@ Estado atual da entrega:
 - base real em Next.js com App Router, TypeScript e Tailwind CSS
 - autenticacao administrativa consumindo `POST /api/auth/login` e `GET /api/auth/me`
 - sessao protegida por cookie `httpOnly` no frontend
+- fluxo de sessao corrigido para o App Router sem limpeza de cookie durante renderizacao server-side
+- shell administrativo revisado para uso responsivo em desktop e mobile
 - shell administrativo inicial com:
   - dashboard
   - categorias
@@ -14,6 +16,12 @@ Estado atual da entrega:
   - produtos
   - placeholders de `entries`, `expenses` e `shipments`
 - leitura inicial do catalogo integrada ao backend
+
+Ponto atual de continuidade:
+
+- o shell administrativo ja esta funcional para uso e iteracao visual
+- o proximo passo principal continua sendo escrita administrativa de `categories`, `subcategories` e `products`
+- ajustes de UI restantes devem ser tratados por tela e por componente, evitando reabrir a arquitetura base sem necessidade
 
 Configuracao local:
 

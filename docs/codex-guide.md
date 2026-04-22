@@ -48,6 +48,8 @@ Estado consolidado:
   - `products`
 - frontend administrativo base implementado em Next.js com App Router
 - autenticacao administrativa do frontend integrada ao backend usando cookie `httpOnly`
+- fluxo de sessao do frontend corrigido para o App Router sem mutacao de cookie durante renderizacao server-side
+- shell administrativo revisado para melhor responsividade e hierarquia visual
 - shell administrativo inicial ja disponivel para:
   - `dashboard`
   - `categories`
@@ -68,6 +70,7 @@ Limites atuais do estado do sistema:
 
 - o frontend administrativo ainda esta concentrado em autenticacao, layout e leitura do catalogo
 - o CRUD do catalogo no frontend ainda nao foi implementado
+- a base visual do shell ja foi revisada, mas refinamentos de UX futuros devem acontecer por tela e por componente
 - os contextos de `entries`, `expenses`, `shipments` e `uploads` ainda nao foram implementados no runtime do backend
 - ainda nao ha suite de testes automatizados configurada no backend
 
@@ -82,7 +85,9 @@ Entregas realizadas:
 - implementacao de login administrativo integrado a `POST /api/auth/login`
 - validacao de sessao integrada a `GET /api/auth/me`
 - persistencia do token administrativo em cookie `httpOnly`
+- correcao do fluxo de sessao para evitar escrita de cookie fora de Server Action
 - implementacao de shell administrativo com navegacao protegida
+- revisao inicial de UX e responsividade do shell administrativo
 - implementacao de telas iniciais de leitura para:
   - `dashboard`
   - `categories`
@@ -100,11 +105,11 @@ O ponto atual de continuidade do projeto e este:
 - backend administrativo de catalogo concluido e compilando
 - contratos principais do catalogo ja existem no backend
 - frontend administrativo base implementado, compilando e lintando
-- frontend ainda restrito a autenticacao, shell e leitura inicial do catalogo
+- frontend ainda restrito a autenticacao, shell revisado e leitura inicial do catalogo
 
 Em termos de prioridade arquitetural, o projeto parou logo depois de estabilizar a base do painel administrativo sobre os contratos protegidos do backend para o catalogo.
 
-Isso significa que o proximo trabalho deve priorizar a evolucao do frontend administrativo do catalogo, especialmente escrita, formularios e feedback de erro. O backend so deve voltar para `categories`, `subcategories` e `products` se surgir bug, refinamento contratual, necessidade de endpoint complementar ou testes.
+Isso significa que o proximo trabalho deve priorizar a evolucao do frontend administrativo do catalogo, especialmente escrita, formularios e feedback de erro. O backend so deve voltar para `categories`, `subcategories` e `products` se surgir bug, refinamento contratual, necessidade de endpoint complementar ou testes. Ajustes visuais adicionais do shell devem ser pontuais, e nao reabrir a fundacao da interface sem necessidade clara.
 
 ## 2.4. Proximos passos recomendados
 
