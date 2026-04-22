@@ -30,8 +30,9 @@ Esses modulos comecam a camada de dominio com:
 
 - controllers enxutos
 - DTOs para validacao de entrada
-- services concentrando a logica de consulta
+- services concentrando a logica de consulta e escrita administrativa
 - consultas Prisma alinhadas ao schema atual
+- protecao por autenticacao e autorizacao por papel nas rotas administrativas de escrita
 
 ## Endpoints iniciais
 
@@ -42,6 +43,20 @@ Esses modulos comecam a camada de dominio com:
 - `GET /api/subcategories`
 - `GET /api/products`
 - `GET /api/products/:slug`
+
+## Endpoints administrativos do catalogo
+
+Esses endpoints exigem `Bearer token` administrativo. Criacao e edicao aceitam `admin` e `super_admin`. Exclusao fica restrita a `super_admin`.
+
+- `POST /api/admin/categories`
+- `PATCH /api/admin/categories/:id`
+- `DELETE /api/admin/categories/:id`
+- `POST /api/admin/subcategories`
+- `PATCH /api/admin/subcategories/:id`
+- `DELETE /api/admin/subcategories/:id`
+- `POST /api/admin/products`
+- `PATCH /api/admin/products/:id`
+- `DELETE /api/admin/products/:id`
 
 Exemplos de filtros ja suportados:
 
@@ -92,8 +107,8 @@ npm run admin:create --workspace @eloc/backend -- --name="Admin" --email="admin@
 
 ## Proximo passo recomendado
 
-Com a base do runtime pronta, a evolucao mais coerente agora e:
+Com a base administrativa do catalogo pronta, a evolucao mais coerente agora e:
 
-- iniciar operacoes administrativas de escrita com regras de negocio
-- aplicar `JwtAuthGuard` nas rotas administrativas de escrita
-- consolidar contratos do painel para categorias, subcategorias e produtos
+- iniciar o frontend administrativo consumindo esses contratos protegidos
+- padronizar tratamento de erros e feedback de formulario no painel
+- evoluir os modulos de `entries`, `expenses` e `shipments`

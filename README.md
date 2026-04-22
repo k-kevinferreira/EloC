@@ -33,18 +33,23 @@ Situacao atual:
 - documentacao tecnica do banco registrada em `docs/technical/database-model.md`
 - backend NestJS inicial configurado com `ConfigModule`, `PrismaModule` e healthcheck
 - autenticacao administrativa inicial implementada com JWT
+- autorizacao administrativa por papel implementada para rotas de escrita do catalogo
 - primeiros modulos de dominio iniciados no backend:
   - `admins`
   - `auth`
   - `categories`
   - `subcategories`
   - `products`
+- operacoes administrativas de escrita disponiveis para:
+  - `categories`
+  - `subcategories`
+  - `products`
 
 Pendencias atuais de desenvolvimento:
 
-- iniciar operacoes de escrita e regras administrativas no backend
-- proteger rotas administrativas de escrita com guardas e autorizacao por papel
 - iniciar a base real do frontend
+- consolidar o painel administrativo consumindo os contratos do backend
+- evoluir os contextos financeiros e operacionais (`entries`, `expenses`, `shipments`)
 
 ## Estrutura do monorepo
 
@@ -119,7 +124,7 @@ Se o projeto for retomado em outra sessao, consultar primeiro:
 
 Proximo passo recomendado no retorno:
 
-- iniciar os endpoints administrativos de escrita para catalogo usando autenticacao ja implementada
+- iniciar a base real do frontend administrativo consumindo os endpoints protegidos do catalogo
 
 ## Convencoes basicas
 
