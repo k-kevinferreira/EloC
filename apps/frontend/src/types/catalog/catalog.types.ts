@@ -27,6 +27,14 @@ export type Subcategory = {
   category: Category;
 };
 
+export type SubcategoryMutationInput = {
+  categoryId: string;
+  name: string;
+  slug: string;
+  isActive: boolean;
+  displayOrder: number;
+};
+
 export type Product = {
   id: string;
   categoryId: string;
