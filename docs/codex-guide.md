@@ -27,6 +27,88 @@ Estrutura principal:
 
 O projeto deve ser tratado como um sistema profissional em evolucao continua, com foco em clareza, seguranca, manutencao, consistencia entre camadas e capacidade de crescimento sem complexidade prematura.
 
+## 2.1. Estado atual consolidado do projeto
+
+No momento atual, o projeto ja passou da fase de estrutura inicial e possui uma base backend funcional para o dominio de catalogo.
+
+Estado consolidado:
+
+- monorepo simples organizado em `apps/frontend`, `apps/backend` e `docs`
+- banco PostgreSQL modelado no Prisma e migration inicial aplicada
+- backend NestJS com bootstrap, `ConfigModule`, `PrismaModule`, validacao global e healthcheck
+- autenticacao administrativa com JWT implementada
+- autorizacao por papel implementada nas rotas administrativas de escrita
+- modulos de catalogo com leitura publica disponivel:
+  - `categories`
+  - `subcategories`
+  - `products`
+- modulos de catalogo com escrita administrativa disponivel:
+  - `categories`
+  - `subcategories`
+  - `products`
+
+Validacao mais recente do backend:
+
+- `npm run build:backend` executado com sucesso
+
+Limites atuais do estado do sistema:
+
+- o frontend ainda nao possui implementacao real, apenas estrutura de pastas
+- os contextos de `entries`, `expenses`, `shipments`, `dashboard` e `uploads` ainda nao foram implementados no runtime
+- ainda nao ha suite de testes automatizados configurada no backend
+
+## 2.2. O que foi concluido na ultima etapa
+
+Na ultima etapa relevante, foi concluida a base administrativa do catalogo no backend.
+
+Entregas realizadas:
+
+- criacao de rotas administrativas separadas das rotas publicas para evitar mistura de contexto
+- implementacao de DTOs de escrita para `categories`, `subcategories` e `products`
+- implementacao de criacao, atualizacao e exclusao no backend para esses tres modulos
+- implementacao de controle por papel com separacao clara entre autenticacao e autorizacao
+- restricao de criacao e edicao para `admin` e `super_admin`
+- restricao de exclusao para `super_admin`
+- validacoes de integridade de dominio no backend, incluindo:
+  - unicidade de `slug` e `code`
+  - consistencia entre `categoryId` e `subcategoryId` em produtos
+  - bloqueio de exclusao de categoria com subcategorias ou produtos relacionados
+  - bloqueio de exclusao de subcategoria com produtos relacionados
+  - bloqueio de exclusao de produto com registros de venda ou remessa
+- atualizacao dos `README`s operacionais para refletir os endpoints administrativos
+
+## 2.3. Ponto exato de parada
+
+O ponto atual de continuidade do projeto e este:
+
+- backend administrativo de catalogo concluido e compilando
+- contratos principais do catalogo ja existem no backend
+- frontend administrativo ainda nao foi iniciado de fato
+
+Em termos de prioridade arquitetural, o projeto parou logo depois de estabilizar os contratos protegidos do backend para o catalogo.
+
+Isso significa que o proximo trabalho nao deve voltar para `categories`, `subcategories` e `products` no backend, exceto se surgir bug, refinamento contratual ou necessidade de teste. O fluxo natural agora e avancar para o frontend administrativo consumindo a API ja pronta.
+
+## 2.4. Proximos passos recomendados
+
+Ordem recomendada de continuidade:
+
+1. iniciar a base real do frontend administrativo
+2. implementar autenticacao do painel consumindo `POST /api/auth/login` e `GET /api/auth/me`
+3. implementar CRUD administrativo de `categories`, `subcategories` e `products` no frontend
+4. padronizar tratamento de erros, estados de carregamento e feedback de formulario
+5. so depois avancar para os contextos operacionais e financeiros:
+   - `entries`
+   - `expenses`
+   - `shipments`
+   - `dashboard`
+
+Decisao tecnica importante:
+
+- o frontend deve consumir os contratos atuais do backend, e nao redefinir regra de negocio localmente
+- qualquer ajuste de payload, response ou validacao que aparecer durante a implementacao do painel deve ser revisado considerando o backend como camada de verdade do dominio
+- se houver necessidade de refino contratual, a alteracao deve ser feita primeiro no backend e depois refletida no frontend
+
 ## 3. Meu papel no projeto
 
 As atribuicoes principais neste projeto sao:
@@ -253,6 +335,18 @@ Uso esperado:
 Este guia serve como base de continuidade. Ele reduz dependencia de contexto perdido entre sessoes e ajuda a manter consistencia tecnica ao longo da evolucao do sistema.
 
 Qualquer implementacao relevante deve respeitar este documento, salvo quando houver decisao tecnica explicita para revisar algum padrao aqui estabelecido.
+
+Ao retomar o projeto depois de uma pausa, a ordem de consulta recomendada agora e:
+
+- `docs/codex-guide.md`
+- `README.md`
+- `apps/backend/README.md`
+- `apps/backend/prisma/schema.prisma`
+- modulos de catalogo em `apps/backend/src/modules/categories`, `subcategories` e `products`
+
+Pergunta operacional que deve ser respondida logo no inicio da retomada:
+
+- estamos evoluindo o frontend administrativo sobre os contratos atuais do backend, ou houve necessidade de revisitar algum contrato do catalogo antes disso?
 
 ## 16. Checklist operacional rapido
 

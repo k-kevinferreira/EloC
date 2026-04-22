@@ -20,7 +20,8 @@ O projeto esta organizado como um monorepo simples, com separacao entre:
 - o backend ja possui runtime NestJS inicial versionado
 - o backend ja integra `ConfigModule`, `PrismaModule` e `PrismaService`
 - a autenticacao administrativa inicial com JWT ja esta implementada
-- os primeiros modulos de dominio ja foram iniciados:
+- a autorizacao por papel ja protege as rotas administrativas de escrita do catalogo
+- os primeiros modulos de dominio ja foram iniciados e estabilizados para o contexto de catalogo:
   - `admins`
   - `auth`
   - `categories`
@@ -31,12 +32,12 @@ O projeto esta organizado como um monorepo simples, com separacao entre:
 
 ## Proximo passo arquitetural
 
-O proximo passo recomendado e evoluir a camada administrativa do backend a partir da base ja estruturada:
+O proximo passo recomendado e iniciar a camada administrativa real do frontend sobre os contratos ja consolidados do backend:
 
-- autenticacao administrativa
-- autorizacao de rotas protegidas
-- operacoes de escrita com regras de negocio
-- contratos administrativos para painel
+- base de aplicacao Next.js para o painel
+- autenticacao administrativa consumindo `POST /api/auth/login` e `GET /api/auth/me`
+- telas e fluxos de CRUD para `categories`, `subcategories` e `products`
+- tratamento consistente de erro, carregamento e feedback de formulario no painel
 
 ## Observacao importante
 

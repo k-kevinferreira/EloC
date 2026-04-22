@@ -288,9 +288,9 @@ Esses pontos nao devem ser delegados apenas ao frontend.
 ## Proximos passos recomendados
 
 1. manter `schema.prisma`, migrations e banco real sempre alinhados
-2. evoluir os services do backend para regras administrativas de escrita
-3. padronizar valores aceitos para `paymentMethod`, `Expense.type` e `status`
-4. aplicar protecao das rotas administrativas de escrita sobre a autenticacao ja implementada
+2. usar o schema atual como base contratual para o frontend administrativo do catalogo
+3. padronizar valores aceitos para `paymentMethod`, `Expense.type` e `status` antes de expor os modulos financeiros
+4. implementar os modulos de runtime para `entries`, `expenses` e `shipments` no backend quando o painel do catalogo estiver integrado
 5. avaliar futuramente `product_images` se o catalogo precisar de multiplas imagens por produto
 
 ## Ponto de retomada
@@ -300,5 +300,5 @@ Se o projeto for retomado depois de uma pausa, o ponto tecnico atual e este:
 - banco de dados inicial ja modelado e aplicado localmente
 - backend NestJS inicial ja implementado e integrado ao Prisma
 - autenticacao administrativa inicial com JWT ja implementada
-- modulos iniciais de leitura para `categories`, `subcategories` e `products` ja disponiveis
-- proximo passo recomendado: avancar para operacoes de escrita com regras de negocio e autorizacao administrativa
+- modulos de leitura e escrita para `categories`, `subcategories` e `products` ja disponiveis
+- proximo passo recomendado: avancar para o frontend administrativo consumindo os contratos atuais do backend
