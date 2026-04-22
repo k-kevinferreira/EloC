@@ -44,11 +44,18 @@ Situacao atual:
   - `categories`
   - `subcategories`
   - `products`
+- frontend administrativo base implementado com Next.js, App Router e Tailwind CSS
+- autenticacao administrativa do frontend integrada ao backend com cookie `httpOnly`
+- paginas administrativas iniciais disponiveis para:
+  - `dashboard`
+  - `categories`
+  - `subcategories`
+  - `products`
 
 Pendencias atuais de desenvolvimento:
 
-- iniciar a base real do frontend
-- consolidar o painel administrativo consumindo os contratos do backend
+- evoluir o frontend administrativo da leitura para escrita do catalogo
+- consolidar formularios, feedback de erro e estados de carregamento do painel
 - evoluir os contextos financeiros e operacionais (`entries`, `expenses`, `shipments`)
 
 ## Estrutura do monorepo
@@ -88,12 +95,18 @@ root/
 
 ## Como rodar o frontend
 
-Quando o app frontend estiver com o codigo de aplicacao e dependencias instaladas em `apps/frontend`, use:
+Para rodar o frontend administrativo:
 
 ```bash
 npm install
 npm run dev:frontend
 ```
+
+Configuracao necessaria:
+
+- copiar `apps/frontend/.env.example` para `apps/frontend/.env.local`
+- definir `BACKEND_API_URL=http://localhost:3001/api`
+- subir o backend antes de acessar o login administrativo
 
 ## Como rodar o backend
 
@@ -124,7 +137,7 @@ Se o projeto for retomado em outra sessao, consultar primeiro:
 
 Proximo passo recomendado no retorno:
 
-- iniciar a base real do frontend administrativo consumindo os endpoints protegidos do catalogo
+- evoluir o frontend administrativo do catalogo para incluir escrita e formularios
 
 ## Convencoes basicas
 

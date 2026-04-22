@@ -29,7 +29,7 @@ O projeto deve ser tratado como um sistema profissional em evolucao continua, co
 
 ## 2.1. Estado atual consolidado do projeto
 
-No momento atual, o projeto ja passou da fase de estrutura inicial e possui uma base backend funcional para o dominio de catalogo.
+No momento atual, o projeto ja passou da fase de estrutura inicial e possui backend funcional para catalogo e uma base real do frontend administrativo.
 
 Estado consolidado:
 
@@ -46,36 +46,52 @@ Estado consolidado:
   - `categories`
   - `subcategories`
   - `products`
+- frontend administrativo base implementado em Next.js com App Router
+- autenticacao administrativa do frontend integrada ao backend usando cookie `httpOnly`
+- shell administrativo inicial ja disponivel para:
+  - `dashboard`
+  - `categories`
+  - `subcategories`
+  - `products`
+- placeholders estruturais ja disponiveis para:
+  - `entries`
+  - `expenses`
+  - `shipments`
 
-Validacao mais recente do backend:
+Validacao mais recente:
 
 - `npm run build:backend` executado com sucesso
+- `npm run build:frontend` executado com sucesso
+- `npm run lint --workspace @eloc/frontend` executado com sucesso
 
 Limites atuais do estado do sistema:
 
-- o frontend ainda nao possui implementacao real, apenas estrutura de pastas
-- os contextos de `entries`, `expenses`, `shipments`, `dashboard` e `uploads` ainda nao foram implementados no runtime
+- o frontend administrativo ainda esta concentrado em autenticacao, layout e leitura do catalogo
+- o CRUD do catalogo no frontend ainda nao foi implementado
+- os contextos de `entries`, `expenses`, `shipments` e `uploads` ainda nao foram implementados no runtime do backend
 - ainda nao ha suite de testes automatizados configurada no backend
 
 ## 2.2. O que foi concluido na ultima etapa
 
-Na ultima etapa relevante, foi concluida a base administrativa do catalogo no backend.
+Na ultima etapa relevante, foi concluida a base administrativa inicial do frontend sobre os contratos existentes do backend.
 
 Entregas realizadas:
 
-- criacao de rotas administrativas separadas das rotas publicas para evitar mistura de contexto
-- implementacao de DTOs de escrita para `categories`, `subcategories` e `products`
-- implementacao de criacao, atualizacao e exclusao no backend para esses tres modulos
-- implementacao de controle por papel com separacao clara entre autenticacao e autorizacao
-- restricao de criacao e edicao para `admin` e `super_admin`
-- restricao de exclusao para `super_admin`
-- validacoes de integridade de dominio no backend, incluindo:
-  - unicidade de `slug` e `code`
-  - consistencia entre `categoryId` e `subcategoryId` em produtos
-  - bloqueio de exclusao de categoria com subcategorias ou produtos relacionados
-  - bloqueio de exclusao de subcategoria com produtos relacionados
-  - bloqueio de exclusao de produto com registros de venda ou remessa
-- atualizacao dos `README`s operacionais para refletir os endpoints administrativos
+- bootstrap real do frontend com Next.js, TypeScript e Tailwind CSS
+- configuracao base do App Router, tipagem, lint e build do workspace frontend
+- implementacao de login administrativo integrado a `POST /api/auth/login`
+- validacao de sessao integrada a `GET /api/auth/me`
+- persistencia do token administrativo em cookie `httpOnly`
+- implementacao de shell administrativo com navegacao protegida
+- implementacao de telas iniciais de leitura para:
+  - `dashboard`
+  - `categories`
+  - `subcategories`
+  - `products`
+- criacao de placeholders estruturais para:
+  - `entries`
+  - `expenses`
+  - `shipments`
 
 ## 2.3. Ponto exato de parada
 
@@ -83,21 +99,21 @@ O ponto atual de continuidade do projeto e este:
 
 - backend administrativo de catalogo concluido e compilando
 - contratos principais do catalogo ja existem no backend
-- frontend administrativo ainda nao foi iniciado de fato
+- frontend administrativo base implementado, compilando e lintando
+- frontend ainda restrito a autenticacao, shell e leitura inicial do catalogo
 
-Em termos de prioridade arquitetural, o projeto parou logo depois de estabilizar os contratos protegidos do backend para o catalogo.
+Em termos de prioridade arquitetural, o projeto parou logo depois de estabilizar a base do painel administrativo sobre os contratos protegidos do backend para o catalogo.
 
-Isso significa que o proximo trabalho nao deve voltar para `categories`, `subcategories` e `products` no backend, exceto se surgir bug, refinamento contratual ou necessidade de teste. O fluxo natural agora e avancar para o frontend administrativo consumindo a API ja pronta.
+Isso significa que o proximo trabalho deve priorizar a evolucao do frontend administrativo do catalogo, especialmente escrita, formularios e feedback de erro. O backend so deve voltar para `categories`, `subcategories` e `products` se surgir bug, refinamento contratual, necessidade de endpoint complementar ou testes.
 
 ## 2.4. Proximos passos recomendados
 
 Ordem recomendada de continuidade:
 
-1. iniciar a base real do frontend administrativo
-2. implementar autenticacao do painel consumindo `POST /api/auth/login` e `GET /api/auth/me`
-3. implementar CRUD administrativo de `categories`, `subcategories` e `products` no frontend
-4. padronizar tratamento de erros, estados de carregamento e feedback de formulario
-5. so depois avancar para os contextos operacionais e financeiros:
+1. implementar escrita administrativa de `categories`, `subcategories` e `products` no frontend
+2. padronizar tratamento de erros, estados de carregamento e feedback de formulario
+3. decidir se sera necessario complementar contratos do backend para o painel
+4. so depois avancar para os contextos operacionais e financeiros:
    - `entries`
    - `expenses`
    - `shipments`
@@ -340,13 +356,14 @@ Ao retomar o projeto depois de uma pausa, a ordem de consulta recomendada agora 
 
 - `docs/codex-guide.md`
 - `README.md`
+- `apps/frontend/README.md`
 - `apps/backend/README.md`
 - `apps/backend/prisma/schema.prisma`
 - modulos de catalogo em `apps/backend/src/modules/categories`, `subcategories` e `products`
 
 Pergunta operacional que deve ser respondida logo no inicio da retomada:
 
-- estamos evoluindo o frontend administrativo sobre os contratos atuais do backend, ou houve necessidade de revisitar algum contrato do catalogo antes disso?
+- estamos evoluindo a escrita do frontend administrativo sobre os contratos atuais do backend, ou houve necessidade de revisitar algum contrato do catalogo antes de continuar o painel?
 
 ## 16. Checklist operacional rapido
 
