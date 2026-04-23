@@ -40,6 +40,16 @@ type ProductFieldErrors = {
   displayOrder?: string;
 };
 
+type ProductFormParseResult =
+  | {
+      fieldErrors: ProductFieldErrors;
+      values: ProductFormValues;
+    }
+  | {
+      input: ProductMutationInput;
+      values: ProductFormValues;
+    };
+
 export type ProductFormState = {
   status: 'idle' | 'success' | 'error';
   message?: string;
@@ -150,7 +160,7 @@ export async function deleteProductAction(
   };
 }
 
-function parseProductFormData(formData: FormData) {
+function parseProductFormData(formData: FormData): ProductFormParseResult {
   const values: ProductFormValues = {
     categoryId: String(formData.get('categoryId') ?? '').trim(),
     subcategoryId: String(formData.get('subcategoryId') ?? '').trim(),

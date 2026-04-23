@@ -25,6 +25,16 @@ type CategoryFieldErrors = {
   displayOrder?: string;
 };
 
+type CategoryFormParseResult =
+  | {
+      fieldErrors: CategoryFieldErrors;
+      values: CategoryFormValues;
+    }
+  | {
+      input: CategoryMutationInput;
+      values: CategoryFormValues;
+    };
+
 export type CategoryFormState = {
   status: 'idle' | 'success' | 'error';
   message?: string;
@@ -127,7 +137,7 @@ export async function deleteCategoryAction(
   };
 }
 
-function parseCategoryFormData(formData: FormData) {
+function parseCategoryFormData(formData: FormData): CategoryFormParseResult {
   const values: CategoryFormValues = {
     name: String(formData.get('name') ?? '').trim(),
     slug: String(formData.get('slug') ?? '')

@@ -29,6 +29,16 @@ type SubcategoryFieldErrors = {
   displayOrder?: string;
 };
 
+type SubcategoryFormParseResult =
+  | {
+      fieldErrors: SubcategoryFieldErrors;
+      values: SubcategoryFormValues;
+    }
+  | {
+      input: SubcategoryMutationInput;
+      values: SubcategoryFormValues;
+    };
+
 export type SubcategoryFormState = {
   status: 'idle' | 'success' | 'error';
   message?: string;
@@ -132,7 +142,7 @@ export async function deleteSubcategoryAction(
   };
 }
 
-function parseSubcategoryFormData(formData: FormData) {
+function parseSubcategoryFormData(formData: FormData): SubcategoryFormParseResult {
   const values: SubcategoryFormValues = {
     categoryId: String(formData.get('categoryId') ?? '').trim(),
     name: String(formData.get('name') ?? '').trim(),
