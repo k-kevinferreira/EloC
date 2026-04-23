@@ -10,7 +10,7 @@ export default async function AdminProductsPage() {
     listCategories(),
     listSubcategories(),
     listProducts({
-      limit: 200,
+      limit: 100,
     }),
   ]);
 

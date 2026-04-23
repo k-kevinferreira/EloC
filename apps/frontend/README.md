@@ -14,6 +14,7 @@ Estado atual da entrega:
   - categorias
   - subcategorias
   - produtos
+- produtos hoje usam `imageUrl` simples, preenchido por URL publica, sem upload de arquivo no painel
 - placeholders de `entries`, `expenses` e `shipments`
 - leitura e escrita do catalogo integradas ao backend por server actions + services server-side autenticados
 - tratamento de erro do cliente HTTP ajustado para aproveitar melhor mensagens de validacao do NestJS
@@ -22,9 +23,10 @@ Ponto atual de continuidade:
 
 - o shell administrativo ja esta funcional para uso e iteracao visual
 - o CRUD administrativo de `categories`, `subcategories` e `products` ja esta implementado
-- o proximo passo principal e consolidar primitivas reutilizaveis do painel sem introduzir abstracoes prematuras
+- o proximo passo principal e definir a evolucao estrutural das imagens de produto para sustentar o catalogo publico
+- antes de upload, o sistema precisa estabilizar modelagem e contratos para imagens
 - ajustes de UI restantes devem ser tratados por tela e por componente, evitando reabrir a arquitetura base sem necessidade
-- a sequencia mais coerente agora e avancar para `entries`, `expenses` e `shipments`
+- a sequencia mais coerente depois disso e avancar para `entries`, `expenses` e `shipments`
 
 Configuracao local:
 

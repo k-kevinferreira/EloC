@@ -53,6 +53,7 @@ Situacao atual:
   - `categories`
   - `subcategories`
   - `products`
+- produtos hoje aceitam uma imagem simples por `imageUrl`, informada por URL publica, sem fluxo de upload ainda
 - placeholders estruturais mantidos para:
   - `entries`
   - `expenses`
@@ -61,6 +62,9 @@ Situacao atual:
 
 Pendencias atuais de desenvolvimento:
 
+- formalizar a modelagem futura de imagens de produto antes de implementar upload
+- definir contratos backend/frontend para expor imagens do catalogo de forma estavel para o site publico
+- planejar a transicao de `Product.imageUrl` simples para uma estrutura relacional de imagens sem quebrar o Admin atual
 - consolidar primitivas reutilizaveis do painel administrativo sem abstrair cedo demais
 - padronizar ainda mais formularios, feedback de erro e estados de carregamento do painel
 - refinar a UI do painel por tela conforme os modulos crescerem, sem reabrir a base do shell sem necessidade
@@ -145,7 +149,7 @@ Se o projeto for retomado em outra sessao, consultar primeiro:
 
 Proximo passo recomendado no retorno:
 
-- consolidar o padrao tecnico do CRUD administrativo do catalogo e entao avancar para `entries`, `expenses` e `shipments`
+- modelar a evolucao de imagens de produto e definir os contratos de API/frontend antes de implementar upload real
 
 ## Convencoes basicas
 

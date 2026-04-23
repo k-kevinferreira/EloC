@@ -70,6 +70,7 @@ Limites atuais do estado do sistema:
 
 - o CRUD do catalogo no frontend ja existe, mas ainda ha duplicacao intencional entre modulos para permitir uma segunda revisao antes de abstrair
 - a base visual do shell ja foi revisada, mas refinamentos de UX futuros devem acontecer por tela e por componente
+- o produto ainda suporta apenas uma imagem simples por `imageUrl`, informada manualmente por URL publica
 - os contextos de `entries`, `expenses`, `shipments` e `uploads` ainda nao foram implementados no runtime do backend
 - ainda nao ha suite de testes automatizados configurada no backend
 
@@ -100,18 +101,19 @@ O ponto atual de continuidade do projeto e este:
 - frontend administrativo do catalogo com escrita implementada e lintando
 - padrao tecnico do CRUD do catalogo ja pode ser revisado como base para os proximos modulos
 
-Em termos de prioridade arquitetural, o projeto agora parou logo depois de fechar o primeiro ciclo de CRUD administrativo do catalogo sobre os contratos protegidos do backend.
+Em termos de prioridade arquitetural, o projeto agora parou logo depois de fechar o primeiro ciclo de CRUD administrativo do catalogo e identificar a principal lacuna estrutural para o site publico: imagens de produto.
 
-Isso significa que o proximo trabalho deve priorizar a consolidacao do padrao do painel e a expansao para os contextos operacionais e financeiros. O backend so deve voltar para `categories`, `subcategories` e `products` se surgir bug, refinamento contratual, necessidade de endpoint complementar ou testes. Ajustes visuais adicionais do shell devem ser pontuais, e nao reabrir a fundacao da interface sem necessidade clara.
+Isso significa que o proximo trabalho deve priorizar a modelagem e os contratos de imagens de produto antes de abrir upload real ou crescer o frontend publico sobre `imageUrl` simples. O backend so deve voltar para `categories`, `subcategories` e `products` se surgir bug, refinamento contratual, necessidade de endpoint complementar ou para essa evolucao de imagens. Ajustes visuais adicionais do shell devem ser pontuais, e nao reabrir a fundacao da interface sem necessidade clara.
 
 ## 2.4. Proximos passos recomendados
 
 Ordem recomendada de continuidade:
 
-1. revisar o padrao tecnico adotado em `categories`, `subcategories` e `products`
-2. extrair apenas as primitivas reutilizaveis que ja se provaram estaveis
-3. padronizar ainda mais tratamento de erros, estados de carregamento e feedback de formulario
-4. so depois avancar para os contextos operacionais e financeiros:
+1. modelar a evolucao de imagens de produto no dominio, preferencialmente com uma entidade relacional dedicada
+2. definir os contratos de leitura e escrita para imagens sem ainda acoplar a solucao a um provider de storage
+3. decidir a estrategia de compatibilidade temporaria com `Product.imageUrl`
+4. so depois revisar extracoes reutilizaveis do painel e infraestrutura de upload
+5. na sequencia, avancar para os contextos operacionais e financeiros:
    - `entries`
    - `expenses`
    - `shipments`
@@ -123,6 +125,7 @@ Decisao tecnica importante:
 - qualquer ajuste de payload, response ou validacao que aparecer durante a implementacao do painel deve ser revisado considerando o backend como camada de verdade do dominio
 - se houver necessidade de refino contratual, a alteracao deve ser feita primeiro no backend e depois refletida no frontend
 - a duplicacao atual entre formularios administrativos do catalogo e aceitavel por enquanto, porque o padrao acabou de ser estabelecido e ainda precisa ser validado antes de virar abstracao compartilhada
+- upload deve ser tratado como problema posterior de infraestrutura; primeiro e preciso estabilizar a modelagem e os contratos de imagem
 
 ## 2.5. Revisao tecnica recente
 
@@ -376,13 +379,14 @@ Ao retomar o projeto depois de uma pausa, a ordem de consulta recomendada agora 
 - `README.md`
 - `apps/frontend/README.md`
 - `apps/backend/README.md`
+- `docs/decisions/product-images-roadmap.md`
 - `docs/decisions/frontend-admin-catalog-pattern.md`
 - `apps/backend/prisma/schema.prisma`
 - modulos de catalogo em `apps/backend/src/modules/categories`, `subcategories` e `products`
 
 Pergunta operacional que deve ser respondida logo no inicio da retomada:
 
-- estamos consolidando o padrao do painel administrativo e avancando para os modulos operacionais, ou houve necessidade real de revisitar algum contrato do catalogo antes de seguir?
+- estamos modelando a evolucao de imagens de produto e seus contratos, ou houve algum bug contratual no catalogo que precisa ser resolvido antes disso?
 
 ## 16. Checklist operacional rapido
 

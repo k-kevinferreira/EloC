@@ -6,8 +6,6 @@ import { useFormStatus } from 'react-dom';
 import {
   createSubcategoryAction,
   deleteSubcategoryAction,
-  initialSubcategoryDeleteState,
-  initialSubcategoryFormState,
   updateSubcategoryAction,
   type SubcategoryDeleteState,
   type SubcategoryFormState,
@@ -28,6 +26,22 @@ type SubcategoryEditorCardProps = {
 
 type FormMessageProps = {
   state: SubcategoryFormState | SubcategoryDeleteState;
+};
+
+const initialSubcategoryFormState: SubcategoryFormState = {
+  status: 'idle',
+  fieldErrors: {},
+  values: {
+    categoryId: '',
+    name: '',
+    slug: '',
+    displayOrder: '0',
+    isActive: true,
+  },
+};
+
+const initialSubcategoryDeleteState: SubcategoryDeleteState = {
+  status: 'idle',
 };
 
 export function SubcategoryManagement({

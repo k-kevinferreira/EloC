@@ -6,8 +6,6 @@ import { useFormStatus } from 'react-dom';
 import {
   createProductAction,
   deleteProductAction,
-  initialProductDeleteState,
-  initialProductFormState,
   updateProductAction,
   type ProductDeleteState,
   type ProductFormState,
@@ -39,6 +37,29 @@ type ProductFormFieldsProps = {
   isCategorySelectionDisabled: boolean;
   state: ProductFormState;
   subcategories: Subcategory[];
+};
+
+const initialProductFormState: ProductFormState = {
+  status: 'idle',
+  fieldErrors: {},
+  values: {
+    categoryId: '',
+    subcategoryId: '',
+    code: '',
+    slug: '',
+    title: '',
+    shortDescription: '',
+    description: '',
+    price: '0.00',
+    imageUrl: '',
+    isFeatured: false,
+    isActive: true,
+    displayOrder: '0',
+  },
+};
+
+const initialProductDeleteState: ProductDeleteState = {
+  status: 'idle',
 };
 
 export function ProductManagement({

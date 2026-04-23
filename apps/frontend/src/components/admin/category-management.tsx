@@ -6,8 +6,6 @@ import { useFormStatus } from 'react-dom';
 import {
   createCategoryAction,
   deleteCategoryAction,
-  initialCategoryDeleteState,
-  initialCategoryFormState,
   updateCategoryAction,
   type CategoryDeleteState,
   type CategoryFormState,
@@ -26,6 +24,21 @@ type CategoryEditorCardProps = {
 
 type FormMessageProps = {
   state: CategoryFormState | CategoryDeleteState;
+};
+
+const initialCategoryFormState: CategoryFormState = {
+  status: 'idle',
+  fieldErrors: {},
+  values: {
+    name: '',
+    slug: '',
+    displayOrder: '0',
+    isActive: true,
+  },
+};
+
+const initialCategoryDeleteState: CategoryDeleteState = {
+  status: 'idle',
 };
 
 export function CategoryManagement({

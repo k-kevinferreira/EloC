@@ -52,29 +52,6 @@ export type ProductDeleteState = {
   message?: string;
 };
 
-export const initialProductFormState: ProductFormState = {
-  status: 'idle',
-  fieldErrors: {},
-  values: {
-    categoryId: '',
-    subcategoryId: '',
-    code: '',
-    slug: '',
-    title: '',
-    shortDescription: '',
-    description: '',
-    price: '0.00',
-    imageUrl: '',
-    isFeatured: false,
-    isActive: true,
-    displayOrder: '0',
-  },
-};
-
-export const initialProductDeleteState: ProductDeleteState = {
-  status: 'idle',
-};
-
 export async function createProductAction(
   _previousState: ProductFormState,
   formData: FormData,
@@ -102,7 +79,20 @@ export async function createProductAction(
     status: 'success',
     message: 'Produto criado com sucesso.',
     fieldErrors: {},
-    values: initialProductFormState.values,
+    values: {
+      categoryId: '',
+      subcategoryId: '',
+      code: '',
+      slug: '',
+      title: '',
+      shortDescription: '',
+      description: '',
+      price: '0.00',
+      imageUrl: '',
+      isFeatured: false,
+      isActive: true,
+      displayOrder: '0',
+    },
   };
 }
 

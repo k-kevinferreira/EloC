@@ -41,22 +41,6 @@ export type SubcategoryDeleteState = {
   message?: string;
 };
 
-export const initialSubcategoryFormState: SubcategoryFormState = {
-  status: 'idle',
-  fieldErrors: {},
-  values: {
-    categoryId: '',
-    name: '',
-    slug: '',
-    displayOrder: '0',
-    isActive: true,
-  },
-};
-
-export const initialSubcategoryDeleteState: SubcategoryDeleteState = {
-  status: 'idle',
-};
-
 export async function createSubcategoryAction(
   _previousState: SubcategoryFormState,
   formData: FormData,
@@ -84,7 +68,13 @@ export async function createSubcategoryAction(
     status: 'success',
     message: 'Subcategoria criada com sucesso.',
     fieldErrors: {},
-    values: initialSubcategoryFormState.values,
+    values: {
+      categoryId: '',
+      name: '',
+      slug: '',
+      displayOrder: '0',
+      isActive: true,
+    },
   };
 }
 

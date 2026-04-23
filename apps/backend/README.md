@@ -109,6 +109,7 @@ npm run admin:create --workspace @eloc/backend -- --name="Admin" --email="admin@
 
 Com a base administrativa do catalogo pronta no backend e integrada ao frontend, a evolucao mais coerente agora e:
 
-- consolidar o padrao do painel administrativo sem revisitar contratos do catalogo sem necessidade real
-- padronizar tratamento de erros e feedback de formulario no painel
-- evoluir os modulos de `entries`, `expenses` e `shipments`
+- formalizar a evolucao estrutural de imagens de produto no dominio
+- definir contratos de leitura e escrita que permitam sair de `imageUrl` simples sem quebrar o Admin atual
+- tratar upload apenas depois que a modelagem e os contratos estiverem estaveis
+- so depois avancar para os modulos de `entries`, `expenses` e `shipments`

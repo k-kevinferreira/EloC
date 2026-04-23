@@ -37,21 +37,6 @@ export type CategoryDeleteState = {
   message?: string;
 };
 
-export const initialCategoryFormState: CategoryFormState = {
-  status: 'idle',
-  fieldErrors: {},
-  values: {
-    name: '',
-    slug: '',
-    displayOrder: '0',
-    isActive: true,
-  },
-};
-
-export const initialCategoryDeleteState: CategoryDeleteState = {
-  status: 'idle',
-};
-
 export async function createCategoryAction(
   _previousState: CategoryFormState,
   formData: FormData,
@@ -79,7 +64,12 @@ export async function createCategoryAction(
     status: 'success',
     message: 'Categoria criada com sucesso.',
     fieldErrors: {},
-    values: initialCategoryFormState.values,
+    values: {
+      name: '',
+      slug: '',
+      displayOrder: '0',
+      isActive: true,
+    },
   };
 }
 

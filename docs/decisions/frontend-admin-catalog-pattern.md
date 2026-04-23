@@ -50,7 +50,7 @@ A duplicacao atual e aceitavel enquanto:
 
 - ela estiver restrita ao primeiro ciclo do painel
 - os modulos ainda estiverem consolidando o padrao
-- nao houver abstração compartilhada claramente justificada por uso recorrente
+- nao houver abstracao compartilhada claramente justificada por uso recorrente
 
 Quando os modulos de `entries`, `expenses` e `shipments` avancarem, essa decisao deve ser revisitada para avaliar:
 

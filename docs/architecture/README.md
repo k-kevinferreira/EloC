@@ -32,15 +32,21 @@ O projeto esta organizado como um monorepo simples, com separacao entre:
 
 ## Proximo passo arquitetural
 
-Com o CRUD administrativo do catalogo agora implementado no frontend sobre os contratos ja consolidados do backend, o proximo passo recomendado e:
+Com o CRUD administrativo do catalogo agora implementado no frontend sobre os contratos ja consolidados do backend, o proximo passo recomendado e estrutural:
 
-- consolidar o padrao tecnico adotado no painel administrativo
-- avaliar extracoes reutilizaveis apenas onde a repeticao ja se provou estavel
+- formalizar a evolucao de imagens de produto para sustentar corretamente o frontend publico
+- definir a migracao de `Product.imageUrl` simples para uma modelagem preparada para multiplas imagens
+- alinhar contratos de leitura e escrita entre backend e frontend antes de implementar upload real
+- manter compatibilidade transitoria com o Admin atual enquanto a modelagem nova ainda nao estiver concluida
+
+So depois disso faz sentido:
+
+- revisar se alguma primitiva reutilizavel do painel realmente merece extracao
+- implementar infraestrutura de upload e storage
 - expandir os modulos operacionais e financeiros:
   - `entries`
   - `expenses`
   - `shipments`
-- continuar refinando tratamento de erro, carregamento e feedback por tela
 
 ## Observacao importante
 

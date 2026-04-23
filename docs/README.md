@@ -9,6 +9,7 @@ Centraliza a documentacao do projeto para reduzir dispersao de conhecimento entr
 - `technical/database-erd.md`: visualizacao estrutural do banco e referencia do SQL para ERD
 - `architecture/README.md`: visao arquitetural e estado atual da estrutura
 - `decisions/frontend-admin-catalog-pattern.md`: decisao sobre o padrao adotado para o CRUD administrativo do catalogo no frontend
+- `decisions/product-images-roadmap.md`: decisao sobre a evolucao de `Product.imageUrl` para uma modelagem de imagens de produto preparada para o frontend publico
 
 ## Ordem recomendada para retomada
 

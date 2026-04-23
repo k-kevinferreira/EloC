@@ -84,7 +84,7 @@ Campos principais:
 - descricao curta opcional
 - descricao completa opcional
 - preco
-- imagem opcional
+- imagem opcional por `imageUrl` simples
 - destaque editorial
 - status de ativacao
 - ordem de exibicao
@@ -209,6 +209,48 @@ Motivos:
 - destaque editorial na vitrine
 - controle de ordenacao sem depender apenas de data de criacao
 
+## Estado atual das imagens de produto
+
+No estado atual do schema, `Product` possui apenas `imageUrl` opcional.
+
+Isso significa:
+
+- o Admin consegue referenciar uma imagem publica por URL
+- o frontend publico consegue consumir uma imagem simples por produto
+- ainda nao existe modelagem para galeria
+- ainda nao existe imagem principal separada de imagens secundarias
+- ainda nao existe infraestrutura de upload, storage ou metadados de arquivo
+
+Esse campo atende o ciclo inicial do catalogo, mas deve ser tratado como estrutura provisoria caso o projeto precise de um catalogo publico mais robusto.
+
+## Direcao recomendada para evolucao de imagens
+
+A direcao tecnica mais coerente e evoluir para uma entidade relacional dedicada, por exemplo `ProductImage`.
+
+Campos recomendados para essa futura modelagem:
+
+- `id`
+- `productId`
+- `url`
+- `altText`
+- `displayOrder`
+- `isPrimary`
+- `createdAt`
+- `updatedAt`
+
+Beneficios esperados:
+
+- multiplas imagens por produto
+- definicao explicita de imagem principal
+- ordenacao de galeria
+- suporte futuro a acessibilidade e SEO por `altText`
+- independencia em relacao ao provider de storage
+
+Decisao importante:
+
+- a modelagem e os contratos devem ser definidos antes do upload
+- upload deve ser tratado depois como problema de infraestrutura, nao como substituto da modelagem de dominio
+
 ### Registro de vendas
 
 `SaleEntry` foi refinada para representar melhor uma venda administrativa manual.
@@ -288,10 +330,11 @@ Esses pontos nao devem ser delegados apenas ao frontend.
 ## Proximos passos recomendados
 
 1. manter `schema.prisma`, migrations e banco real sempre alinhados
-2. usar o schema atual como base contratual para o frontend administrativo do catalogo
-3. padronizar valores aceitos para `paymentMethod`, `Expense.type` e `status` antes de expor os modulos financeiros
-4. implementar os modulos de runtime para `entries`, `expenses` e `shipments` no backend quando o painel do catalogo estiver integrado
-5. avaliar futuramente `product_images` se o catalogo precisar de multiplas imagens por produto
+2. usar o schema atual como base contratual para o frontend administrativo do catalogo, mas tratar `Product.imageUrl` como estrutura transitoria
+3. definir a modelagem futura de imagens de produto e planejar a migracao segura para uma relacao dedicada
+4. alinhar os contratos de backend e frontend para leitura e escrita de imagens antes de implementar upload real
+5. padronizar valores aceitos para `paymentMethod`, `Expense.type` e `status` antes de expor os modulos financeiros
+6. implementar os modulos de runtime para `entries`, `expenses` e `shipments` no backend quando a direcao estrutural das imagens estiver estabilizada
 
 ## Ponto de retomada
 
@@ -301,4 +344,4 @@ Se o projeto for retomado depois de uma pausa, o ponto tecnico atual e este:
 - backend NestJS inicial ja implementado e integrado ao Prisma
 - autenticacao administrativa inicial com JWT ja implementada
 - modulos de leitura e escrita para `categories`, `subcategories` e `products` ja disponiveis
-- proximo passo recomendado: avancar para o frontend administrativo consumindo os contratos atuais do backend
+- proximo passo recomendado: formalizar a evolucao de imagens de produto e seus contratos antes de upload e do frontend publico
