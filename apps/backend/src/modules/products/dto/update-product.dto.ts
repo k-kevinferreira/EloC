@@ -1,5 +1,6 @@
 import { Transform, Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsNumber,
   IsOptional,
@@ -10,7 +11,9 @@ import {
   MaxLength,
   Min,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
+import { ProductImageInputDto } from './product-image-input.dto';
 
 const productSlugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -77,6 +80,12 @@ export class UpdateProductDto {
     },
   )
   imageUrl?: string | null;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProductImageInputDto)
+  images?: ProductImageInputDto[];
 
   @IsOptional()
   @IsBoolean()

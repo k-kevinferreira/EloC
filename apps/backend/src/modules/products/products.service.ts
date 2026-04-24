@@ -16,6 +16,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 import { CreateProductDto } from './dto/create-product.dto';
 import { ListProductsQueryDto } from './dto/list-products-query.dto';
+import { ProductImageInputDto } from './dto/product-image-input.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
 const productInclude = {
@@ -103,7 +104,11 @@ export class ProductsService {
       createProductDto.subcategoryId,
     );
 
-    const normalizedImageUrl = normalizeOptionalText(createProductDto.imageUrl);
+    const normalizedImages = this.resolveNormalizedImagesInput(
+      createProductDto.images,
+      createProductDto.imageUrl,
+    );
+    const primaryImageUrl = this.resolvePrimaryImageUrl(normalizedImages);
 
     const product = await this.prismaService.product.create({
       data: {
@@ -115,10 +120,10 @@ export class ProductsService {
         shortDescription: normalizeOptionalText(createProductDto.shortDescription),
         description: normalizeOptionalText(createProductDto.description),
         price: createProductDto.price,
-        imageUrl: normalizedImageUrl,
-        ...(normalizedImageUrl && {
+        imageUrl: primaryImageUrl,
+        ...(normalizedImages.length > 0 && {
           images: {
-            create: this.buildPrimaryImageCreateInput(normalizedImageUrl),
+            create: normalizedImages,
           },
         }),
         isFeatured: createProductDto.isFeatured ?? false,
@@ -162,9 +167,14 @@ export class ProductsService {
       updateProductDto,
       'imageUrl',
     );
-    const normalizedImageUrl = shouldSyncLegacyImage
-      ? normalizeOptionalText(updateProductDto.imageUrl)
-      : undefined;
+    const shouldSyncImages = Object.prototype.hasOwnProperty.call(updateProductDto, 'images');
+    const nextImages = shouldSyncImages
+      ? this.resolveNormalizedImagesInput(updateProductDto.images)
+      : shouldSyncLegacyImage
+        ? this.resolveNormalizedImagesInput(undefined, updateProductDto.imageUrl)
+        : null;
+    const nextPrimaryImageUrl =
+      nextImages === null ? undefined : this.resolvePrimaryImageUrl(nextImages);
 
     const updatedProduct = await this.prismaService.$transaction(async (tx) => {
       await tx.product.update({
@@ -194,8 +204,8 @@ export class ProductsService {
           ...(updateProductDto.price !== undefined && {
             price: updateProductDto.price,
           }),
-          ...(shouldSyncLegacyImage && {
-            imageUrl: normalizedImageUrl,
+          ...(nextImages !== null && {
+            imageUrl: nextPrimaryImageUrl,
           }),
           ...(updateProductDto.isFeatured !== undefined && {
             isFeatured: updateProductDto.isFeatured,
@@ -209,8 +219,8 @@ export class ProductsService {
         },
       });
 
-      if (shouldSyncLegacyImage) {
-        await this.syncPrimaryImageFromLegacyField(tx, id, normalizedImageUrl);
+      if (nextImages !== null) {
+        await this.replaceProductImages(tx, id, nextImages);
       }
 
       return tx.product.findUniqueOrThrow({
@@ -298,37 +308,85 @@ export class ProductsService {
     ];
   }
 
-  private buildPrimaryImageCreateInput(imageUrl: string) {
-    return {
-      url: imageUrl,
-      altText: null,
-      displayOrder: 0,
-      isPrimary: true,
-    };
-  }
-
-  private async syncPrimaryImageFromLegacyField(
+  private async replaceProductImages(
     tx: Prisma.TransactionClient,
     productId: string,
-    imageUrl: string | null | undefined,
+    images: NormalizedProductImageInput[],
   ) {
     await tx.productImage.deleteMany({
-      where: {
-        productId,
-        isPrimary: true,
-      },
+      where: { productId },
     });
 
-    if (!imageUrl) {
+    if (images.length === 0) {
       return;
     }
 
-    await tx.productImage.create({
-      data: {
+    await tx.productImage.createMany({
+      data: images.map((image) => ({
         productId,
-        ...this.buildPrimaryImageCreateInput(imageUrl),
-      },
+        ...image,
+      })),
     });
+  }
+
+  private resolveNormalizedImagesInput(
+    images?: ProductImageInputDto[] | null,
+    legacyImageUrl?: string | null,
+  ): NormalizedProductImageInput[] {
+    if (images !== undefined) {
+      if (images === null) {
+        return [];
+      }
+
+      return this.normalizeImages(images);
+    }
+
+    const normalizedLegacyImageUrl = normalizeOptionalText(legacyImageUrl);
+
+    if (!normalizedLegacyImageUrl) {
+      return [];
+    }
+
+    return [
+      {
+        url: normalizedLegacyImageUrl,
+        altText: null,
+        displayOrder: 0,
+        isPrimary: true,
+      },
+    ];
+  }
+
+  private normalizeImages(images: ProductImageInputDto[]): NormalizedProductImageInput[] {
+    if (images.length === 0) {
+      return [];
+    }
+
+    const normalizedImages = images.map((image, index) => ({
+      url: normalizeText(image.url),
+      altText: normalizeOptionalText(image.altText) ?? null,
+      displayOrder: image.displayOrder ?? index,
+      isPrimary: image.isPrimary ?? false,
+    }));
+
+    const primaryImages = normalizedImages.filter((image) => image.isPrimary);
+
+    if (primaryImages.length > 1) {
+      throw new BadRequestException('Provide only one primary image per product.');
+    }
+
+    if (primaryImages.length === 0) {
+      normalizedImages[0] = {
+        ...normalizedImages[0],
+        isPrimary: true,
+      };
+    }
+
+    return normalizedImages;
+  }
+
+  private resolvePrimaryImageUrl(images: NormalizedProductImageInput[]) {
+    return images.find((image) => image.isPrimary)?.url ?? null;
   }
 
   private async assertCategoryExists(categoryId: string) {
@@ -425,3 +483,10 @@ export class ProductsService {
     return product.subcategoryId;
   }
 }
+
+type NormalizedProductImageInput = {
+  url: string;
+  altText: string | null;
+  displayOrder: number;
+  isPrimary: boolean;
+};

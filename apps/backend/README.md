@@ -33,6 +33,8 @@ Esses modulos comecam a camada de dominio com:
 - services concentrando a logica de consulta e escrita administrativa
 - consultas Prisma alinhadas ao schema atual
 - protecao por autenticacao e autorizacao por papel nas rotas administrativas de escrita
+- modelagem relacional inicial de imagens de produto via `ProductImage`
+- compatibilidade transitoria de `Product.imageUrl` preservada no contrato
 
 ## Endpoints iniciais
 
@@ -109,7 +111,6 @@ npm run admin:create --workspace @eloc/backend -- --name="Admin" --email="admin@
 
 Com a base administrativa do catalogo pronta no backend e integrada ao frontend, a evolucao mais coerente agora e:
 
-- formalizar a evolucao estrutural de imagens de produto no dominio
-- definir contratos de leitura e escrita que permitam sair de `imageUrl` simples sem quebrar o Admin atual
-- tratar upload apenas depois que a modelagem e os contratos estiverem estaveis
+- consolidar `images[]` como contrato principal tambem no frontend publico
+- tratar upload apenas depois que a modelagem e os contratos estiverem estaveis no runtime real
 - so depois avancar para os modulos de `entries`, `expenses` e `shipments`

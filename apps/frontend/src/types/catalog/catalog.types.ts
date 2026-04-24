@@ -67,6 +67,13 @@ export type ProductImage = {
   updatedAt: string;
 };
 
+export type ProductImageMutationInput = {
+  url: string;
+  altText: string | null;
+  displayOrder: number;
+  isPrimary: boolean;
+};
+
 export type ProductMutationInput = {
   categoryId: string;
   subcategoryId: string | null;
@@ -76,7 +83,7 @@ export type ProductMutationInput = {
   shortDescription: string | null;
   description: string | null;
   price: number;
-  imageUrl: string | null;
+  images: ProductImageMutationInput[];
   isFeatured: boolean;
   isActive: boolean;
   displayOrder: number;

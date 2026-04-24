@@ -39,6 +39,8 @@ type ProductFormFieldsProps = {
   subcategories: Subcategory[];
 };
 
+type ProductImageFormValue = ProductFormState['values']['images'][number];
+
 const initialProductFormState: ProductFormState = {
   status: 'idle',
   fieldErrors: {},
@@ -51,7 +53,7 @@ const initialProductFormState: ProductFormState = {
     shortDescription: '',
     description: '',
     price: '0.00',
-    imageUrl: '',
+    images: [createEmptyProductImageFormValue()],
     isFeatured: false,
     isActive: true,
     displayOrder: '0',
@@ -154,7 +156,7 @@ function CreateProductCard({
     state.values.shortDescription,
     state.values.description,
     state.values.price,
-    state.values.imageUrl,
+    JSON.stringify(state.values.images),
     state.values.displayOrder,
     String(state.values.isFeatured),
     String(state.values.isActive),
@@ -226,7 +228,7 @@ function ProductEditorCard({
     updateState.values.shortDescription,
     updateState.values.description,
     updateState.values.price,
-    updateState.values.imageUrl,
+    JSON.stringify(updateState.values.images),
     updateState.values.displayOrder,
     String(updateState.values.isFeatured),
     String(updateState.values.isActive),
@@ -265,6 +267,9 @@ function ProductEditorCard({
             {formatCurrency(product.price)}
           </p>
           <p className="text-sm text-[var(--muted)]">Codigo: {product.code}</p>
+          <p className="text-sm text-[var(--muted)]">
+            Imagens: {product.images.length}
+          </p>
           <p className="text-sm text-[var(--muted)]">Ordem: {product.displayOrder}</p>
         </div>
       </div>
@@ -327,6 +332,7 @@ function ProductFormFields({
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState(
     state.values.subcategoryId,
   );
+  const [images, setImages] = useState(state.values.images);
 
   const filteredSubcategories = subcategories.filter(
     (subcategory) => subcategory.categoryId === selectedCategoryId,
@@ -488,23 +494,6 @@ function ProductFormFields({
       </div>
 
       <div className="space-y-2">
-        <label htmlFor={`${idPrefix}-imageUrl`} className="text-sm font-semibold">
-          URL da imagem
-        </label>
-        <input
-          id={`${idPrefix}-imageUrl`}
-          name="imageUrl"
-          type="url"
-          defaultValue={state.values.imageUrl}
-          placeholder="https://..."
-          className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface-strong)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
-        />
-        {state.fieldErrors.imageUrl ? (
-          <p className="text-sm text-[var(--danger)]">{state.fieldErrors.imageUrl}</p>
-        ) : null}
-      </div>
-
-      <div className="space-y-2">
         <label htmlFor={`${idPrefix}-displayOrder`} className="text-sm font-semibold">
           Ordem de exibicao
         </label>
@@ -521,6 +510,176 @@ function ProductFormFields({
           <p className="text-sm text-[var(--danger)]">
             {state.fieldErrors.displayOrder}
           </p>
+        ) : null}
+      </div>
+
+      <div className="space-y-3 md:col-span-2">
+        <div className="space-y-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold">Galeria do produto</p>
+              <p className="text-sm text-[var(--muted)]">
+                O painel agora envia `images[]` como contrato principal. Enquanto o
+                upload nao existe, a galeria continua por URL manual.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setImages((currentImages) => [
+                  ...currentImages,
+                  createEmptyProductImageFormValue(false, String(currentImages.length)),
+                ]);
+              }}
+              className="inline-flex items-center justify-center rounded-full border border-[var(--border-strong)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            >
+              Adicionar imagem
+            </button>
+          </div>
+
+          <input type="hidden" name="images" value={JSON.stringify(images)} />
+        </div>
+
+        <div className="space-y-3">
+          {images.map((image, index) => (
+            <div
+              key={`${idPrefix}-image-${index}`}
+              className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-4"
+            >
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2 md:col-span-2">
+                  <label
+                    htmlFor={`${idPrefix}-image-url-${index}`}
+                    className="text-sm font-semibold"
+                  >
+                    URL da imagem {index + 1}
+                  </label>
+                  <input
+                    id={`${idPrefix}-image-url-${index}`}
+                    type="url"
+                    value={image.url}
+                    placeholder="https://..."
+                    onChange={(event) => {
+                      const nextValue = event.target.value;
+                      setImages((currentImages) =>
+                        currentImages.map((currentImage, currentIndex) =>
+                          currentIndex === index
+                            ? { ...currentImage, url: nextValue }
+                            : currentImage,
+                        ),
+                      );
+                    }}
+                    className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor={`${idPrefix}-image-alt-${index}`}
+                    className="text-sm font-semibold"
+                  >
+                    Alt text
+                  </label>
+                  <input
+                    id={`${idPrefix}-image-alt-${index}`}
+                    type="text"
+                    value={image.altText}
+                    placeholder="Descricao acessivel da imagem"
+                    onChange={(event) => {
+                      const nextValue = event.target.value;
+                      setImages((currentImages) =>
+                        currentImages.map((currentImage, currentIndex) =>
+                          currentIndex === index
+                            ? { ...currentImage, altText: nextValue }
+                            : currentImage,
+                        ),
+                      );
+                    }}
+                    className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor={`${idPrefix}-image-order-${index}`}
+                    className="text-sm font-semibold"
+                  >
+                    Ordem da imagem
+                  </label>
+                  <input
+                    id={`${idPrefix}-image-order-${index}`}
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={image.displayOrder}
+                    onChange={(event) => {
+                      const nextValue = event.target.value;
+                      setImages((currentImages) =>
+                        currentImages.map((currentImage, currentIndex) =>
+                          currentIndex === index
+                            ? { ...currentImage, displayOrder: nextValue }
+                            : currentImage,
+                        ),
+                      );
+                    }}
+                    className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <label className="flex items-center gap-3 text-sm text-[var(--foreground)]">
+                  <input
+                    type="radio"
+                    name={`${idPrefix}-primary-image`}
+                    checked={image.isPrimary}
+                    onChange={() => {
+                      setImages((currentImages) =>
+                        currentImages.map((currentImage, currentIndex) => ({
+                          ...currentImage,
+                          isPrimary: currentIndex === index,
+                        })),
+                      );
+                    }}
+                    className="h-4 w-4 accent-[var(--accent)]"
+                  />
+                  <span className="font-medium">Imagem principal</span>
+                </label>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImages((currentImages) => {
+                      const remainingImages = currentImages.filter(
+                        (_currentImage, currentIndex) => currentIndex !== index,
+                      );
+
+                      if (remainingImages.length === 0) {
+                        return [createEmptyProductImageFormValue()];
+                      }
+
+                      if (!remainingImages.some((currentImage) => currentImage.isPrimary)) {
+                        return remainingImages.map((currentImage, currentIndex) => ({
+                          ...currentImage,
+                          isPrimary: currentIndex === 0,
+                        }));
+                      }
+
+                      return remainingImages;
+                    });
+                  }}
+                  className="inline-flex items-center justify-center rounded-full border border-[rgba(177,59,46,0.24)] bg-[rgba(177,59,46,0.08)] px-4 py-2 text-sm font-semibold text-[var(--danger)] transition hover:bg-[rgba(177,59,46,0.14)]"
+                >
+                  Remover imagem
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {state.fieldErrors.images ? (
+          <p className="text-sm text-[var(--danger)]">{state.fieldErrors.images}</p>
         ) : null}
       </div>
 
@@ -613,10 +772,30 @@ function buildInitialUpdateState(product: Product): ProductFormState {
       shortDescription: product.shortDescription ?? '',
       description: product.description ?? '',
       price: product.price,
-      imageUrl: product.imageUrl ?? '',
+      images:
+        product.images.length > 0
+          ? product.images.map((image) => ({
+              url: image.url,
+              altText: image.altText ?? '',
+              displayOrder: String(image.displayOrder),
+              isPrimary: image.isPrimary,
+            }))
+          : [createEmptyProductImageFormValue()],
       isFeatured: product.isFeatured,
       isActive: product.isActive,
       displayOrder: String(product.displayOrder),
     },
+  };
+}
+
+function createEmptyProductImageFormValue(
+  isPrimary = true,
+  displayOrder = '0',
+): ProductImageFormValue {
+  return {
+    url: '',
+    altText: '',
+    displayOrder,
+    isPrimary,
   };
 }

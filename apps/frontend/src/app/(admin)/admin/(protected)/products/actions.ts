@@ -8,7 +8,10 @@ import {
   deleteProduct,
   updateProduct,
 } from '@/services/products/admin-products';
-import type { ProductMutationInput } from '@/types/catalog/catalog.types';
+import type {
+  ProductImageMutationInput,
+  ProductMutationInput,
+} from '@/types/catalog/catalog.types';
 
 const productSlugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const uuidPattern =
@@ -23,10 +26,17 @@ type ProductFormValues = {
   shortDescription: string;
   description: string;
   price: string;
-  imageUrl: string;
+  images: ProductImageFormValue[];
   isFeatured: boolean;
   isActive: boolean;
   displayOrder: string;
+};
+
+type ProductImageFormValue = {
+  url: string;
+  altText: string;
+  displayOrder: string;
+  isPrimary: boolean;
 };
 
 type ProductFieldErrors = {
@@ -36,7 +46,7 @@ type ProductFieldErrors = {
   slug?: string;
   title?: string;
   price?: string;
-  imageUrl?: string;
+  images?: string;
   displayOrder?: string;
 };
 
@@ -98,7 +108,7 @@ export async function createProductAction(
       shortDescription: '',
       description: '',
       price: '0.00',
-      imageUrl: '',
+      images: [createEmptyImageFormValue()],
       isFeatured: false,
       isActive: true,
       displayOrder: '0',
@@ -172,11 +182,13 @@ function parseProductFormData(formData: FormData): ProductFormParseResult {
     shortDescription: String(formData.get('shortDescription') ?? '').trim(),
     description: String(formData.get('description') ?? '').trim(),
     price: String(formData.get('price') ?? '').trim(),
-    imageUrl: String(formData.get('imageUrl') ?? '').trim(),
+    images: [],
     isFeatured: formData.get('isFeatured') === 'on',
     isActive: formData.get('isActive') === 'on',
     displayOrder: String(formData.get('displayOrder') ?? '0').trim(),
   };
+  const parsedImages = parseProductImagesPayload(String(formData.get('images') ?? '[]'));
+  values.images = parsedImages.images;
 
   const fieldErrors: ProductFieldErrors = {};
 
@@ -227,12 +239,35 @@ function parseProductFormData(formData: FormData): ProductFormParseResult {
     fieldErrors.price = 'Informe um preco valido com ate 2 casas decimais.';
   }
 
-  if (values.imageUrl) {
+  if (parsedImages.invalidPayload) {
+    fieldErrors.images = 'Nao foi possivel interpretar as imagens informadas.';
+  }
+
+  const primaryImagesCount = values.images.filter((image) => image.isPrimary).length;
+
+  if (primaryImagesCount > 1) {
+    fieldErrors.images = 'Defina apenas uma imagem principal por produto.';
+  }
+
+  for (const image of values.images) {
+    if (!image.url) {
+      fieldErrors.images = 'Cada imagem precisa ter uma URL valida ou ser removida.';
+      break;
+    }
+
     try {
-      // The backend accepts URLs without strict TLD validation, which URL() also supports.
-      new URL(values.imageUrl);
+      new URL(image.url);
     } catch {
-      fieldErrors.imageUrl = 'Informe uma URL de imagem valida.';
+      fieldErrors.images = 'Revise as URLs informadas na galeria do produto.';
+      break;
+    }
+
+    const parsedImageOrder = Number(image.displayOrder);
+
+    if (!Number.isInteger(parsedImageOrder) || parsedImageOrder < 0) {
+      fieldErrors.images =
+        'A ordem de cada imagem deve ser um inteiro maior ou igual a zero.';
+      break;
     }
   }
 
@@ -266,7 +301,7 @@ function parseProductFormData(formData: FormData): ProductFormParseResult {
     shortDescription: values.shortDescription || null,
     description: values.description || null,
     price: parsedPrice,
-    imageUrl: values.imageUrl || null,
+    images: normalizeImagesForMutation(values.images),
     isFeatured: values.isFeatured,
     isActive: values.isActive,
     displayOrder: parsedDisplayOrder,
@@ -300,4 +335,80 @@ function extractActionErrorMessage(error: unknown) {
   }
 
   return 'Nao foi possivel concluir a operacao agora. Tente novamente.';
+}
+
+function parseProductImagesPayload(payload: string) {
+  if (!payload.trim()) {
+    return {
+      images: [],
+      invalidPayload: false,
+    };
+  }
+
+  try {
+    const parsed = JSON.parse(payload);
+
+    if (!Array.isArray(parsed)) {
+      return {
+        images: [createEmptyImageFormValue()],
+        invalidPayload: true,
+      };
+    }
+
+    const images = parsed
+      .map((image) => ({
+        url: String(image?.url ?? '').trim(),
+        altText: String(image?.altText ?? '').trim(),
+        displayOrder: String(image?.displayOrder ?? '0').trim(),
+        isPrimary: Boolean(image?.isPrimary),
+      }))
+      .filter((image) => {
+        return image.url.length > 0 || image.altText.length > 0;
+      });
+
+    return {
+      images,
+      invalidPayload: false,
+    };
+  } catch {
+    return {
+      images: [createEmptyImageFormValue()],
+      invalidPayload: true,
+    };
+  }
+}
+
+function normalizeImagesForMutation(
+  images: ProductImageFormValue[],
+): ProductImageMutationInput[] {
+  const filledImages = images
+    .filter((image) => image.url.trim().length > 0)
+    .map((image, index) => ({
+      url: image.url.trim(),
+      altText: image.altText.trim() || null,
+      displayOrder: Number(image.displayOrder.trim() || index),
+      isPrimary: image.isPrimary,
+    }));
+
+  if (filledImages.length === 0) {
+    return [];
+  }
+
+  if (!filledImages.some((image) => image.isPrimary)) {
+    filledImages[0] = {
+      ...filledImages[0],
+      isPrimary: true,
+    };
+  }
+
+  return filledImages;
+}
+
+function createEmptyImageFormValue(): ProductImageFormValue {
+  return {
+    url: '',
+    altText: '',
+    displayOrder: '0',
+    isPrimary: true,
+  };
 }
