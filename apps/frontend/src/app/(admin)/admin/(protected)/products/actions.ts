@@ -198,7 +198,9 @@ function parseProductFormData(formData: FormData): ProductFormParseResult {
     fieldErrors.categoryId = 'Categoria invalida.';
   }
 
-  if (values.subcategoryId && !uuidPattern.test(values.subcategoryId)) {
+  if (!values.subcategoryId) {
+    fieldErrors.subcategoryId = 'Selecione o material/acabamento do produto.';
+  } else if (!uuidPattern.test(values.subcategoryId)) {
     fieldErrors.subcategoryId = 'Subcategoria invalida.';
   }
 
@@ -294,7 +296,7 @@ function parseProductFormData(formData: FormData): ProductFormParseResult {
 
   const input: ProductMutationInput = {
     categoryId: values.categoryId,
-    subcategoryId: values.subcategoryId || null,
+    subcategoryId: values.subcategoryId,
     code: values.code,
     slug: values.slug,
     title: values.title,

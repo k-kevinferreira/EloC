@@ -21,9 +21,8 @@ export class CreateProductDto {
   @IsUUID()
   categoryId!: string;
 
-  @IsOptional()
   @IsUUID()
-  subcategoryId?: string | null;
+  subcategoryId!: string;
 
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsString()

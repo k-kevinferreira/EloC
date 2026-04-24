@@ -76,7 +76,7 @@ export type ProductImageMutationInput = {
 
 export type ProductMutationInput = {
   categoryId: string;
-  subcategoryId: string | null;
+  subcategoryId: string;
   code: string;
   slug: string;
   title: string;

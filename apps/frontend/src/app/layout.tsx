@@ -1,26 +1,27 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Sans, Space_Grotesk } from 'next/font/google';
+import { Cormorant_Garamond, Inter } from 'next/font/google';
 
 import './globals.css';
 
-const headingFont = Space_Grotesk({
+const headingFont = Cormorant_Garamond({
   subsets: ['latin'],
+  weight: ['300', '400', '500'],
   variable: '--font-heading',
 });
 
-const bodyFont = IBM_Plex_Sans({
+const bodyFont = Inter({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['300', '400', '500', '600'],
   variable: '--font-body',
 });
 
 export const metadata: Metadata = {
   title: {
-    default: 'EloC Admin',
-    template: '%s | EloC Admin',
+    default: 'EloC',
+    template: '%s | EloC',
   },
   description:
-    'Painel administrativo base do EloC para autenticacao, catalogo e evolucao futura dos modulos financeiros.',
+    'Catalogo virtual EloC de pratas e semi joias com design exclusivo, qualidade premium e atendimento personalizado.',
   icons: {
     icon: '/favicon.svg',
     shortcut: '/favicon.svg',

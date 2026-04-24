@@ -24,7 +24,7 @@ export class UpdateProductDto {
 
   @IsOptional()
   @IsUUID()
-  subcategoryId?: string | null;
+  subcategoryId?: string;
 
   @IsOptional()
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))

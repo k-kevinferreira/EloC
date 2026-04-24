@@ -8,6 +8,7 @@
     "start": "node dist/main.js",
     "start:prod": "node dist/main.js",
     "admin:create": "node --env-file=.env -r ts-node/register src/scripts/create-admin.ts",
+    "catalog:seed-taxonomy": "node --env-file=.env -r ts-node/register -r tsconfig-paths/register src/scripts/seed-catalog-taxonomy.ts",
     "prisma:validate": "prisma validate --schema prisma/schema.prisma",
     "prisma:generate": "prisma generate --schema prisma/schema.prisma",
     "prisma:migrate:dev": "prisma migrate dev --schema prisma/schema.prisma",

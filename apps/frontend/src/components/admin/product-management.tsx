@@ -369,7 +369,7 @@ function ProductFormFields({
 
       <div className="space-y-2">
         <label htmlFor={`${idPrefix}-subcategoryId`} className="text-sm font-semibold">
-          Subcategoria
+          Material/acabamento
         </label>
         <select
           id={`${idPrefix}-subcategoryId`}
@@ -381,7 +381,7 @@ function ProductFormFields({
           }}
           className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface-strong)] px-4 py-3 outline-none transition focus:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <option value="">Sem subcategoria</option>
+          <option value="">Selecione o material/acabamento</option>
           {filteredSubcategories.map((subcategory) => (
             <option key={subcategory.id} value={subcategory.id}>
               {subcategory.name}

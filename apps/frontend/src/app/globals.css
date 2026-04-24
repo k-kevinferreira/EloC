@@ -1,21 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f6f1e8;
-  --surface: rgba(255, 252, 247, 0.82);
-  --surface-strong: #fffaf2;
-  --surface-contrast: #0f2d2b;
-  --border: rgba(15, 45, 43, 0.12);
-  --border-strong: rgba(15, 45, 43, 0.18);
-  --foreground: #153432;
-  --muted: #5f716d;
-  --accent: #0f766e;
-  --accent-strong: #0d5c56;
-  --accent-soft: rgba(15, 118, 110, 0.12);
+  --background: #faf8f5;
+  --champagne: #f5efe7;
+  --nude: #e8ddd0;
+  --warm-beige: #d6c9ba;
+  --rose-bronze: #d4b5a0;
+  --rose-bronze-strong: #b89582;
+  --surface: rgba(255, 252, 247, 0.86);
+  --surface-strong: #fffaf4;
+  --surface-contrast: #4e433c;
+  --border: rgba(88, 75, 67, 0.12);
+  --border-strong: rgba(88, 75, 67, 0.2);
+  --foreground: #5f5148;
+  --muted: #8b7d72;
+  --accent: #d4b5a0;
+  --accent-strong: #9b7565;
+  --accent-soft: rgba(212, 181, 160, 0.2);
   --warning: #b7791f;
   --danger: #b13b2e;
-  --shadow-lg: 0 32px 80px rgba(15, 45, 43, 0.12);
-  --shadow-md: 0 18px 40px rgba(15, 45, 43, 0.08);
+  --shadow-lg: 0 32px 80px rgba(95, 81, 72, 0.12);
+  --shadow-md: 0 18px 40px rgba(95, 81, 72, 0.08);
 }
 
 * {
@@ -24,10 +29,8 @@
 
 html {
   min-height: 100%;
-  background:
-    radial-gradient(circle at top left, rgba(20, 115, 105, 0.14), transparent 30%),
-    radial-gradient(circle at bottom right, rgba(183, 121, 31, 0.16), transparent 28%),
-    var(--background);
+  scroll-behavior: smooth;
+  background: var(--background);
 }
 
 body {
@@ -45,7 +48,8 @@ h4,
 h5,
 h6 {
   font-family: var(--font-heading), sans-serif;
-  letter-spacing: -0.04em;
+  font-weight: 300;
+  letter-spacing: 0;
 }
 
 a {
@@ -61,5 +65,13 @@ textarea {
 }
 
 ::selection {
-  background: rgba(15, 118, 110, 0.2);
+  background: rgba(212, 181, 160, 0.32);
+}
+
+.font-heading {
+  font-family: var(--font-heading), serif;
+}
+
+.font-body {
+  font-family: var(--font-body), sans-serif;
 }

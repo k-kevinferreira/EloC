@@ -1,10 +1,12 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 
 import { normalizeSlug, normalizeText } from 'src/common/utils/normalizers';
+import { fixedCatalogCategorySlugs } from 'src/modules/catalog-taxonomy/catalog-taxonomy.constants';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -25,6 +27,7 @@ export class CategoriesService {
   }
 
   async create(createCategoryDto: CreateCategoryDto) {
+    this.assertFixedCategorySlug(createCategoryDto.slug);
     await this.assertSlugAvailable(createCategoryDto.slug);
 
     return this.prismaService.category.create({
@@ -41,6 +44,7 @@ export class CategoriesService {
     const category = await this.findByIdOrThrow(id);
 
     if (updateCategoryDto.slug !== undefined) {
+      this.assertFixedCategorySlug(updateCategoryDto.slug);
       await this.assertSlugAvailable(updateCategoryDto.slug, category.id);
     }
 
@@ -68,6 +72,7 @@ export class CategoriesService {
       where: { id },
       select: {
         id: true,
+        slug: true,
         _count: {
           select: {
             subcategories: true,
@@ -79,6 +84,10 @@ export class CategoriesService {
 
     if (!category) {
       throw new NotFoundException(`Category with id "${id}" was not found.`);
+    }
+
+    if (fixedCatalogCategorySlugs.includes(category.slug)) {
+      throw new ConflictException('Fixed catalog categories cannot be removed.');
     }
 
     if (category._count.subcategories > 0 || category._count.products > 0) {
@@ -116,6 +125,16 @@ export class CategoriesService {
 
     if (existingCategory && existingCategory.id !== currentCategoryId) {
       throw new ConflictException(`Category slug "${slug}" is already in use.`);
+    }
+  }
+
+  private assertFixedCategorySlug(slug: string) {
+    const normalizedSlug = normalizeSlug(slug);
+
+    if (!fixedCatalogCategorySlugs.includes(normalizedSlug)) {
+      throw new BadRequestException(
+        `Category slug must be one of: ${fixedCatalogCategorySlugs.join(', ')}.`,
+      );
     }
   }
 }

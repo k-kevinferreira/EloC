@@ -434,10 +434,10 @@ export class ProductsService {
 
   private async resolveSubcategoryIdOrThrow(
     categoryId: string,
-    subcategoryId?: string | null,
+    subcategoryId?: string,
   ) {
     if (!subcategoryId) {
-      return null;
+      throw new BadRequestException('Product subcategory is required.');
     }
 
     const subcategory = await this.prismaService.subcategory.findUnique({
@@ -476,7 +476,7 @@ export class ProductsService {
       product.subcategory?.categoryId !== nextCategoryId
     ) {
       throw new BadRequestException(
-        'When changing the product category, provide a compatible subcategory or null.',
+        'When changing the product category, provide a compatible subcategory.',
       );
     }
 

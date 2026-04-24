@@ -1,10 +1,12 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 
 import { normalizeSlug, normalizeText } from 'src/common/utils/normalizers';
+import { fixedCatalogMaterialSlugs } from 'src/modules/catalog-taxonomy/catalog-taxonomy.constants';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 import { CreateSubcategoryDto } from './dto/create-subcategory.dto';
@@ -29,6 +31,7 @@ export class SubcategoriesService {
   }
 
   async create(createSubcategoryDto: CreateSubcategoryDto) {
+    this.assertFixedMaterialSlug(createSubcategoryDto.slug);
     await this.assertCategoryExists(createSubcategoryDto.categoryId);
     await this.assertSlugAvailable(
       createSubcategoryDto.categoryId,
@@ -56,6 +59,10 @@ export class SubcategoriesService {
 
     if (updateSubcategoryDto.categoryId !== undefined) {
       await this.assertCategoryExists(updateSubcategoryDto.categoryId);
+    }
+
+    if (updateSubcategoryDto.slug !== undefined) {
+      this.assertFixedMaterialSlug(updateSubcategoryDto.slug);
     }
 
     if (
@@ -105,6 +112,18 @@ export class SubcategoriesService {
 
     if (!subcategory) {
       throw new NotFoundException(`Subcategory with id "${id}" was not found.`);
+    }
+
+    const subcategoryWithSlug = await this.prismaService.subcategory.findUnique({
+      where: { id },
+      select: { slug: true },
+    });
+
+    if (
+      subcategoryWithSlug &&
+      fixedCatalogMaterialSlugs.includes(subcategoryWithSlug.slug)
+    ) {
+      throw new ConflictException('Fixed catalog materials cannot be removed.');
     }
 
     if (subcategory._count.products > 0) {
@@ -161,6 +180,16 @@ export class SubcategoriesService {
     if (existingSubcategory && existingSubcategory.id !== currentSubcategoryId) {
       throw new ConflictException(
         `Subcategory slug "${slug}" is already in use for this category.`,
+      );
+    }
+  }
+
+  private assertFixedMaterialSlug(slug: string) {
+    const normalizedSlug = normalizeSlug(slug);
+
+    if (!fixedCatalogMaterialSlugs.includes(normalizedSlug)) {
+      throw new BadRequestException(
+        `Subcategory slug must be one of: ${fixedCatalogMaterialSlugs.join(', ')}.`,
       );
     }
   }
