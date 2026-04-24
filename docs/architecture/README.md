@@ -32,12 +32,12 @@ O projeto esta organizado como um monorepo simples, com separacao entre:
 
 ## Proximo passo arquitetural
 
-Com o CRUD administrativo do catalogo agora implementado no frontend sobre os contratos ja consolidados do backend, o proximo passo recomendado e estrutural:
+Com a modelagem relacional de imagens de produto ja implementada e o Admin ajustado para `images[]`, o proximo passo recomendado e de integracao:
 
-- formalizar a evolucao de imagens de produto para sustentar corretamente o frontend publico
-- definir a migracao de `Product.imageUrl` simples para uma modelagem preparada para multiplas imagens
-- alinhar contratos de leitura e escrita entre backend e frontend antes de implementar upload real
-- manter compatibilidade transitoria com o Admin atual enquanto a modelagem nova ainda nao estiver concluida
+- levar `images[]` para o frontend publico do catalogo como contrato principal
+- revisar se o backend precisa de serializacao publica especifica para produto
+- manter `imageUrl` apenas como compatibilidade transitória enquanto houver algum ponto legado dependente
+- implementar upload real apenas depois que esse consumo publico estiver estabilizado
 
 So depois disso faz sentido:
 

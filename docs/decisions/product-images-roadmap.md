@@ -10,7 +10,7 @@ Essa estrutura foi suficiente para fechar o primeiro ciclo do painel, porque per
 - exibir uma imagem unica no catalogo
 - evitar introduzir infraestrutura de upload cedo demais
 
-Ao mesmo tempo, ela se tornou a principal limitacao estrutural para a proxima fase do projeto:
+Ao mesmo tempo, ela se tornou a principal limitacao estrutural para a fase seguinte do projeto:
 
 - frontend publico mais robusto
 - upload real no painel
@@ -41,6 +41,17 @@ A direcao recomendada e:
 - introduzir uma entidade relacional dedicada, como `ProductImage`
 - definir contratos de backend e frontend preparados para uma ou varias imagens por produto
 - adiar a escolha de storage e o fluxo de upload para a etapa seguinte
+
+## Estado atual da decisao
+
+Esta decisao ja foi iniciada no codigo:
+
+- `ProductImage` foi implementado como entidade relacional
+- o backend de `products` ja expõe `images[]`
+- o Admin ja escreve `images[]` com galeria manual por URL
+- `Product.imageUrl` continua apenas como compatibilidade transitória
+
+Portanto, a decisao nao esta mais no campo de planejamento inicial. Ela ja entrou em execucao e o ponto seguinte agora e consolidar o consumo publico do contrato novo.
 
 ## Modelagem recomendada
 
@@ -79,10 +90,9 @@ Custos aceitos:
 
 A sequencia recomendada e:
 
-1. modelar a estrutura de imagens no Prisma
-2. definir DTOs e responses do backend para leitura e escrita
-3. ajustar tipos e consumo no frontend administrativo e publico
-4. so depois implementar upload, storage e validacao de arquivo
+1. ajustar o frontend publico para consumir `images[]`
+2. revisar se a serializacao publica de `products` precisa ser diferenciada
+3. so depois implementar upload, storage e validacao de arquivo
 
 ## Observacao importante
 
