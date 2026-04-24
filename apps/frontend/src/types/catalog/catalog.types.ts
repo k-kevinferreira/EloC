@@ -46,6 +46,7 @@ export type Product = {
   description: string | null;
   price: string;
   imageUrl: string | null;
+  images: ProductImage[];
   isFeatured: boolean;
   isActive: boolean;
   displayOrder: number;
@@ -53,6 +54,17 @@ export type Product = {
   updatedAt: string;
   category: Category;
   subcategory: Subcategory | null;
+};
+
+export type ProductImage = {
+  id: string;
+  productId: string;
+  url: string;
+  altText: string | null;
+  displayOrder: number;
+  isPrimary: boolean;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type ProductMutationInput = {

@@ -72,6 +72,7 @@ model Product {
   updatedAt        DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   category         Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   subcategory      Subcategory?  @relation(fields: [subcategoryId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  images           ProductImage[]
   saleEntries      SaleEntry[]
   shipmentItems    ShipmentItem[]
 
@@ -81,6 +82,23 @@ model Product {
   @@index([isFeatured], map: "products_is_featured_idx")
   @@index([displayOrder], map: "products_display_order_idx")
   @@map("products")
+}
+
+model ProductImage {
+  id           String   @id @default(uuid()) @db.Uuid
+  productId    String   @map("product_id") @db.Uuid
+  url          String   @db.Text
+  altText      String?  @map("alt_text") @db.VarChar(255)
+  displayOrder Int      @default(0) @map("display_order")
+  isPrimary    Boolean  @default(false) @map("is_primary")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([productId], map: "product_images_product_id_idx")
+  @@index([displayOrder], map: "product_images_display_order_idx")
+  @@index([isPrimary], map: "product_images_is_primary_idx")
+  @@map("product_images")
 }
 
 model SaleEntry {

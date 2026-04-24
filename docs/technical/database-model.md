@@ -211,17 +211,21 @@ Motivos:
 
 ## Estado atual das imagens de produto
 
-No estado atual do schema, `Product` possui apenas `imageUrl` opcional.
+O dominio agora possui uma evolucao inicial de imagens de produto:
+
+- `Product.imageUrl` continua existindo como campo transitorio de compatibilidade
+- `ProductImage` passa a existir como entidade relacional dedicada
+- o backend retorna `images` no contrato de produto
+- o backend continua retornando `imageUrl` resolvido a partir da imagem primaria quando ela existir
 
 Isso significa:
 
-- o Admin consegue referenciar uma imagem publica por URL
-- o frontend publico consegue consumir uma imagem simples por produto
-- ainda nao existe modelagem para galeria
-- ainda nao existe imagem principal separada de imagens secundarias
-- ainda nao existe infraestrutura de upload, storage ou metadados de arquivo
+- o Admin atual continua podendo editar uma unica URL de imagem sem quebra contratual
+- o backend ja fica preparado para galeria e imagem primaria
+- o frontend publico ja pode passar a consumir `images` progressivamente
+- upload e storage continuam adiados para a proxima etapa
 
-Esse campo atende o ciclo inicial do catalogo, mas deve ser tratado como estrutura provisoria caso o projeto precise de um catalogo publico mais robusto.
+Nesta fase, a escrita administrativa existente ainda sincroniza apenas uma imagem principal via `imageUrl`. A galeria completa ainda nao possui fluxo de edicao proprio no painel.
 
 ## Direcao recomendada para evolucao de imagens
 
@@ -250,6 +254,25 @@ Decisao importante:
 
 - a modelagem e os contratos devem ser definidos antes do upload
 - upload deve ser tratado depois como problema de infraestrutura, nao como substituto da modelagem de dominio
+
+### Entidade ProductImage
+
+Campos implementados:
+
+- `id`
+- `productId`
+- `url`
+- `altText`
+- `displayOrder`
+- `isPrimary`
+- `createdAt`
+- `updatedAt`
+
+Beneficios imediatos:
+
+- base relacional real para multiplas imagens por produto
+- separacao entre contrato de dominio e futura infraestrutura de upload
+- compatibilidade temporaria com o Admin atual sem acoplar o frontend publico ao legado
 
 ### Registro de vendas
 
@@ -331,10 +354,11 @@ Esses pontos nao devem ser delegados apenas ao frontend.
 
 1. manter `schema.prisma`, migrations e banco real sempre alinhados
 2. usar o schema atual como base contratual para o frontend administrativo do catalogo, mas tratar `Product.imageUrl` como estrutura transitoria
-3. definir a modelagem futura de imagens de produto e planejar a migracao segura para uma relacao dedicada
-4. alinhar os contratos de backend e frontend para leitura e escrita de imagens antes de implementar upload real
-5. padronizar valores aceitos para `paymentMethod`, `Expense.type` e `status` antes de expor os modulos financeiros
-6. implementar os modulos de runtime para `entries`, `expenses` e `shipments` no backend quando a direcao estrutural das imagens estiver estabilizada
+3. evoluir a escrita administrativa de imagens para sair de `imageUrl` simples e suportar galeria explicitamente
+4. alinhar o frontend publico para consumir `images` como contrato principal
+5. implementar upload e storage apenas depois de estabilizar essa escrita
+6. padronizar valores aceitos para `paymentMethod`, `Expense.type` e `status` antes de expor os modulos financeiros
+7. implementar os modulos de runtime para `entries`, `expenses` e `shipments` no backend quando a direcao estrutural das imagens estiver estabilizada
 
 ## Ponto de retomada
 

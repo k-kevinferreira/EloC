@@ -21,6 +21,10 @@ export const metadata: Metadata = {
   },
   description:
     'Painel administrativo base do EloC para autenticacao, catalogo e evolucao futura dos modulos financeiros.',
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+  },
 };
 
 type RootLayoutProps = Readonly<{

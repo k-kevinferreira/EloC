@@ -18,10 +18,19 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { ListProductsQueryDto } from './dto/list-products-query.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
+const productInclude = {
+  category: true,
+  subcategory: true,
+  images: {
+    orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+  },
+} satisfies Prisma.ProductInclude;
+
 type ProductWithRelations = Prisma.ProductGetPayload<{
   include: {
     category: true;
     subcategory: true;
+    images: true;
   };
 }>;
 
@@ -29,7 +38,7 @@ type ProductWithRelations = Prisma.ProductGetPayload<{
 export class ProductsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  findAll(query: ListProductsQueryDto) {
+  async findAll(query: ListProductsQueryDto) {
     const where: Prisma.ProductWhereInput = {
       categoryId: query.categoryId,
       subcategoryId: query.subcategoryId,
@@ -60,32 +69,28 @@ export class ProductsService {
       ];
     }
 
-    return this.prismaService.product.findMany({
+    const products = await this.prismaService.product.findMany({
       where,
-      include: {
-        category: true,
-        subcategory: true,
-      },
+      include: productInclude,
       orderBy: [{ displayOrder: 'asc' }, { createdAt: 'desc' }],
       take: query.limit ?? 20,
       skip: query.offset ?? 0,
     });
+
+    return products.map((product) => this.serializeProduct(product));
   }
 
   async findBySlug(slug: string) {
     const product = await this.prismaService.product.findUnique({
       where: { slug },
-      include: {
-        category: true,
-        subcategory: true,
-      },
+      include: productInclude,
     });
 
     if (!product) {
       throw new NotFoundException(`Product with slug "${slug}" was not found.`);
     }
 
-    return product;
+    return this.serializeProduct(product);
   }
 
   async create(createProductDto: CreateProductDto) {
@@ -98,7 +103,9 @@ export class ProductsService {
       createProductDto.subcategoryId,
     );
 
-    return this.prismaService.product.create({
+    const normalizedImageUrl = normalizeOptionalText(createProductDto.imageUrl);
+
+    const product = await this.prismaService.product.create({
       data: {
         categoryId: createProductDto.categoryId,
         subcategoryId,
@@ -108,16 +115,20 @@ export class ProductsService {
         shortDescription: normalizeOptionalText(createProductDto.shortDescription),
         description: normalizeOptionalText(createProductDto.description),
         price: createProductDto.price,
-        imageUrl: normalizeOptionalText(createProductDto.imageUrl),
+        imageUrl: normalizedImageUrl,
+        ...(normalizedImageUrl && {
+          images: {
+            create: this.buildPrimaryImageCreateInput(normalizedImageUrl),
+          },
+        }),
         isFeatured: createProductDto.isFeatured ?? false,
         isActive: createProductDto.isActive ?? true,
         displayOrder: createProductDto.displayOrder ?? 0,
       },
-      include: {
-        category: true,
-        subcategory: true,
-      },
+      include: productInclude,
     });
+
+    return this.serializeProduct(product);
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
@@ -147,51 +158,68 @@ export class ProductsService {
       await this.assertSlugAvailable(updateProductDto.slug, product.id);
     }
 
-    return this.prismaService.product.update({
-      where: { id },
-      data: {
-        ...(updateProductDto.categoryId !== undefined && {
-          categoryId: updateProductDto.categoryId,
-        }),
-        ...(Object.prototype.hasOwnProperty.call(updateProductDto, 'subcategoryId') && {
-          subcategoryId: nextSubcategoryId,
-        }),
-        ...(updateProductDto.code !== undefined && {
-          code: normalizeCode(updateProductDto.code),
-        }),
-        ...(updateProductDto.slug !== undefined && {
-          slug: normalizeSlug(updateProductDto.slug),
-        }),
-        ...(updateProductDto.title !== undefined && {
-          title: normalizeText(updateProductDto.title),
-        }),
-        ...(Object.prototype.hasOwnProperty.call(updateProductDto, 'shortDescription') && {
-          shortDescription: normalizeOptionalText(updateProductDto.shortDescription),
-        }),
-        ...(Object.prototype.hasOwnProperty.call(updateProductDto, 'description') && {
-          description: normalizeOptionalText(updateProductDto.description),
-        }),
-        ...(updateProductDto.price !== undefined && {
-          price: updateProductDto.price,
-        }),
-        ...(Object.prototype.hasOwnProperty.call(updateProductDto, 'imageUrl') && {
-          imageUrl: normalizeOptionalText(updateProductDto.imageUrl),
-        }),
-        ...(updateProductDto.isFeatured !== undefined && {
-          isFeatured: updateProductDto.isFeatured,
-        }),
-        ...(updateProductDto.isActive !== undefined && {
-          isActive: updateProductDto.isActive,
-        }),
-        ...(updateProductDto.displayOrder !== undefined && {
-          displayOrder: updateProductDto.displayOrder,
-        }),
-      },
-      include: {
-        category: true,
-        subcategory: true,
-      },
+    const shouldSyncLegacyImage = Object.prototype.hasOwnProperty.call(
+      updateProductDto,
+      'imageUrl',
+    );
+    const normalizedImageUrl = shouldSyncLegacyImage
+      ? normalizeOptionalText(updateProductDto.imageUrl)
+      : undefined;
+
+    const updatedProduct = await this.prismaService.$transaction(async (tx) => {
+      await tx.product.update({
+        where: { id },
+        data: {
+          ...(updateProductDto.categoryId !== undefined && {
+            categoryId: updateProductDto.categoryId,
+          }),
+          ...(Object.prototype.hasOwnProperty.call(updateProductDto, 'subcategoryId') && {
+            subcategoryId: nextSubcategoryId,
+          }),
+          ...(updateProductDto.code !== undefined && {
+            code: normalizeCode(updateProductDto.code),
+          }),
+          ...(updateProductDto.slug !== undefined && {
+            slug: normalizeSlug(updateProductDto.slug),
+          }),
+          ...(updateProductDto.title !== undefined && {
+            title: normalizeText(updateProductDto.title),
+          }),
+          ...(Object.prototype.hasOwnProperty.call(updateProductDto, 'shortDescription') && {
+            shortDescription: normalizeOptionalText(updateProductDto.shortDescription),
+          }),
+          ...(Object.prototype.hasOwnProperty.call(updateProductDto, 'description') && {
+            description: normalizeOptionalText(updateProductDto.description),
+          }),
+          ...(updateProductDto.price !== undefined && {
+            price: updateProductDto.price,
+          }),
+          ...(shouldSyncLegacyImage && {
+            imageUrl: normalizedImageUrl,
+          }),
+          ...(updateProductDto.isFeatured !== undefined && {
+            isFeatured: updateProductDto.isFeatured,
+          }),
+          ...(updateProductDto.isActive !== undefined && {
+            isActive: updateProductDto.isActive,
+          }),
+          ...(updateProductDto.displayOrder !== undefined && {
+            displayOrder: updateProductDto.displayOrder,
+          }),
+        },
+      });
+
+      if (shouldSyncLegacyImage) {
+        await this.syncPrimaryImageFromLegacyField(tx, id, normalizedImageUrl);
+      }
+
+      return tx.product.findUniqueOrThrow({
+        where: { id },
+        include: productInclude,
+      });
     });
+
+    return this.serializeProduct(updatedProduct);
   }
 
   async remove(id: string) {
@@ -226,10 +254,7 @@ export class ProductsService {
   private async findByIdOrThrow(id: string): Promise<ProductWithRelations> {
     const product = await this.prismaService.product.findUnique({
       where: { id },
-      include: {
-        category: true,
-        subcategory: true,
-      },
+      include: productInclude,
     });
 
     if (!product) {
@@ -237,6 +262,73 @@ export class ProductsService {
     }
 
     return product;
+  }
+
+  private serializeProduct(product: ProductWithRelations) {
+    const images = this.resolveProductImages(product);
+    const primaryImage = images.find((image) => image.isPrimary) ?? images[0] ?? null;
+
+    return {
+      ...product,
+      imageUrl: primaryImage?.url ?? product.imageUrl,
+      images,
+    };
+  }
+
+  private resolveProductImages(product: ProductWithRelations) {
+    if (product.images.length > 0) {
+      return product.images;
+    }
+
+    if (!product.imageUrl) {
+      return [];
+    }
+
+    return [
+      {
+        id: `legacy-image-${product.id}`,
+        productId: product.id,
+        url: product.imageUrl,
+        altText: null,
+        displayOrder: 0,
+        isPrimary: true,
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+      },
+    ];
+  }
+
+  private buildPrimaryImageCreateInput(imageUrl: string) {
+    return {
+      url: imageUrl,
+      altText: null,
+      displayOrder: 0,
+      isPrimary: true,
+    };
+  }
+
+  private async syncPrimaryImageFromLegacyField(
+    tx: Prisma.TransactionClient,
+    productId: string,
+    imageUrl: string | null | undefined,
+  ) {
+    await tx.productImage.deleteMany({
+      where: {
+        productId,
+        isPrimary: true,
+      },
+    });
+
+    if (!imageUrl) {
+      return;
+    }
+
+    await tx.productImage.create({
+      data: {
+        productId,
+        ...this.buildPrimaryImageCreateInput(imageUrl),
+      },
+    });
   }
 
   private async assertCategoryExists(categoryId: string) {
