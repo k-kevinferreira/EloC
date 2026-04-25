@@ -7,6 +7,7 @@ import {
   createProductAction,
   deleteProductAction,
   updateProductAction,
+  uploadProductImageAction,
   type ProductDeleteState,
   type ProductFormState,
 } from '@/app/(admin)/admin/(protected)/products/actions';
@@ -333,10 +334,61 @@ function ProductFormFields({
     state.values.subcategoryId,
   );
   const [images, setImages] = useState(state.values.images);
+  const [uploadStateByIndex, setUploadStateByIndex] = useState<
+    Record<number, { status: 'error' | 'pending' | 'success'; message: string }>
+  >({});
 
   const filteredSubcategories = subcategories.filter(
     (subcategory) => subcategory.categoryId === selectedCategoryId,
   );
+
+  async function handleImageUpload(file: File | undefined, index: number) {
+    if (!file) {
+      return;
+    }
+
+    setUploadStateByIndex((currentState) => ({
+      ...currentState,
+      [index]: {
+        status: 'pending',
+        message: 'Enviando imagem...',
+      },
+    }));
+
+    const formData = new FormData();
+    formData.set('file', file);
+
+    const result = await uploadProductImageAction(formData);
+
+    if (result.status === 'error') {
+      setUploadStateByIndex((currentState) => ({
+        ...currentState,
+        [index]: {
+          status: 'error',
+          message: result.message,
+        },
+      }));
+      return;
+    }
+
+    setImages((currentImages) =>
+      currentImages.map((currentImage, currentIndex) =>
+        currentIndex === index
+          ? {
+              ...currentImage,
+              url: result.image.url,
+            }
+          : currentImage,
+      ),
+    );
+    setUploadStateByIndex((currentState) => ({
+      ...currentState,
+      [index]: {
+        status: 'success',
+        message: 'Upload concluido. A URL foi preenchida automaticamente.',
+      },
+    }));
+  }
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
@@ -519,8 +571,8 @@ function ProductFormFields({
             <div>
               <p className="text-sm font-semibold">Galeria do produto</p>
               <p className="text-sm text-[var(--muted)]">
-                O painel agora envia `images[]` como contrato principal. Enquanto o
-                upload nao existe, a galeria continua por URL manual.
+                O painel envia `images[]` como contrato principal. Envie uma imagem
+                ou informe uma URL manual quando necessario.
               </p>
             </div>
 
@@ -548,6 +600,36 @@ function ProductFormFields({
               className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-4"
             >
               <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2 md:col-span-2">
+                  <label
+                    htmlFor={`${idPrefix}-image-upload-${index}`}
+                    className="text-sm font-semibold"
+                  >
+                    Upload da imagem {index + 1}
+                  </label>
+                  <input
+                    id={`${idPrefix}-image-upload-${index}`}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={(event) => {
+                      void handleImageUpload(event.target.files?.[0], index);
+                      event.target.value = '';
+                    }}
+                    className="w-full rounded-2xl border border-dashed border-[var(--border-strong)] bg-[var(--surface)] px-4 py-3 text-sm outline-none transition file:mr-4 file:rounded-full file:border-0 file:bg-[var(--surface-contrast)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:border-[var(--accent)] focus:border-[var(--accent)]"
+                  />
+                  {uploadStateByIndex[index] ? (
+                    <p
+                      className={`text-sm ${
+                        uploadStateByIndex[index].status === 'error'
+                          ? 'text-[var(--danger)]'
+                          : 'text-[var(--muted)]'
+                      }`}
+                    >
+                      {uploadStateByIndex[index].message}
+                    </p>
+                  ) : null}
+                </div>
+
                 <div className="space-y-2 md:col-span-2">
                   <label
                     htmlFor={`${idPrefix}-image-url-${index}`}

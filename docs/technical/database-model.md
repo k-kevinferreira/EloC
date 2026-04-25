@@ -224,6 +224,7 @@ Isso significa:
 - o backend ja fica preparado para galeria e imagem primaria
 - o frontend publico ja consome `images[]` com fallback transitorio para `imageUrl`
 - o backend ja possui upload administrativo inicial com storage local
+- o formulario administrativo de produtos ja usa o upload para preencher URLs em `images[]`
 
 Nesta fase, a escrita administrativa de imagens ja suporta galeria manual por URL, `altText`, `displayOrder` e imagem principal. O campo `Product.imageUrl` permanece apenas como compatibilidade transitoria e e sincronizado a partir da imagem principal.
 
@@ -355,7 +356,7 @@ Esses pontos nao devem ser delegados apenas ao frontend.
 1. manter `schema.prisma`, migrations e banco real sempre alinhados
 2. usar `ProductImage` e `images[]` como contrato principal entre backend, Admin e frontend publico
 3. manter `Product.imageUrl` apenas como fallback legado enquanto houver dados antigos dependentes desse campo
-4. integrar o upload administrativo ao formulario de produtos no frontend
+4. refinar a UX de upload no formulario de produtos
 5. revisar quando remover a compatibilidade com `imageUrl`
 6. padronizar valores aceitos para `paymentMethod`, `Expense.type` e `status` antes de expor os modulos financeiros
 7. implementar os modulos de runtime para `entries`, `expenses` e `shipments` no backend quando a direcao estrutural das imagens estiver estabilizada
@@ -368,4 +369,4 @@ Se o projeto for retomado depois de uma pausa, o ponto tecnico atual e este:
 - backend NestJS inicial ja implementado e integrado ao Prisma
 - autenticacao administrativa inicial com JWT ja implementada
 - modulos de leitura e escrita para `categories`, `subcategories` e `products` ja disponiveis
-- proximo passo recomendado: integrar o upload administrativo ao formulario de produtos no frontend e planejar a troca futura do storage local por provider externo
+- proximo passo recomendado: refinar a UX de upload e planejar a troca futura do storage local por provider externo

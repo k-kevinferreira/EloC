@@ -8,6 +8,7 @@ import {
   deleteProduct,
   updateProduct,
 } from '@/services/products/admin-products';
+import { uploadProductImage } from '@/services/uploads/admin-uploads';
 import type {
   ProductImageMutationInput,
   ProductMutationInput,
@@ -71,6 +72,21 @@ export type ProductDeleteState = {
   status: 'idle' | 'success' | 'error';
   message?: string;
 };
+
+export type ProductImageUploadState =
+  | {
+      status: 'success';
+      image: {
+        url: string;
+        filename: string;
+        mimeType: string;
+        size: number;
+      };
+    }
+  | {
+      status: 'error';
+      message: string;
+    };
 
 export async function createProductAction(
   _previousState: ProductFormState,
@@ -168,6 +184,38 @@ export async function deleteProductAction(
     status: 'success',
     message: 'Produto removido com sucesso.',
   };
+}
+
+export async function uploadProductImageAction(
+  formData: FormData,
+): Promise<ProductImageUploadState> {
+  const file = formData.get('file');
+
+  if (!(file instanceof File) || file.size === 0) {
+    return {
+      status: 'error',
+      message: 'Selecione uma imagem antes de enviar.',
+    };
+  }
+
+  try {
+    const uploadedImage = await uploadProductImage(file);
+
+    return {
+      status: 'success',
+      image: {
+        url: uploadedImage.url,
+        filename: uploadedImage.filename,
+        mimeType: uploadedImage.mimeType,
+        size: uploadedImage.size,
+      },
+    };
+  } catch (error) {
+    return {
+      status: 'error',
+      message: extractActionErrorMessage(error),
+    };
+  }
 }
 
 function parseProductFormData(formData: FormData): ProductFormParseResult {

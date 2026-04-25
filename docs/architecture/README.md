@@ -31,14 +31,15 @@ O projeto esta organizado como um monorepo simples, com separacao entre:
 - o banco local `eloc` ja foi criado para desenvolvimento e recebeu a migration inicial
 - o Admin e o catalogo publico ja consomem `images[]` como contrato principal de produto
 - o backend ja possui upload administrativo inicial de imagens de produto com storage local
+- o formulario administrativo de produtos ja integra o upload e preenche `images[]` automaticamente
 
 ## Proximo passo arquitetural
 
-Com a modelagem relacional de imagens de produto ja implementada, o Admin e o catalogo publico ajustados para `images[]`, e o upload local inicial disponivel no backend, o proximo passo recomendado e de integracao:
+Com a modelagem relacional de imagens de produto ja implementada, o Admin e o catalogo publico ajustados para `images[]`, e o upload local inicial integrado ao formulario, o proximo passo recomendado e de refinamento:
 
 - revisar se o backend precisa de serializacao publica especifica para produto
 - manter `imageUrl` apenas como compatibilidade transitoria enquanto houver algum ponto legado dependente
-- integrar o upload administrativo ao formulario de produtos no frontend
+- refinar a UX de upload e tratar estados visuais mais ricos conforme uso real
 
 So depois disso faz sentido:
 

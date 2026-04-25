@@ -51,9 +51,10 @@ Esta decisao ja foi iniciada no codigo:
 - o Admin ja escreve `images[]` com galeria manual por URL
 - o frontend publico ja consome `images[]` como fonte principal de exibicao
 - o backend ja possui upload administrativo inicial com storage local
+- o formulario administrativo de produtos ja usa o upload para preencher URLs em `images[]`
 - `Product.imageUrl` continua apenas como compatibilidade transitoria
 
-Portanto, a decisao nao esta mais no campo de planejamento inicial. Ela ja entrou em execucao, e o contrato novo esta consolidado no backend, no Admin e no catalogo publico. O upload local inicial existe como infraestrutura, mas ainda precisa ser integrado ao formulario administrativo de produtos.
+Portanto, a decisao nao esta mais no campo de planejamento inicial. Ela ja entrou em execucao, e o contrato novo esta consolidado no backend, no Admin e no catalogo publico. O upload local inicial existe como infraestrutura integrada ao formulario administrativo, ainda com possibilidade de URL manual.
 
 ## Modelagem implementada
 
@@ -93,7 +94,7 @@ Custos aceitos:
 A sequencia recomendada e:
 
 1. revisar se a serializacao publica de `products` precisa ser diferenciada
-2. integrar o upload administrativo ao formulario de produtos no frontend
+2. refinar a UX de upload no formulario de produtos
 3. planejar a remocao futura da compatibilidade com `Product.imageUrl`
 
 ## Observacao importante

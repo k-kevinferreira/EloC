@@ -18,7 +18,7 @@ Estado atual da entrega:
 - a galeria continua temporariamente baseada em URLs manuais, sem upload de arquivo no painel
 - `imageUrl` continua existindo apenas como compatibilidade transitória de contrato
 - o frontend publico consome `images[]` como fonte principal, com fallback legado para `imageUrl`
-- o backend ja possui endpoint administrativo de upload, ainda sem integracao no formulario de produtos
+- o formulario administrativo de produtos ja integra o endpoint de upload e preenche a URL em `images[]`
 - placeholders de `entries`, `expenses` e `shipments`
 - leitura e escrita do catalogo integradas ao backend por server actions + services server-side autenticados
 - tratamento de erro do cliente HTTP ajustado para aproveitar melhor mensagens de validacao do NestJS
@@ -28,7 +28,7 @@ Ponto atual de continuidade:
 - o shell administrativo ja esta funcional para uso e iteracao visual
 - o CRUD administrativo de `categories`, `subcategories` e `products` ja esta implementado
 - a evolucao estrutural de imagens de produto ja foi iniciada, e o painel administrativo e o catalogo publico ja operam sobre `images[]`
-- o proximo passo principal e integrar o upload administrativo ao formulario de produtos, sem transformar upload em regra de dominio
+- o proximo passo principal e refinar a UX de upload e planejar a troca futura do storage local por um provider externo
 - ajustes de UI restantes devem ser tratados por tela e por componente, evitando reabrir a arquitetura base sem necessidade
 - a sequencia mais coerente depois disso e avancar para `entries`, `expenses` e `shipments`
 

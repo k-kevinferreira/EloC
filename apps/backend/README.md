@@ -70,7 +70,7 @@ O endpoint de upload administrativo recebe `multipart/form-data` com o campo `fi
 - `mimeType`
 - `size`
 
-Ele ainda nao associa a imagem automaticamente a um produto. A URL retornada deve ser usada posteriormente no contrato `images[]` do produto.
+Ele retorna uma URL publica para uso no contrato `images[]` do produto. O formulario administrativo do frontend ja usa essa URL para preencher a galeria antes de salvar o produto.
 
 Exemplos de filtros ja suportados:
 
@@ -127,6 +127,6 @@ npm run admin:create --workspace @eloc/backend -- --name="Admin" --email="admin@
 
 Com a base administrativa do catalogo pronta no backend e integrada ao frontend, a evolucao mais coerente agora e:
 
-- integrar o upload administrativo ao formulario de produtos no frontend
+- refinar a experiencia de upload no formulario de produtos
 - manter `Product.imageUrl` apenas como fallback legado enquanto houver dados antigos dependentes desse campo
 - so depois avancar para os modulos de `entries`, `expenses` e `shipments`
