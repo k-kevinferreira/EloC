@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import type { Route } from 'next';
 
 import { CategoryCard } from '@/components/catalog/category-card';
 import { ProductCard } from '@/components/catalog/product-card';
@@ -20,13 +19,13 @@ export default async function HomePage() {
 
   return (
     <main>
-      <section className="flex min-h-[calc(100vh-5rem)] items-center justify-center px-6 py-20 text-center lg:min-h-[calc(100vh-6rem)] lg:px-12">
-        <div className="mx-auto max-w-5xl space-y-10">
-          <div className="space-y-8">
-            <h1 className="font-heading text-6xl leading-none text-[var(--foreground)] sm:text-7xl lg:text-8xl">
+      <section className="flex min-h-[calc(100vh-5rem)] items-center justify-center px-6 py-14 text-center lg:min-h-[calc(100vh-6rem)] lg:px-12 lg:py-16">
+        <div className="mx-auto max-w-4xl space-y-8">
+          <div className="space-y-6">
+            <h1 className="font-heading text-5xl leading-none text-[var(--foreground)] sm:text-6xl lg:text-7xl">
               Elegancia em Cada Detalhe
             </h1>
-            <p className="mx-auto max-w-3xl text-lg font-light leading-9 tracking-[0.02em] text-[var(--muted)] sm:text-2xl">
+            <p className="mx-auto max-w-3xl text-base font-light leading-8 tracking-[0.02em] text-[var(--muted)] sm:text-xl">
               Descubra nossa colecao exclusiva de pratas e semi joias, onde o
               design contemporaneo encontra a qualidade premium.
             </p>
@@ -35,13 +34,6 @@ export default async function HomePage() {
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <PublicButton href="/catalogo" size="lg">
               Explorar catalogo
-            </PublicButton>
-            <PublicButton
-              href={(categories[0] ? `/categoria/${categories[0].slug}` : '/catalogo') as Route}
-              variant="secondary"
-              size="lg"
-            >
-              Ver aneis
             </PublicButton>
           </div>
         </div>

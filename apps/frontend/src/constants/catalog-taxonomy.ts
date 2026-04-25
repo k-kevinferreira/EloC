@@ -1,5 +1,4 @@
 export const publicCatalogNavigationItems = [
-  { label: 'CATÁLOGO', href: '/catalogo' },
   { label: 'ANÉIS', categorySlug: 'aneis' },
   { label: 'BRINCOS', categorySlug: 'brincos' },
   { label: 'COLARES', categorySlug: 'colares' },
