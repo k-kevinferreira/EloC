@@ -12,6 +12,7 @@ import {
   type ProductFormState,
 } from '@/app/(admin)/admin/(protected)/products/actions';
 import type { Category, Product, Subcategory } from '@/types/catalog/catalog.types';
+import { getPrimaryProductImage, getProductImageAlt } from '@/utils/catalog';
 import { formatCurrency } from '@/utils/formatters/currency';
 
 type ProductManagementProps = {
@@ -21,11 +22,28 @@ type ProductManagementProps = {
   subcategories: Subcategory[];
 };
 
+type ActiveProductForm =
+  | {
+      type: 'create';
+    }
+  | {
+      type: 'edit';
+      productId: string;
+    }
+  | null;
+
 type ProductEditorCardProps = {
   categories: Category[];
   canDelete: boolean;
+  onCancel: () => void;
   product: Product;
   subcategories: Subcategory[];
+};
+
+type ProductListItemProps = {
+  isSelected: boolean;
+  onEdit: () => void;
+  product: Product;
 };
 
 type FormMessageProps = {
@@ -71,59 +89,92 @@ export function ProductManagement({
   products,
   subcategories,
 }: ProductManagementProps) {
+  const [activeForm, setActiveForm] = useState<ActiveProductForm>(null);
   const hasCategories = categories.length > 0;
+  const selectedProduct =
+    activeForm?.type === 'edit'
+      ? products.find((product) => product.id === activeForm.productId)
+      : null;
 
   return (
     <div className="space-y-6">
-      <CreateProductCard categories={categories} subcategories={subcategories} />
-
       <section className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold">Produtos cadastrados</h2>
             <p className="max-w-2xl text-sm leading-6 text-[var(--muted)]">
-              Este modulo concentra o item principal do catalogo. O frontend cuida
-              da experiencia de edicao, mas o backend continua validando codigo,
-              slug e compatibilidade entre categoria e subcategoria.
+              Gerencie as pecas exibidas no catalogo, seus precos, status e imagens.
             </p>
           </div>
 
-          <div className="rounded-full border border-[var(--border)] bg-[var(--surface-strong)] px-4 py-2 text-sm text-[var(--muted)]">
-            <span className="font-semibold text-[var(--foreground)]">
-              {products.length}
-            </span>{' '}
-            produtos
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="rounded-full border border-[var(--border)] bg-[var(--surface-strong)] px-4 py-2 text-sm text-[var(--muted)]">
+              <span className="font-semibold text-[var(--foreground)]">
+                {products.length}
+              </span>{' '}
+              produtos
+            </div>
+            <button
+              type="button"
+              disabled={!hasCategories}
+              onClick={() => setActiveForm({ type: 'create' })}
+              className="inline-flex items-center justify-center rounded-full bg-[var(--surface-contrast)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Novo produto
+            </button>
           </div>
         </div>
 
         {!hasCategories ? (
           <div className="rounded-[1.25rem] border border-[rgba(177,59,46,0.18)] bg-[rgba(177,59,46,0.08)] px-4 py-3 text-sm text-[var(--danger)]">
-            Crie categorias antes de cadastrar produtos. Sem a hierarquia base, o
-            catalogo fica estruturalmente inconsistente.
+            Crie categorias antes de cadastrar produtos.
           </div>
         ) : null}
 
         {!canDelete ? (
           <div className="rounded-[1.25rem] border border-[rgba(183,121,31,0.18)] bg-[rgba(183,121,31,0.08)] px-4 py-3 text-sm text-[var(--warning)]">
-            O seu perfil pode criar e editar produtos, mas a exclusao continua
-            restrita a `super_admin`.
+            Seu perfil pode criar e editar produtos. Exclusao permanece restrita a
+            `super_admin`.
           </div>
         ) : null}
+      </section>
 
+      {activeForm?.type === 'create' ? (
+        <CreateProductCard
+          categories={categories}
+          onCancel={() => setActiveForm(null)}
+          subcategories={subcategories}
+        />
+      ) : null}
+
+      {selectedProduct ? (
+        <ProductEditorCard
+          categories={categories}
+          canDelete={canDelete}
+          onCancel={() => setActiveForm(null)}
+          product={selectedProduct}
+          subcategories={subcategories}
+        />
+      ) : null}
+
+      <section className="space-y-3">
         {products.length === 0 ? (
           <div className="rounded-[1.5rem] border border-dashed border-[var(--border-strong)] bg-[var(--surface)] p-5 text-sm text-[var(--muted)] shadow-[var(--shadow-md)]">
-            Nenhum produto foi encontrado. Use o formulario acima para iniciar a
-            camada principal do catalogo administrativo.
+            Nenhum produto cadastrado.
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="overflow-hidden rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-md)]">
             {products.map((product) => (
-              <ProductEditorCard
+              <ProductListItem
                 key={product.id}
-                categories={categories}
-                canDelete={canDelete}
+                isSelected={activeForm?.type === 'edit' && activeForm.productId === product.id}
+                onEdit={() =>
+                  setActiveForm({
+                    type: 'edit',
+                    productId: product.id,
+                  })
+                }
                 product={product}
-                subcategories={subcategories}
               />
             ))}
           </div>
@@ -133,11 +184,100 @@ export function ProductManagement({
   );
 }
 
+function ProductListItem({ isSelected, onEdit, product }: ProductListItemProps) {
+  return (
+    <article
+      className={[
+        'grid gap-4 border-b border-[var(--border)] p-4 last:border-b-0 md:grid-cols-[72px_minmax(0,1fr)_auto] md:items-center',
+        isSelected ? 'bg-[var(--accent-soft)]' : 'bg-transparent',
+      ].join(' ')}
+    >
+      <ProductThumbnail product={product} />
+
+      <div className="min-w-0 space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="truncate text-base font-semibold">{product.title}</h3>
+          <StatusBadge tone={product.isActive ? 'success' : 'danger'}>
+            {product.isActive ? 'Ativo' : 'Inativo'}
+          </StatusBadge>
+          {product.isFeatured ? (
+            <StatusBadge tone="warning">Destaque</StatusBadge>
+          ) : null}
+        </div>
+
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-[var(--muted)]">
+          <span>Codigo: {product.code}</span>
+          <span>
+            {product.category.name}
+            {product.subcategory ? ` - ${product.subcategory.name}` : ''}
+          </span>
+          <span>{product.images.length} imagens</span>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center md:justify-end">
+        <span className="text-sm font-semibold text-[var(--warning)]">
+          {formatCurrency(product.price)}
+        </span>
+        <button
+          type="button"
+          onClick={onEdit}
+          className="inline-flex items-center justify-center rounded-full border border-[var(--border-strong)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+        >
+          Editar
+        </button>
+      </div>
+    </article>
+  );
+}
+
+function ProductThumbnail({ product }: { product: Product }) {
+  const imageUrl = getPrimaryProductImage(product);
+  const imageAlt = getProductImageAlt(product);
+
+  return (
+    <div className="h-[72px] w-[72px] overflow-hidden rounded-2xl bg-[var(--champagne)]">
+      {imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={imageUrl} alt={imageAlt} className="h-full w-full object-cover" />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+          EloC
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StatusBadge({
+  children,
+  tone,
+}: {
+  children: React.ReactNode;
+  tone: 'danger' | 'success' | 'warning';
+}) {
+  const classNameByTone = {
+    danger: 'bg-[rgba(177,59,46,0.12)] text-[var(--danger)]',
+    success: 'bg-[var(--accent-soft)] text-[var(--accent)]',
+    warning: 'bg-[rgba(183,121,31,0.15)] text-[var(--warning)]',
+  };
+
+  return (
+    <span
+      className={`rounded-full px-3 py-1 text-xs font-semibold ${classNameByTone[tone]}`}
+    >
+      {children}
+    </span>
+  );
+}
+
 function CreateProductCard({
   categories,
+  onCancel,
   subcategories,
 }: {
   categories: Category[];
+  onCancel: () => void;
   subcategories: Subcategory[];
 }) {
   const [state, formAction] = useActionState(
@@ -165,16 +305,11 @@ function CreateProductCard({
 
   return (
     <section className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-md)] sm:p-6">
-      <div className="space-y-2">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">
-          Escrita administrativa
-        </p>
-        <h2 className="text-2xl font-semibold">Novo produto</h2>
-        <p className="max-w-2xl text-sm leading-6 text-[var(--muted)]">
-          O formulario abaixo segue o DTO do backend e prepara o painel para um
-          CRUD de produto sem empurrar regra de negocio para a UI.
-        </p>
-      </div>
+      <FormHeader
+        title="Novo produto"
+        description="Cadastre uma nova peca para o catalogo."
+        onCancel={onCancel}
+      />
 
       <form key={formKey} action={formAction} className="mt-6 space-y-5">
         <ProductFormFields
@@ -201,6 +336,7 @@ function CreateProductCard({
 function ProductEditorCard({
   categories,
   canDelete,
+  onCancel,
   product,
   subcategories,
 }: ProductEditorCardProps) {
@@ -236,46 +372,14 @@ function ProductEditorCard({
   ].join(':');
 
   return (
-    <article className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-md)]">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-lg font-semibold">{product.title}</h3>
-            <span
-              className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                product.isActive
-                  ? 'bg-[var(--accent-soft)] text-[var(--accent)]'
-                  : 'bg-[rgba(177,59,46,0.12)] text-[var(--danger)]'
-              }`}
-            >
-              {product.isActive ? 'Ativo' : 'Inativo'}
-            </span>
-            {product.isFeatured ? (
-              <span className="rounded-full bg-[rgba(183,121,31,0.15)] px-3 py-1 text-xs font-semibold text-[var(--warning)]">
-                Destaque
-              </span>
-            ) : null}
-          </div>
-          <p className="break-all text-sm text-[var(--muted)]">{product.slug}</p>
-          <p className="text-sm text-[var(--muted)]">
-            {product.category.name}
-            {product.subcategory ? ` - ${product.subcategory.name}` : ''}
-          </p>
-        </div>
+    <section className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-md)] sm:p-6">
+      <FormHeader
+        title={`Editar ${product.title}`}
+        description="Atualize os dados exibidos no catalogo."
+        onCancel={onCancel}
+      />
 
-        <div className="space-y-2 text-right">
-          <p className="text-lg font-semibold text-[var(--warning)]">
-            {formatCurrency(product.price)}
-          </p>
-          <p className="text-sm text-[var(--muted)]">Codigo: {product.code}</p>
-          <p className="text-sm text-[var(--muted)]">
-            Imagens: {product.images.length}
-          </p>
-          <p className="text-sm text-[var(--muted)]">Ordem: {product.displayOrder}</p>
-        </div>
-      </div>
-
-      <form key={formKey} action={updateFormAction} className="mt-5 space-y-5">
+      <form key={formKey} action={updateFormAction} className="mt-6 space-y-5">
         <ProductFormFields
           categories={categories}
           idPrefix={`product-${product.id}`}
@@ -296,7 +400,7 @@ function ProductEditorCard({
         </div>
       </form>
 
-      <div className="mt-4 border-t border-[var(--border)] pt-4">
+      <div className="mt-5 border-t border-[var(--border)] pt-5">
         <form
           action={deleteFormAction}
           className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
@@ -306,8 +410,7 @@ function ProductEditorCard({
               Excluir produto
             </p>
             <p className="text-sm text-[var(--muted)]">
-              O backend bloqueia a exclusao quando o produto ainda possui registros
-              de venda ou itens de remessa relacionados.
+              A exclusao pode ser bloqueada se houver vendas ou remessas vinculadas.
             </p>
           </div>
 
@@ -318,7 +421,36 @@ function ProductEditorCard({
           <FormMessage state={deleteState} />
         </div>
       </div>
-    </article>
+    </section>
+  );
+}
+
+function FormHeader({
+  description,
+  onCancel,
+  title,
+}: {
+  description: string;
+  onCancel: () => void;
+  title: string;
+}) {
+  return (
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="space-y-2">
+        <h2 className="text-2xl font-semibold">{title}</h2>
+        <p className="max-w-2xl text-sm leading-6 text-[var(--muted)]">
+          {description}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        onClick={onCancel}
+        className="inline-flex items-center justify-center rounded-full border border-[var(--border-strong)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+      >
+        Fechar
+      </button>
+    </div>
   );
 }
 
@@ -385,7 +517,7 @@ function ProductFormFields({
       ...currentState,
       [index]: {
         status: 'success',
-        message: 'Upload concluido. A URL foi preenchida automaticamente.',
+        message: 'Upload concluido.',
       },
     }));
   }
@@ -565,97 +697,127 @@ function ProductFormFields({
         ) : null}
       </div>
 
-      <div className="space-y-3 md:col-span-2">
-        <div className="space-y-2">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-semibold">Galeria do produto</p>
-              <p className="text-sm text-[var(--muted)]">
-                O painel envia `images[]` como contrato principal. Envie uma imagem
-                ou informe uma URL manual quando necessario.
-              </p>
-            </div>
+      <ProductImagesEditor
+        idPrefix={idPrefix}
+        images={images}
+        onImageUpload={handleImageUpload}
+        setImages={setImages}
+        uploadStateByIndex={uploadStateByIndex}
+      />
 
-            <button
-              type="button"
-              onClick={() => {
-                setImages((currentImages) => [
-                  ...currentImages,
-                  createEmptyProductImageFormValue(false, String(currentImages.length)),
-                ]);
-              }}
-              className="inline-flex items-center justify-center rounded-full border border-[var(--border-strong)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
-            >
-              Adicionar imagem
-            </button>
-          </div>
+      {state.fieldErrors.images ? (
+        <p className="text-sm text-[var(--danger)] md:col-span-2">
+          {state.fieldErrors.images}
+        </p>
+      ) : null}
 
-          <input type="hidden" name="images" value={JSON.stringify(images)} />
+      <div className="space-y-3 md:col-span-2 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
+        <label className="flex items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--foreground)]">
+          <input
+            name="isFeatured"
+            type="checkbox"
+            defaultChecked={state.values.isFeatured}
+            className="h-4 w-4 accent-[var(--accent)]"
+          />
+          <span className="font-medium">Produto em destaque</span>
+        </label>
+
+        <label className="flex items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--foreground)]">
+          <input
+            name="isActive"
+            type="checkbox"
+            defaultChecked={state.values.isActive}
+            className="h-4 w-4 accent-[var(--accent)]"
+          />
+          <span className="font-medium">Produto ativo no catalogo</span>
+        </label>
+      </div>
+    </div>
+  );
+}
+
+function ProductImagesEditor({
+  idPrefix,
+  images,
+  onImageUpload,
+  setImages,
+  uploadStateByIndex,
+}: {
+  idPrefix: string;
+  images: ProductImageFormValue[];
+  onImageUpload: (file: File | undefined, index: number) => Promise<void>;
+  setImages: React.Dispatch<React.SetStateAction<ProductImageFormValue[]>>;
+  uploadStateByIndex: Record<
+    number,
+    { status: 'error' | 'pending' | 'success'; message: string }
+  >;
+}) {
+  return (
+    <div className="space-y-3 md:col-span-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold">Galeria</p>
+          <p className="text-sm text-[var(--muted)]">
+            Envie imagens e defina qual sera a principal.
+          </p>
         </div>
 
-        <div className="space-y-3">
-          {images.map((image, index) => (
-            <div
-              key={`${idPrefix}-image-${index}`}
-              className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-4"
-            >
+        <button
+          type="button"
+          onClick={() => {
+            setImages((currentImages) => [
+              ...currentImages,
+              createEmptyProductImageFormValue(false, String(currentImages.length)),
+            ]);
+          }}
+          className="inline-flex items-center justify-center rounded-full border border-[var(--border-strong)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+        >
+          Adicionar imagem
+        </button>
+      </div>
+
+      <input type="hidden" name="images" value={JSON.stringify(images)} />
+
+      <div className="space-y-3">
+        {images.map((image, index) => (
+          <div
+            key={`${idPrefix}-image-${index}`}
+            className="grid gap-4 rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-4 lg:grid-cols-[144px_minmax(0,1fr)]"
+          >
+            <ImagePreview image={image} index={index} />
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label
+                  htmlFor={`${idPrefix}-image-upload-${index}`}
+                  className="text-sm font-semibold"
+                >
+                  Upload da imagem {index + 1}
+                </label>
+                <input
+                  id={`${idPrefix}-image-upload-${index}`}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(event) => {
+                    void onImageUpload(event.target.files?.[0], index);
+                    event.target.value = '';
+                  }}
+                  className="w-full rounded-2xl border border-dashed border-[var(--border-strong)] bg-[var(--surface)] px-4 py-3 text-sm outline-none transition file:mr-4 file:rounded-full file:border-0 file:bg-[var(--surface-contrast)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:border-[var(--accent)] focus:border-[var(--accent)]"
+                />
+                {uploadStateByIndex[index] ? (
+                  <p
+                    className={`text-sm ${
+                      uploadStateByIndex[index].status === 'error'
+                        ? 'text-[var(--danger)]'
+                        : 'text-[var(--muted)]'
+                    }`}
+                  >
+                    {uploadStateByIndex[index].message}
+                  </p>
+                ) : null}
+              </div>
+
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2 md:col-span-2">
-                  <label
-                    htmlFor={`${idPrefix}-image-upload-${index}`}
-                    className="text-sm font-semibold"
-                  >
-                    Upload da imagem {index + 1}
-                  </label>
-                  <input
-                    id={`${idPrefix}-image-upload-${index}`}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    onChange={(event) => {
-                      void handleImageUpload(event.target.files?.[0], index);
-                      event.target.value = '';
-                    }}
-                    className="w-full rounded-2xl border border-dashed border-[var(--border-strong)] bg-[var(--surface)] px-4 py-3 text-sm outline-none transition file:mr-4 file:rounded-full file:border-0 file:bg-[var(--surface-contrast)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:border-[var(--accent)] focus:border-[var(--accent)]"
-                  />
-                  {uploadStateByIndex[index] ? (
-                    <p
-                      className={`text-sm ${
-                        uploadStateByIndex[index].status === 'error'
-                          ? 'text-[var(--danger)]'
-                          : 'text-[var(--muted)]'
-                      }`}
-                    >
-                      {uploadStateByIndex[index].message}
-                    </p>
-                  ) : null}
-                </div>
-
-                <div className="space-y-2 md:col-span-2">
-                  <label
-                    htmlFor={`${idPrefix}-image-url-${index}`}
-                    className="text-sm font-semibold"
-                  >
-                    URL da imagem {index + 1}
-                  </label>
-                  <input
-                    id={`${idPrefix}-image-url-${index}`}
-                    type="url"
-                    value={image.url}
-                    placeholder="https://..."
-                    onChange={(event) => {
-                      const nextValue = event.target.value;
-                      setImages((currentImages) =>
-                        currentImages.map((currentImage, currentIndex) =>
-                          currentIndex === index
-                            ? { ...currentImage, url: nextValue }
-                            : currentImage,
-                        ),
-                      );
-                    }}
-                    className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
-                  />
-                </div>
-
                 <div className="space-y-2">
                   <label
                     htmlFor={`${idPrefix}-image-alt-${index}`}
@@ -687,7 +849,7 @@ function ProductFormFields({
                     htmlFor={`${idPrefix}-image-order-${index}`}
                     className="text-sm font-semibold"
                   >
-                    Ordem da imagem
+                    Ordem
                   </label>
                   <input
                     id={`${idPrefix}-image-order-${index}`}
@@ -710,24 +872,49 @@ function ProductFormFields({
                 </div>
               </div>
 
-              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <label className="flex items-center gap-3 text-sm text-[var(--foreground)]">
-                  <input
-                    type="radio"
-                    name={`${idPrefix}-primary-image`}
-                    checked={image.isPrimary}
-                    onChange={() => {
-                      setImages((currentImages) =>
-                        currentImages.map((currentImage, currentIndex) => ({
-                          ...currentImage,
-                          isPrimary: currentIndex === index,
-                        })),
-                      );
-                    }}
-                    className="h-4 w-4 accent-[var(--accent)]"
-                  />
-                  <span className="font-medium">Imagem principal</span>
-                </label>
+              <details className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3">
+                <summary className="cursor-pointer text-sm font-semibold text-[var(--foreground)]">
+                  URL manual
+                </summary>
+                <input
+                  id={`${idPrefix}-image-url-${index}`}
+                  type="url"
+                  value={image.url}
+                  placeholder="https://..."
+                  onChange={(event) => {
+                    const nextValue = event.target.value;
+                    setImages((currentImages) =>
+                      currentImages.map((currentImage, currentIndex) =>
+                        currentIndex === index
+                          ? { ...currentImage, url: nextValue }
+                          : currentImage,
+                      ),
+                    );
+                  }}
+                  className="mt-3 w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface-strong)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
+                />
+              </details>
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImages((currentImages) =>
+                      currentImages.map((currentImage, currentIndex) => ({
+                        ...currentImage,
+                        isPrimary: currentIndex === index,
+                      })),
+                    );
+                  }}
+                  className={[
+                    'inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition',
+                    image.isPrimary
+                      ? 'bg-[var(--surface-contrast)] text-white'
+                      : 'border border-[var(--border-strong)] text-[var(--foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)]',
+                  ].join(' ')}
+                >
+                  {image.isPrimary ? 'Imagem principal' : 'Definir como principal'}
+                </button>
 
                 <button
                   type="button"
@@ -757,35 +944,34 @@ function ProductFormFields({
                 </button>
               </div>
             </div>
-          ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ImagePreview({
+  image,
+  index,
+}: {
+  image: ProductImageFormValue;
+  index: number;
+}) {
+  return (
+    <div className="aspect-square overflow-hidden rounded-2xl bg-[var(--champagne)]">
+      {image.url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={image.url}
+          alt={image.altText || `Imagem ${index + 1}`}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center text-center text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+          Sem imagem
         </div>
-
-        {state.fieldErrors.images ? (
-          <p className="text-sm text-[var(--danger)]">{state.fieldErrors.images}</p>
-        ) : null}
-      </div>
-
-      <div className="space-y-3 md:col-span-2 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
-        <label className="flex items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--foreground)]">
-          <input
-            name="isFeatured"
-            type="checkbox"
-            defaultChecked={state.values.isFeatured}
-            className="h-4 w-4 accent-[var(--accent)]"
-          />
-          <span className="font-medium">Produto em destaque</span>
-        </label>
-
-        <label className="flex items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--foreground)]">
-          <input
-            name="isActive"
-            type="checkbox"
-            defaultChecked={state.values.isActive}
-            className="h-4 w-4 accent-[var(--accent)]"
-          />
-          <span className="font-medium">Produto ativo no catalogo</span>
-        </label>
-      </div>
+      )}
     </div>
   );
 }

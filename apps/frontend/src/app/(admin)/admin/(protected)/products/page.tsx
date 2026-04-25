@@ -22,9 +22,7 @@ export default async function AdminProductsPage() {
         </p>
         <h1 className="text-3xl font-semibold sm:text-4xl">Produtos</h1>
         <p className="max-w-3xl text-base leading-7 text-[var(--muted)]">
-          O modulo principal do catalogo agora tambem permite escrita
-          administrativa, combinando classificacao, precificacao e sinais
-          editoriais sem deslocar as regras criticas para o frontend.
+          Cadastre, edite e organize as pecas exibidas no catalogo publico.
         </p>
       </div>
 
