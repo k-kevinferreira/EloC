@@ -57,6 +57,7 @@ Situacao atual:
 - o Admin ja envia `images[]` como contrato principal, ainda com URLs manuais e sem upload real
 - `Product.imageUrl` permanece apenas como compatibilidade transitoria
 - o frontend publico consome `images[]` como fonte principal, com fallback controlado para `imageUrl`
+- backend possui upload administrativo inicial de imagens de produto com storage local
 - placeholders estruturais mantidos para:
   - `entries`
   - `expenses`
@@ -65,7 +66,7 @@ Situacao atual:
 
 Pendencias atuais de desenvolvimento:
 
-- definir infraestrutura de upload e storage sobre a modelagem relacional ja estabilizada
+- integrar o upload administrativo de imagens ao formulario de produtos no frontend
 - planejar a remocao futura da compatibilidade com `Product.imageUrl` depois da estabilizacao dos dados
 - consolidar primitivas reutilizaveis do painel administrativo sem abstrair cedo demais
 - padronizar ainda mais formularios, feedback de erro e estados de carregamento do painel
@@ -151,7 +152,7 @@ Se o projeto for retomado em outra sessao, consultar primeiro:
 
 Proximo passo recomendado no retorno:
 
-- evoluir upload e storage sobre `ProductImage`, mantendo `imageUrl` apenas como fallback legado ate haver plano seguro de remocao
+- integrar o upload administrativo ao formulario de produtos, mantendo `imageUrl` apenas como fallback legado ate haver plano seguro de remocao
 
 ## Convencoes basicas
 

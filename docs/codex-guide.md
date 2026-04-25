@@ -60,6 +60,7 @@ Estado consolidado:
 - backend de `products` ajustado para expor `images[]` e preservar `imageUrl` como compatibilidade transitoria
 - frontend administrativo de `products` ajustado para escrever `images[]` com galeria manual por URL, `altText`, `displayOrder` e imagem principal
 - frontend publico ajustado para consumir `images[]` como fonte principal, com fallback transitorio para `imageUrl`
+- backend de `uploads` iniciado com endpoint administrativo protegido para imagens de produto, validacao de arquivo e storage local
 - placeholders estruturais ja disponiveis para:
   - `entries`
   - `expenses`
@@ -80,7 +81,7 @@ Limites atuais do estado do sistema:
 - o CRUD do catalogo no frontend ja existe, mas ainda ha duplicacao intencional entre modulos para permitir uma segunda revisao antes de abstrair
 - a base visual do shell ja foi revisada, mas refinamentos de UX futuros devem acontecer por tela e por componente
 - o frontend publico ja consome `images[]` como contrato principal
-- o upload real de imagens ainda nao existe; a galeria administrativa continua temporariamente por URLs manuais
+- o upload administrativo local ja existe no backend, mas ainda nao foi integrado ao formulario de produtos no frontend
 - os contextos de `entries`, `expenses`, `shipments` e `uploads` ainda nao foram implementados no runtime do backend
 - ainda nao ha suite de testes automatizados configurada no backend
 
@@ -105,18 +106,19 @@ O ponto atual de continuidade do projeto e este:
 - banco local alinhado com `ProductImage`
 - frontend administrativo do catalogo escrevendo `images[]` de forma consistente com o backend
 - frontend publico do catalogo lendo `images[]` de forma consistente com o contrato do backend
+- endpoint administrativo de upload de imagens de produto disponivel no backend
 - compatibilidade transitoria com `imageUrl` preservada apenas para nao quebrar contratos durante a transicao
 
-Em termos de prioridade arquitetural, o projeto agora parou logo depois de concluir a base relacional de imagens de produto e adaptar o Admin e o catalogo publico para esse contrato.
+Em termos de prioridade arquitetural, o projeto agora parou logo depois de concluir a base relacional de imagens de produto, adaptar o Admin e o catalogo publico para esse contrato, e iniciar a infraestrutura local de upload.
 
-Isso significa que o proximo trabalho deve priorizar upload e storage sobre `ProductImage`, ou a revisao de uma serializacao publica especifica caso o contrato atual fique pesado para a vitrine. O backend so deve voltar para `categories`, `subcategories` e `products` se surgir bug, refinamento contratual, necessidade de endpoint complementar ou ajuste de serializacao para o catalogo publico. Ajustes visuais adicionais do shell devem ser pontuais, e nao reabrir a fundacao da interface sem necessidade clara.
+Isso significa que o proximo trabalho deve priorizar a integracao do upload administrativo ao formulario de produtos, ou a revisao de uma serializacao publica especifica caso o contrato atual fique pesado para a vitrine. O backend so deve voltar para `categories`, `subcategories` e `products` se surgir bug, refinamento contratual, necessidade de endpoint complementar ou ajuste de serializacao para o catalogo publico. Ajustes visuais adicionais do shell devem ser pontuais, e nao reabrir a fundacao da interface sem necessidade clara.
 
 ## 2.4. Proximos passos recomendados
 
 Ordem recomendada de continuidade:
 
-1. revisar se o backend precisa expor uma serializacao publica especifica para produtos
-2. implementar upload, storage e validacao de arquivo sobre a modelagem relacional ja estabilizada
+1. integrar o upload administrativo ao formulario de produtos no frontend
+2. revisar se o backend precisa expor uma serializacao publica especifica para produtos
 3. planejar quando remover a compatibilidade transitoria com `Product.imageUrl`
 4. revisar extracoes reutilizaveis do painel apenas se a repeticao se provar estavel
 5. na sequencia, avancar para os contextos operacionais e financeiros:
@@ -131,7 +133,7 @@ Decisao tecnica importante:
 - qualquer ajuste de payload, response ou validacao que aparecer durante a implementacao do painel deve ser revisado considerando o backend como camada de verdade do dominio
 - se houver necessidade de refino contratual, a alteracao deve ser feita primeiro no backend e depois refletida no frontend
 - a duplicacao atual entre formularios administrativos do catalogo e aceitavel por enquanto, porque o padrao acabou de ser estabelecido e ainda precisa ser validado antes de virar abstracao compartilhada
-- upload deve continuar tratado como problema de infraestrutura; agora que modelagem e consumo publico estao estabilizados, o proximo alvo e storage seguro
+- upload deve continuar tratado como problema de infraestrutura; o storage local atual e uma base inicial e deve poder ser trocado por provider externo sem alterar `ProductImage`
 
 ## 2.5. Revisao tecnica recente
 
@@ -148,6 +150,7 @@ Pontos validados na revisao mais recente:
 - o backend passou a preservar `imageUrl` apenas como compatibilidade transitoria, com `images[]` como contrato principal
 - o painel administrativo passou a escrever galeria de imagens sem acoplar a solucao a um provider de upload
 - o frontend publico passou a normalizar `images[]` como fonte principal de exibicao, preservando fallback legado para `imageUrl`
+- o backend passou a aceitar upload administrativo de imagens de produto com allowlist de JPEG, PNG e WebP
 
 Riscos e observacoes registrados:
 
@@ -155,6 +158,7 @@ Riscos e observacoes registrados:
 - o client HTTP do frontend precisava tratar `message` como lista para aproveitar erros do NestJS; esse ajuste ja foi aplicado porque impactava diretamente o feedback dos formularios
 - o shell administrativo tinha caracteres com encoding incorreto nos icones mobile; o problema ja foi corrigido por ser bug visual concreto
 - a transicao ponta a ponta para `images[]` esta estabilizada, mas `imageUrl` ainda precisa de um plano futuro de remocao
+- o endpoint de upload retorna URL publica, mas a associacao ao produto ainda depende da proxima integracao no Admin
 - como o projeto roda em Windows/OneDrive, builds do Next podem exigir limpeza de `.next` quando houver lock residual de arquivo
 
 ## 3. Meu papel no projeto
@@ -398,7 +402,7 @@ Ao retomar o projeto depois de uma pausa, a ordem de consulta recomendada agora 
 
 Pergunta operacional que deve ser respondida logo no inicio da retomada:
 
-- vamos iniciar upload/storage sobre `ProductImage`, revisar serializacao publica de produtos, ou corrigir algum bug contratual encontrado na transicao para `images[]`?
+- vamos integrar o upload ao formulario de produtos, revisar serializacao publica de produtos, ou corrigir algum bug contratual encontrado na transicao para `images[]`?
 
 ## 16. Checklist operacional rapido
 

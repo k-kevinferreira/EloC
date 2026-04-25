@@ -25,6 +25,7 @@ O backend agora possui uma base real em NestJS com:
   - `categories`
   - `subcategories`
   - `products`
+  - `uploads`
 
 Esses modulos comecam a camada de dominio com:
 
@@ -35,6 +36,7 @@ Esses modulos comecam a camada de dominio com:
 - protecao por autenticacao e autorizacao por papel nas rotas administrativas de escrita
 - modelagem relacional inicial de imagens de produto via `ProductImage`
 - compatibilidade transitoria de `Product.imageUrl` preservada no contrato
+- upload administrativo inicial de imagens de produto com storage local e validacao de arquivo
 
 ## Endpoints iniciais
 
@@ -59,6 +61,16 @@ Esses endpoints exigem `Bearer token` administrativo. Criacao e edicao aceitam `
 - `POST /api/admin/products`
 - `PATCH /api/admin/products/:id`
 - `DELETE /api/admin/products/:id`
+- `POST /api/admin/uploads/product-images`
+
+O endpoint de upload administrativo recebe `multipart/form-data` com o campo `file` e retorna:
+
+- `filename`
+- `url`
+- `mimeType`
+- `size`
+
+Ele ainda nao associa a imagem automaticamente a um produto. A URL retornada deve ser usada posteriormente no contrato `images[]` do produto.
 
 Exemplos de filtros ja suportados:
 
@@ -90,6 +102,10 @@ Configuracao local:
 - garantir que o PostgreSQL local esteja acessivel pela `DATABASE_URL`
 - definir `JWT_SECRET` com um valor forte fora do codigo
 - definir `JWT_EXPIRES_IN` em segundos
+- opcionalmente configurar upload local:
+  - `UPLOADS_LOCAL_ROOT=uploads`
+  - `UPLOADS_PUBLIC_BASE_URL=http://localhost:3001/uploads`
+  - `UPLOADS_MAX_PRODUCT_IMAGE_SIZE_BYTES=5242880`
 
 ## Observacao sobre primeiro admin
 
@@ -111,6 +127,6 @@ npm run admin:create --workspace @eloc/backend -- --name="Admin" --email="admin@
 
 Com a base administrativa do catalogo pronta no backend e integrada ao frontend, a evolucao mais coerente agora e:
 
-- evoluir upload e storage sobre a entidade `ProductImage`
+- integrar o upload administrativo ao formulario de produtos no frontend
 - manter `Product.imageUrl` apenas como fallback legado enquanto houver dados antigos dependentes desse campo
 - so depois avancar para os modulos de `entries`, `expenses` e `shipments`

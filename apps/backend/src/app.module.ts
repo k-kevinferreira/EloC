@@ -7,11 +7,13 @@ import { appConfig } from './config/app/app.config';
 import { authConfig } from './config/auth/auth.config';
 import { databaseConfig } from './config/database/database.config';
 import { validateEnv } from './config/env/env.validation';
+import { uploadsConfig } from './config/uploads/uploads.config';
 import { AdminsModule } from './modules/admins/admins.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { ProductsModule } from './modules/products/products.module';
 import { SubcategoriesModule } from './modules/subcategories/subcategories.module';
+import { UploadsModule } from './modules/uploads/uploads.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
@@ -21,7 +23,7 @@ import { PrismaModule } from './prisma/prisma.module';
       cache: true,
       expandVariables: true,
       envFilePath: '.env',
-      load: [appConfig, authConfig, databaseConfig],
+      load: [appConfig, authConfig, databaseConfig, uploadsConfig],
       validate: validateEnv,
     }),
     PrismaModule,
@@ -30,6 +32,7 @@ import { PrismaModule } from './prisma/prisma.module';
     CategoriesModule,
     SubcategoriesModule,
     ProductsModule,
+    UploadsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
