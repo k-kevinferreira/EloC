@@ -56,6 +56,7 @@ Situacao atual:
 - produtos agora possuem base relacional de imagens via `ProductImage`
 - o Admin ja envia `images[]` como contrato principal, ainda com URLs manuais e sem upload real
 - `Product.imageUrl` permanece apenas como compatibilidade transitoria
+- o frontend publico consome `images[]` como fonte principal, com fallback controlado para `imageUrl`
 - placeholders estruturais mantidos para:
   - `entries`
   - `expenses`
@@ -64,8 +65,8 @@ Situacao atual:
 
 Pendencias atuais de desenvolvimento:
 
-- consolidar o consumo de `images[]` no frontend publico do catalogo
 - definir infraestrutura de upload e storage sobre a modelagem relacional ja estabilizada
+- planejar a remocao futura da compatibilidade com `Product.imageUrl` depois da estabilizacao dos dados
 - consolidar primitivas reutilizaveis do painel administrativo sem abstrair cedo demais
 - padronizar ainda mais formularios, feedback de erro e estados de carregamento do painel
 - refinar a UI do painel por tela conforme os modulos crescerem, sem reabrir a base do shell sem necessidade
@@ -150,7 +151,7 @@ Se o projeto for retomado em outra sessao, consultar primeiro:
 
 Proximo passo recomendado no retorno:
 
-- evoluir o frontend publico e a infraestrutura de upload sobre o contrato `images[]`, sem depender mais de `imageUrl` como fonte principal
+- evoluir upload e storage sobre `ProductImage`, mantendo `imageUrl` apenas como fallback legado ate haver plano seguro de remocao
 
 ## Convencoes basicas
 

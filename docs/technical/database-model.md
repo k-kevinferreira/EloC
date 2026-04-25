@@ -220,12 +220,12 @@ O dominio agora possui uma evolucao inicial de imagens de produto:
 
 Isso significa:
 
-- o Admin atual continua podendo editar uma unica URL de imagem sem quebra contratual
+- o Admin atual ja escreve `images[]` como contrato principal, ainda com URLs manuais
 - o backend ja fica preparado para galeria e imagem primaria
-- o frontend publico ja pode passar a consumir `images` progressivamente
+- o frontend publico ja consome `images[]` com fallback transitorio para `imageUrl`
 - upload e storage continuam adiados para a proxima etapa
 
-Nesta fase, a escrita administrativa existente ainda sincroniza apenas uma imagem principal via `imageUrl`. A galeria completa ainda nao possui fluxo de edicao proprio no painel.
+Nesta fase, a escrita administrativa de imagens ja suporta galeria manual por URL, `altText`, `displayOrder` e imagem principal. O campo `Product.imageUrl` permanece apenas como compatibilidade transitoria e e sincronizado a partir da imagem principal.
 
 ## Direcao recomendada para evolucao de imagens
 
@@ -353,10 +353,10 @@ Esses pontos nao devem ser delegados apenas ao frontend.
 ## Proximos passos recomendados
 
 1. manter `schema.prisma`, migrations e banco real sempre alinhados
-2. usar o schema atual como base contratual para o frontend administrativo do catalogo, mas tratar `Product.imageUrl` como estrutura transitoria
-3. evoluir a escrita administrativa de imagens para sair de `imageUrl` simples e suportar galeria explicitamente
-4. alinhar o frontend publico para consumir `images` como contrato principal
-5. implementar upload e storage apenas depois de estabilizar essa escrita
+2. usar `ProductImage` e `images[]` como contrato principal entre backend, Admin e frontend publico
+3. manter `Product.imageUrl` apenas como fallback legado enquanto houver dados antigos dependentes desse campo
+4. implementar upload e storage apenas depois de estabilizar o consumo publico e administrativo de `images[]`
+5. revisar quando remover a compatibilidade com `imageUrl`
 6. padronizar valores aceitos para `paymentMethod`, `Expense.type` e `status` antes de expor os modulos financeiros
 7. implementar os modulos de runtime para `entries`, `expenses` e `shipments` no backend quando a direcao estrutural das imagens estiver estabilizada
 
@@ -368,4 +368,4 @@ Se o projeto for retomado depois de uma pausa, o ponto tecnico atual e este:
 - backend NestJS inicial ja implementado e integrado ao Prisma
 - autenticacao administrativa inicial com JWT ja implementada
 - modulos de leitura e escrita para `categories`, `subcategories` e `products` ja disponiveis
-- proximo passo recomendado: formalizar a evolucao de imagens de produto e seus contratos antes de upload e do frontend publico
+- proximo passo recomendado: revisar a remocao futura do fallback `imageUrl` e planejar upload/storage sobre `ProductImage`

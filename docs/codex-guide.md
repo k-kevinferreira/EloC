@@ -59,6 +59,7 @@ Estado consolidado:
 - migration `20260423_add_product_images` criada e aplicada no banco local
 - backend de `products` ajustado para expor `images[]` e preservar `imageUrl` como compatibilidade transitoria
 - frontend administrativo de `products` ajustado para escrever `images[]` com galeria manual por URL, `altText`, `displayOrder` e imagem principal
+- frontend publico ajustado para consumir `images[]` como fonte principal, com fallback transitorio para `imageUrl`
 - placeholders estruturais ja disponiveis para:
   - `entries`
   - `expenses`
@@ -78,7 +79,7 @@ Limites atuais do estado do sistema:
 
 - o CRUD do catalogo no frontend ja existe, mas ainda ha duplicacao intencional entre modulos para permitir uma segunda revisao antes de abstrair
 - a base visual do shell ja foi revisada, mas refinamentos de UX futuros devem acontecer por tela e por componente
-- o frontend publico ainda nao foi ajustado para consumir `images[]` como contrato principal
+- o frontend publico ja consome `images[]` como contrato principal
 - o upload real de imagens ainda nao existe; a galeria administrativa continua temporariamente por URLs manuais
 - os contextos de `entries`, `expenses`, `shipments` e `uploads` ainda nao foram implementados no runtime do backend
 - ainda nao ha suite de testes automatizados configurada no backend
@@ -103,19 +104,20 @@ O ponto atual de continuidade do projeto e este:
 - backend administrativo de catalogo concluido, compilando e com `images[]` estabilizado
 - banco local alinhado com `ProductImage`
 - frontend administrativo do catalogo escrevendo `images[]` de forma consistente com o backend
+- frontend publico do catalogo lendo `images[]` de forma consistente com o contrato do backend
 - compatibilidade transitoria com `imageUrl` preservada apenas para nao quebrar contratos durante a transicao
 
-Em termos de prioridade arquitetural, o projeto agora parou logo depois de concluir a base relacional de imagens de produto e adaptar o Admin para esse contrato.
+Em termos de prioridade arquitetural, o projeto agora parou logo depois de concluir a base relacional de imagens de produto e adaptar o Admin e o catalogo publico para esse contrato.
 
-Isso significa que o proximo trabalho deve priorizar o consumo de `images[]` no frontend publico antes de abrir upload real. O backend so deve voltar para `categories`, `subcategories` e `products` se surgir bug, refinamento contratual, necessidade de endpoint complementar ou ajuste de serializacao para o catalogo publico. Ajustes visuais adicionais do shell devem ser pontuais, e nao reabrir a fundacao da interface sem necessidade clara.
+Isso significa que o proximo trabalho deve priorizar upload e storage sobre `ProductImage`, ou a revisao de uma serializacao publica especifica caso o contrato atual fique pesado para a vitrine. O backend so deve voltar para `categories`, `subcategories` e `products` se surgir bug, refinamento contratual, necessidade de endpoint complementar ou ajuste de serializacao para o catalogo publico. Ajustes visuais adicionais do shell devem ser pontuais, e nao reabrir a fundacao da interface sem necessidade clara.
 
 ## 2.4. Proximos passos recomendados
 
 Ordem recomendada de continuidade:
 
-1. ajustar o frontend publico para consumir `images[]` como contrato principal de produto
-2. revisar se o backend precisa expor uma serializacao publica especifica para produtos
-3. so depois implementar upload, storage e validacao de arquivo sobre a modelagem relacional ja estabilizada
+1. revisar se o backend precisa expor uma serializacao publica especifica para produtos
+2. implementar upload, storage e validacao de arquivo sobre a modelagem relacional ja estabilizada
+3. planejar quando remover a compatibilidade transitoria com `Product.imageUrl`
 4. revisar extracoes reutilizaveis do painel apenas se a repeticao se provar estavel
 5. na sequencia, avancar para os contextos operacionais e financeiros:
    - `entries`
@@ -129,7 +131,7 @@ Decisao tecnica importante:
 - qualquer ajuste de payload, response ou validacao que aparecer durante a implementacao do painel deve ser revisado considerando o backend como camada de verdade do dominio
 - se houver necessidade de refino contratual, a alteracao deve ser feita primeiro no backend e depois refletida no frontend
 - a duplicacao atual entre formularios administrativos do catalogo e aceitavel por enquanto, porque o padrao acabou de ser estabelecido e ainda precisa ser validado antes de virar abstracao compartilhada
-- upload deve continuar tratado como problema posterior de infraestrutura; agora que modelagem e contrato administrativo estao estabilizados, o proximo alvo e o consumo publico
+- upload deve continuar tratado como problema de infraestrutura; agora que modelagem e consumo publico estao estabilizados, o proximo alvo e storage seguro
 
 ## 2.5. Revisao tecnica recente
 
@@ -145,13 +147,14 @@ Pontos validados na revisao mais recente:
 - a relacao `categoryId` -> `subcategoryId` em produtos recebeu tratamento de interface sem substituir a validacao real do backend
 - o backend passou a preservar `imageUrl` apenas como compatibilidade transitoria, com `images[]` como contrato principal
 - o painel administrativo passou a escrever galeria de imagens sem acoplar a solucao a um provider de upload
+- o frontend publico passou a normalizar `images[]` como fonte principal de exibicao, preservando fallback legado para `imageUrl`
 
 Riscos e observacoes registrados:
 
 - existe repeticao estrutural entre os modulos administrativos do catalogo, mas ela ainda e aceitavel neste momento; abstrair cedo demais aqui aumentaria risco de criar infra artificial antes da expansao para `entries`, `expenses` e `shipments`
 - o client HTTP do frontend precisava tratar `message` como lista para aproveitar erros do NestJS; esse ajuste ja foi aplicado porque impactava diretamente o feedback dos formularios
 - o shell administrativo tinha caracteres com encoding incorreto nos icones mobile; o problema ja foi corrigido por ser bug visual concreto
-- o frontend publico ainda nao consome `images[]`, entao a transicao de contratos ainda nao terminou ponta a ponta
+- a transicao ponta a ponta para `images[]` esta estabilizada, mas `imageUrl` ainda precisa de um plano futuro de remocao
 - como o projeto roda em Windows/OneDrive, builds do Next podem exigir limpeza de `.next` quando houver lock residual de arquivo
 
 ## 3. Meu papel no projeto
@@ -395,7 +398,7 @@ Ao retomar o projeto depois de uma pausa, a ordem de consulta recomendada agora 
 
 Pergunta operacional que deve ser respondida logo no inicio da retomada:
 
-- estamos levando `images[]` para o frontend publico do catalogo, ou surgiu algum bug contratual na transicao administrativa que precisa ser corrigido antes?
+- vamos iniciar upload/storage sobre `ProductImage`, revisar serializacao publica de produtos, ou corrigir algum bug contratual encontrado na transicao para `images[]`?
 
 ## 16. Checklist operacional rapido
 

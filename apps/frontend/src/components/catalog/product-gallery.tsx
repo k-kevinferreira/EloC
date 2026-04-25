@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 
 import type { Product } from '@/types/catalog/catalog.types';
-import { getPrimaryProductImage, getProductImageAlt } from '@/utils/catalog';
+import { getPublicProductImages } from '@/utils/catalog';
 
 import { ImageWithFallback } from './image-with-fallback';
 
@@ -13,19 +13,7 @@ type ProductGalleryProps = {
 
 export function ProductGallery({ product }: ProductGalleryProps) {
   const images = useMemo(() => {
-    if (product.images.length > 0) {
-      return product.images.map((image) => ({
-        url: image.url,
-        alt: image.altText ?? product.title,
-      }));
-    }
-
-    return [
-      {
-        url: getPrimaryProductImage(product),
-        alt: getProductImageAlt(product),
-      },
-    ];
+    return getPublicProductImages(product);
   }, [product]);
 
   const [selectedIndex, setSelectedIndex] = useState(0);

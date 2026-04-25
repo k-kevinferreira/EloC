@@ -111,6 +111,6 @@ npm run admin:create --workspace @eloc/backend -- --name="Admin" --email="admin@
 
 Com a base administrativa do catalogo pronta no backend e integrada ao frontend, a evolucao mais coerente agora e:
 
-- consolidar `images[]` como contrato principal tambem no frontend publico
-- tratar upload apenas depois que a modelagem e os contratos estiverem estaveis no runtime real
+- evoluir upload e storage sobre a entidade `ProductImage`
+- manter `Product.imageUrl` apenas como fallback legado enquanto houver dados antigos dependentes desse campo
 - so depois avancar para os modulos de `entries`, `expenses` e `shipments`

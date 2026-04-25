@@ -1,5 +1,11 @@
 import type { Category, Product } from '@/types/catalog/catalog.types';
 
+export type PublicProductImage = {
+  url: string;
+  alt: string;
+  isPrimary: boolean;
+};
+
 export function formatPrice(price: string | number) {
   const value = typeof price === 'number' ? price : Number(price);
 
@@ -9,18 +15,42 @@ export function formatPrice(price: string | number) {
   }).format(Number.isFinite(value) ? value : 0);
 }
 
-export function getPrimaryProductImage(product: Product) {
-  const primaryImage =
-    product.images.find((image) => image.isPrimary) ?? product.images[0];
+export function getPublicProductImages(product: Product): PublicProductImage[] {
+  if (product.images.length > 0) {
+    return [...product.images]
+      .sort((firstImage, secondImage) => {
+        if (firstImage.isPrimary !== secondImage.isPrimary) {
+          return firstImage.isPrimary ? -1 : 1;
+        }
 
-  return primaryImage?.url ?? product.imageUrl ?? null;
+        return firstImage.displayOrder - secondImage.displayOrder;
+      })
+      .map((image) => ({
+        url: image.url,
+        alt: image.altText ?? product.title,
+        isPrimary: image.isPrimary,
+      }));
+  }
+
+  if (!product.imageUrl) {
+    return [];
+  }
+
+  return [
+    {
+      url: product.imageUrl,
+      alt: product.title,
+      isPrimary: true,
+    },
+  ];
+}
+
+export function getPrimaryProductImage(product: Product) {
+  return getPublicProductImages(product)[0]?.url ?? null;
 }
 
 export function getProductImageAlt(product: Product) {
-  const primaryImage =
-    product.images.find((image) => image.isPrimary) ?? product.images[0];
-
-  return primaryImage?.altText ?? product.title;
+  return getPublicProductImages(product)[0]?.alt ?? product.title;
 }
 
 export function getCategoryProductCount(

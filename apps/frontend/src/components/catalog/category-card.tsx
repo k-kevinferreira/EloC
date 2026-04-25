@@ -2,7 +2,11 @@ import Link from 'next/link';
 import type { Route } from 'next';
 
 import type { Category, Product } from '@/types/catalog/catalog.types';
-import { getCategoryProductCount, getPrimaryProductImage } from '@/utils/catalog';
+import {
+  getCategoryProductCount,
+  getPrimaryProductImage,
+  getPublicProductImages,
+} from '@/utils/catalog';
 
 import { ImageWithFallback } from './image-with-fallback';
 
@@ -13,7 +17,9 @@ type CategoryCardProps = {
 
 export function CategoryCard({ category, products }: CategoryCardProps) {
   const representativeProduct = products.find(
-    (product) => product.categoryId === category.id,
+    (product) =>
+      product.categoryId === category.id &&
+      getPublicProductImages(product).length > 0,
   );
   const productCount = getCategoryProductCount(category, products);
 

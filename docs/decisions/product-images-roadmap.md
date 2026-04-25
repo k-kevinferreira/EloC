@@ -2,9 +2,9 @@
 
 ## Contexto
 
-O catalogo administrativo ja permite criar, editar e excluir produtos, mas hoje cada produto suporta apenas uma imagem simples por `imageUrl`.
+O catalogo administrativo ja permite criar, editar e excluir produtos. No primeiro ciclo, cada produto suportava apenas uma imagem simples por `imageUrl`.
 
-Essa estrutura foi suficiente para fechar o primeiro ciclo do painel, porque permitiu:
+Essa estrutura foi suficiente para fechar a base inicial do painel, porque permitiu:
 
 - persistir uma referencia de imagem no produto
 - exibir uma imagem unica no catalogo
@@ -35,27 +35,28 @@ Se o projeto crescer em cima desse campo como contrato definitivo, o frontend pu
 
 Antes de implementar upload, o projeto deve formalizar uma evolucao de dominio para imagens de produto.
 
-A direcao recomendada e:
+A direcao adotada e:
 
 - manter `Product.imageUrl` apenas como estrutura transitoria
-- introduzir uma entidade relacional dedicada, como `ProductImage`
+- usar `ProductImage` como entidade relacional dedicada
 - definir contratos de backend e frontend preparados para uma ou varias imagens por produto
-- adiar a escolha de storage e o fluxo de upload para a etapa seguinte
+- adiar a escolha de storage e o fluxo de upload ate o contrato de dominio estar estavel
 
 ## Estado atual da decisao
 
 Esta decisao ja foi iniciada no codigo:
 
 - `ProductImage` foi implementado como entidade relacional
-- o backend de `products` ja expõe `images[]`
+- o backend de `products` ja expoe `images[]`
 - o Admin ja escreve `images[]` com galeria manual por URL
-- `Product.imageUrl` continua apenas como compatibilidade transitória
+- o frontend publico ja consome `images[]` como fonte principal de exibicao
+- `Product.imageUrl` continua apenas como compatibilidade transitoria
 
-Portanto, a decisao nao esta mais no campo de planejamento inicial. Ela ja entrou em execucao e o ponto seguinte agora e consolidar o consumo publico do contrato novo.
+Portanto, a decisao nao esta mais no campo de planejamento inicial. Ela ja entrou em execucao, e o contrato novo esta consolidado no backend, no Admin e no catalogo publico.
 
-## Modelagem recomendada
+## Modelagem implementada
 
-Estrutura sugerida para a futura entidade:
+Estrutura da entidade:
 
 - `id`
 - `productId`
@@ -66,7 +67,7 @@ Estrutura sugerida para a futura entidade:
 - `createdAt`
 - `updatedAt`
 
-Relacao esperada:
+Relacao:
 
 - `Product 1:N ProductImage`
 
@@ -82,20 +83,20 @@ Beneficios:
 
 Custos aceitos:
 
-- exige revisao do schema Prisma
-- exige revisao dos contracts do backend e dos tipos do frontend
-- exige estrategia de compatibilidade temporaria para o Admin atual
+- exige estrategia de compatibilidade temporaria com `Product.imageUrl`
+- exige cuidado para nao duplicar regra de selecao de imagem entre camadas
+- exige validacao futura de arquivos quando upload real for implementado
 
 ## Regra de continuidade
 
 A sequencia recomendada e:
 
-1. ajustar o frontend publico para consumir `images[]`
-2. revisar se a serializacao publica de `products` precisa ser diferenciada
-3. so depois implementar upload, storage e validacao de arquivo
+1. revisar se a serializacao publica de `products` precisa ser diferenciada
+2. implementar upload, storage e validacao de arquivo sobre `ProductImage`
+3. planejar a remocao futura da compatibilidade com `Product.imageUrl`
 
 ## Observacao importante
 
-Upload nao deve ser o primeiro passo.
+Upload nao deve ser tratado como substituto da modelagem de dominio.
 
-Upload e uma decisao de infraestrutura. Antes disso, o dominio precisa estar correto.
+Upload e uma decisao de infraestrutura. A entidade `ProductImage` continua sendo o contrato central de imagens de produto.
