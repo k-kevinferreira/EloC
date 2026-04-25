@@ -206,7 +206,6 @@ function ProductListItem({ isSelected, onEdit, product }: ProductListItemProps) 
         </div>
 
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-[var(--muted)]">
-          <span>Codigo: {product.code}</span>
           <span>
             {product.category.name}
             {product.subcategory ? ` - ${product.subcategory.name}` : ''}
@@ -465,6 +464,11 @@ function ProductFormFields({
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState(
     state.values.subcategoryId,
   );
+  const [titleValue, setTitleValue] = useState(state.values.title);
+  const [slugValue, setSlugValue] = useState(state.values.slug);
+  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(
+    state.values.slug.length > 0,
+  );
   const [images, setImages] = useState(state.values.images);
   const [uploadStateByIndex, setUploadStateByIndex] = useState<
     Record<number, { status: 'error' | 'pending' | 'success'; message: string }>
@@ -579,22 +583,7 @@ function ProductFormFields({
         ) : null}
       </div>
 
-      <div className="space-y-2">
-        <label htmlFor={`${idPrefix}-code`} className="text-sm font-semibold">
-          Codigo
-        </label>
-        <input
-          id={`${idPrefix}-code`}
-          name="code"
-          type="text"
-          defaultValue={state.values.code}
-          placeholder="Ex.: ANEL-001"
-          className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface-strong)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
-        />
-        {state.fieldErrors.code ? (
-          <p className="text-sm text-[var(--danger)]">{state.fieldErrors.code}</p>
-        ) : null}
-      </div>
+      <input type="hidden" name="code" value={state.values.code} />
 
       <div className="space-y-2">
         <label htmlFor={`${idPrefix}-slug`} className="text-sm font-semibold">
@@ -604,8 +593,12 @@ function ProductFormFields({
           id={`${idPrefix}-slug`}
           name="slug"
           type="text"
-          defaultValue={state.values.slug}
+          value={slugValue}
           placeholder="ex.: anel-solitario-ouro"
+          onChange={(event) => {
+            setIsSlugManuallyEdited(true);
+            setSlugValue(slugifyProductTitle(event.target.value));
+          }}
           className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface-strong)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
         />
         {state.fieldErrors.slug ? (
@@ -621,8 +614,16 @@ function ProductFormFields({
           id={`${idPrefix}-title`}
           name="title"
           type="text"
-          defaultValue={state.values.title}
+          value={titleValue}
           placeholder="Ex.: Anel Solitario Ouro 18k"
+          onChange={(event) => {
+            const nextTitle = event.target.value;
+            setTitleValue(nextTitle);
+
+            if (!isSlugManuallyEdited) {
+              setSlugValue(slugifyProductTitle(nextTitle));
+            }
+          }}
           className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface-strong)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
         />
         {state.fieldErrors.title ? (
@@ -1066,4 +1067,15 @@ function createEmptyProductImageFormValue(
     displayOrder,
     isPrimary,
   };
+}
+
+function slugifyProductTitle(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-{2,}/g, '-');
 }

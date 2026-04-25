@@ -97,7 +97,7 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
             <input
               name="search"
               autoFocus
-              placeholder="Buscar por nome ou codigo"
+              placeholder="Buscar por nome"
               className="min-h-12 flex-1 rounded-md border border-[var(--border)] bg-[var(--surface-strong)] px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--rose-bronze)]"
             />
             <button
@@ -125,7 +125,7 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
             <form onSubmit={handleSearchSubmit} className="flex flex-col gap-3 pt-2">
               <input
                 name="search"
-                placeholder="Buscar por nome ou codigo"
+                placeholder="Buscar por nome"
                 className="min-h-12 rounded-md border border-[var(--border)] bg-[var(--surface-strong)] px-4 text-sm normal-case tracking-normal text-[var(--foreground)] outline-none focus:border-[var(--rose-bronze)]"
               />
               <button

@@ -42,7 +42,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
           <input
             name="search"
             defaultValue={search ?? ''}
-            placeholder="Buscar por nome ou codigo"
+            placeholder="Buscar por nome"
             className="min-h-12 rounded-md border border-[var(--border)] bg-[var(--surface-strong)] px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--rose-bronze)]"
           />
 

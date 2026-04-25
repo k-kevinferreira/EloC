@@ -53,7 +53,7 @@ export function AdminSidebar({
   return (
     <>
       <div
-        className={`fixed inset-0 z-40 bg-[rgba(15,45,43,0.28)] backdrop-blur-sm transition duration-200 lg:hidden ${
+        className={`fixed inset-0 z-40 bg-[rgba(78,67,60,0.34)] backdrop-blur-sm transition duration-200 lg:hidden ${
           isMobileOpen
             ? 'pointer-events-auto opacity-100'
             : 'pointer-events-none opacity-0'
@@ -62,7 +62,7 @@ export function AdminSidebar({
       />
 
       <aside
-        className={`fixed inset-y-3 left-3 z-50 w-[min(82vw,300px)] rounded-[1.5rem] border border-[rgba(255,255,255,0.06)] bg-[#102f2d] px-4 py-5 text-white shadow-[0_24px_64px_rgba(15,45,43,0.28)] transition duration-200 lg:sticky lg:top-4 lg:z-auto lg:block lg:w-auto lg:self-start lg:rounded-[1.75rem] lg:px-5 lg:py-6 ${
+        className={`fixed inset-y-3 left-3 z-50 w-[min(82vw,300px)] rounded-[1.5rem] border border-[rgba(255,255,255,0.08)] bg-[#4E433C] px-4 py-5 text-white shadow-[0_24px_64px_rgba(78,67,60,0.28)] transition duration-200 lg:sticky lg:top-4 lg:z-auto lg:block lg:w-auto lg:self-start lg:rounded-[1.75rem] lg:px-5 lg:py-6 ${
           isMobileOpen
             ? 'translate-x-0 opacity-100'
             : '-translate-x-[110%] opacity-0 lg:translate-x-0 lg:opacity-100'
@@ -71,7 +71,7 @@ export function AdminSidebar({
         <div className="flex h-full max-h-[calc(100vh-1.5rem)] flex-col lg:max-h-[calc(100vh-2rem)]">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.34em] text-white/58">
+              <p className="text-xs font-semibold uppercase tracking-[0.34em] text-[#efe5d8]/64">
                 EloC
               </p>
               <h2 className="mt-3 text-[2rem] font-semibold leading-none">Admin</h2>
@@ -80,17 +80,17 @@ export function AdminSidebar({
             <button
               type="button"
               onClick={onCloseMobile}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/6 text-lg text-white/72 transition hover:bg-white/10 lg:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#f5efe7]/12 bg-[#f5efe7]/8 text-lg text-[#f5efe7]/76 transition hover:bg-[#f5efe7]/14 lg:hidden"
               aria-label="Fechar menu"
             >
               &times;
             </button>
           </div>
 
-          <div className="mt-6 rounded-[1.25rem] border border-white/8 bg-white/6 p-4">
+          <div className="mt-6 rounded-[1.25rem] border border-[#f5efe7]/10 bg-[#f5efe7]/8 p-4">
             <p className="text-base font-semibold">{admin.name}</p>
-            <p className="mt-1 break-all text-sm text-white/62">{admin.email}</p>
-            <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/52">
+            <p className="mt-1 break-all text-sm text-[#f5efe7]/68">{admin.email}</p>
+            <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#f5efe7]/58">
               {admin.role.replace('_', ' ')}
             </p>
           </div>
@@ -107,15 +107,15 @@ export function AdminSidebar({
                     onClick={onCloseMobile}
                     className={`group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition ${
                       isActive
-                        ? 'text-[#f7f1e8]'
-                        : 'text-white/74 hover:text-[#f1ebe2]'
+                        ? 'bg-[#f5efe7]/12 text-[#fffaf4]'
+                        : 'text-[#f5efe7]/74 hover:bg-[#f5efe7]/8 hover:text-[#fffaf4]'
                     }`}
                   >
                     <span
                       className={`h-2.5 w-2.5 rounded-full transition ${
                         isActive
-                          ? 'bg-[#0f766e]'
-                          : 'bg-white/20 group-hover:bg-[#d8c7a6]'
+                          ? 'bg-[#d4b5a0]'
+                          : 'bg-[#f5efe7]/24 group-hover:bg-[#d4b5a0]'
                       }`}
                     />
                     <span>{item.label}</span>
@@ -125,10 +125,10 @@ export function AdminSidebar({
             </div>
           </nav>
 
-          <form action={logoutAdminAction} className="mt-5 border-t border-white/8 pt-4">
+          <form action={logoutAdminAction} className="mt-5 border-t border-[#f5efe7]/10 pt-4">
             <button
               type="submit"
-              className="w-full rounded-xl border border-white/10 bg-white/6 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+              className="w-full rounded-xl border border-[#f5efe7]/12 bg-[#f5efe7]/8 px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#f5efe7]/14"
             >
               Sair
             </button>

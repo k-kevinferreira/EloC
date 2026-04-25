@@ -219,14 +219,16 @@ export async function uploadProductImageAction(
 }
 
 function parseProductFormData(formData: FormData): ProductFormParseResult {
+  const title = String(formData.get('title') ?? '').trim();
+  const slug = String(formData.get('slug') ?? '')
+    .trim()
+    .toLowerCase();
   const values: ProductFormValues = {
     categoryId: String(formData.get('categoryId') ?? '').trim(),
     subcategoryId: String(formData.get('subcategoryId') ?? '').trim(),
-    code: String(formData.get('code') ?? '').trim(),
-    slug: String(formData.get('slug') ?? '')
-      .trim()
-      .toLowerCase(),
-    title: String(formData.get('title') ?? '').trim(),
+    code: String(formData.get('code') ?? '').trim() || generateProductCode(slug || title),
+    slug,
+    title,
     shortDescription: String(formData.get('shortDescription') ?? '').trim(),
     description: String(formData.get('description') ?? '').trim(),
     price: String(formData.get('price') ?? '').trim(),
@@ -461,4 +463,18 @@ function createEmptyImageFormValue(): ProductImageFormValue {
     displayOrder: '0',
     isPrimary: true,
   };
+}
+
+function generateProductCode(value: string) {
+  const normalizedValue = value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-{2,}/g, '-')
+    .slice(0, 48);
+  const suffix = Date.now().toString(36).toUpperCase();
+
+  return `${normalizedValue || 'PRODUTO'}-${suffix}`;
 }

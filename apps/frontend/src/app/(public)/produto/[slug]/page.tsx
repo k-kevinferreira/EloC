@@ -31,7 +31,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     .slice(0, 4);
 
   const contactMessage = encodeURIComponent(
-    `Ola, tenho interesse na peca ${product.title} (${product.code}).`,
+    `Ola, tenho interesse na peca ${product.title}.`,
   );
 
   return (
@@ -73,10 +73,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
             ) : null}
 
             <dl className="grid gap-3 text-xs text-[var(--muted)] sm:grid-cols-2">
-              <div>
-                <dt className="font-medium uppercase tracking-[0.16em]">Codigo</dt>
-                <dd className="mt-1.5">{product.code}</dd>
-              </div>
               <div>
                 <dt className="font-medium uppercase tracking-[0.16em]">
                   Categoria
