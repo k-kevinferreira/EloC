@@ -26,7 +26,7 @@ export function CategoryCard({ category, products }: CategoryCardProps) {
   return (
     <Link
       href={`/categoria/${category.slug}` as Route}
-      className="group relative block aspect-[3/4] overflow-hidden rounded-lg bg-[var(--champagne)] focus:outline-none focus:ring-1 focus:ring-[var(--rose-bronze)]"
+      className="group relative block aspect-[4/5] overflow-hidden rounded-lg bg-[var(--champagne)] focus:outline-none focus:ring-1 focus:ring-[var(--rose-bronze)] sm:aspect-[3/4]"
     >
       <ImageWithFallback
         src={
@@ -36,11 +36,11 @@ export function CategoryCard({ category, products }: CategoryCardProps) {
         className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-      <div className="absolute bottom-6 left-6 right-6">
-        <h3 className="font-heading text-2xl leading-none text-white">
+      <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6">
+        <h3 className="font-heading text-xl leading-none text-white sm:text-2xl">
           {category.name}
         </h3>
-        <p className="mt-3 text-xs font-medium uppercase tracking-[0.18em] text-white/80">
+        <p className="mt-2 text-[0.65rem] font-medium uppercase tracking-[0.14em] text-white/80 sm:mt-3 sm:text-xs sm:tracking-[0.18em]">
           {productCount} {productCount === 1 ? 'peca' : 'pecas'}
         </p>
       </div>

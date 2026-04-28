@@ -110,7 +110,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <h2 className="mb-8 font-heading text-3xl leading-none text-[var(--foreground)] sm:text-4xl">
               Voce tambem pode gostar
             </h2>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
               {relatedProducts.map((relatedProduct) => (
                 <ProductCard key={relatedProduct.id} product={relatedProduct} />
               ))}

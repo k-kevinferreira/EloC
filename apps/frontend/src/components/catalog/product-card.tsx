@@ -30,14 +30,16 @@ export function ProductCard({ product }: ProductCardProps) {
         />
       </div>
 
-      <div className="space-y-3 px-5 py-5">
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--muted)]">
+      <div className="space-y-2 px-3 py-3 sm:space-y-3 sm:px-5 sm:py-5">
+        <p className="text-[0.65rem] font-medium uppercase tracking-[0.14em] text-[var(--muted)] sm:text-xs sm:tracking-[0.18em]">
           {product.category.name}
         </p>
-        <h3 className="font-heading text-xl leading-tight text-[var(--foreground)]">
+        <h3 className="font-heading text-base leading-tight text-[var(--foreground)] sm:text-xl">
           {product.title}
         </h3>
-        <p className="text-sm text-[var(--muted)]">{formatPrice(product.price)}</p>
+        <p className="text-xs text-[var(--muted)] sm:text-sm">
+          {formatPrice(product.price)}
+        </p>
       </div>
     </Link>
   );

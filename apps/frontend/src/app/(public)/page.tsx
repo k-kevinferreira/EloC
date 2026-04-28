@@ -47,7 +47,7 @@ export default async function HomePage() {
             centered
           />
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
             {categories.slice(0, 4).map((category) => (
               <CategoryCard
                 key={category.id}
@@ -74,7 +74,7 @@ export default async function HomePage() {
             }
           />
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
             {productsForFeatured.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
