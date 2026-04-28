@@ -1,6 +1,10 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import type { Route } from 'next';
 
+import {
+  buildWhatsAppUrl,
+  instagramUrl,
+} from '@/constants/public-links';
 import type { Category } from '@/types/catalog/catalog.types';
 
 type PublicFooterProps = {
@@ -9,6 +13,7 @@ type PublicFooterProps = {
 
 export function PublicFooter({ categories }: PublicFooterProps) {
   const visibleCategories = categories.slice(0, 4);
+  const whatsappUrl = buildWhatsAppUrl('Ola, vim pelo site da EloC.');
 
   return (
     <footer className="border-t border-[var(--border)] bg-[var(--champagne)]">
@@ -46,7 +51,9 @@ export function PublicFooter({ categories }: PublicFooterProps) {
           <div className="space-y-4 text-sm leading-7 text-[var(--muted)]">
             <p>Seg - Sex: 9h as 18h</p>
             <p>Sab: 9h as 13h</p>
-            <a href="mailto:contato@eloc.com.br">contato@eloc.com.br</a>
+            <a href={whatsappUrl} target="_blank" rel="noreferrer">
+              WhatsApp
+            </a>
           </div>
         </div>
 
@@ -55,19 +62,32 @@ export function PublicFooter({ categories }: PublicFooterProps) {
             Redes sociais
           </h2>
           <div className="flex gap-5 text-sm text-[var(--muted)]">
-            <a href="https://instagram.com" target="_blank" rel="noreferrer">
+            <a href={instagramUrl} target="_blank" rel="noreferrer">
               Instagram
             </a>
-            <a href="https://facebook.com" target="_blank" rel="noreferrer">
-              Facebook
+            <a href={whatsappUrl} target="_blank" rel="noreferrer">
+              WhatsApp
             </a>
           </div>
         </div>
       </div>
 
       <div className="mx-auto max-w-7xl border-t border-[var(--border)] px-6 py-8 text-center text-xs tracking-[0.08em] text-[var(--muted)] lg:px-12">
-        © 2026 EloC - Pratas e Semi Joias. Todos os direitos reservados.
+        <p>© 2026 EloC - Pratas e Semi Joias. Todos os direitos reservados.</p>
+        <p className="mt-2">
+          Desenvolvido por{' '}
+          <a
+            href="https://github.com/k-kevinferreira"
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium text-[var(--foreground)] transition hover:text-[var(--rose-bronze)]"
+          >
+            Kevin Ferreira
+          </a>
+        </p>
       </div>
     </footer>
   );
 }
+
+

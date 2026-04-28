@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 
 import { ProductCard } from '@/components/catalog/product-card';
 import { ProductGallery } from '@/components/catalog/product-gallery';
+import { buildWhatsAppUrl } from '@/constants/public-links';
 import { getProductBySlug } from '@/services/products/get-product-by-slug';
 import { listProducts } from '@/services/products/list-products';
 import { formatPrice } from '@/utils/catalog';
@@ -30,9 +31,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
     .filter((item) => item.id !== product.id)
     .slice(0, 4);
 
-  const contactMessage = encodeURIComponent(
-    `Ola, tenho interesse na peca ${product.title}.`,
-  );
+  const contactMessage = `Ola, tenho interesse na peca ${product.title}.`;
+  const productDescription = product.description ?? product.shortDescription;
 
   return (
     <main>
@@ -55,19 +55,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </p>
             </div>
 
-            {product.shortDescription ? (
-              <p className="text-sm leading-6 tracking-[0.02em] text-[var(--muted)]">
-                {product.shortDescription}
-              </p>
-            ) : null}
-
-            {product.description ? (
+            {productDescription ? (
               <div className="border-y border-[var(--border)] py-5">
                 <h2 className="mb-2.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--muted)]">
                   Descricao
                 </h2>
                 <p className="text-sm leading-6 text-[var(--muted)]">
-                  {product.description}
+                  {productDescription}
                 </p>
               </div>
             ) : null}
@@ -91,7 +85,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             <div>
               <a
-                href={`https://wa.me/?text=${contactMessage}`}
+                href={buildWhatsAppUrl(contactMessage)}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-md border border-[var(--rose-bronze)] bg-[var(--rose-bronze)] px-6 text-xs font-medium uppercase tracking-[0.14em] text-white transition hover:bg-[var(--rose-bronze-strong)]"
