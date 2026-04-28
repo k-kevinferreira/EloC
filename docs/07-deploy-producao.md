@@ -2,38 +2,53 @@
 
 ## Plataformas recomendadas
 
-Pendente de validação.
+Para este projeto, a composição recomendada é:
 
-Opções compatíveis:
-
-- Frontend: Vercel, Render, Railway ou VPS com Node.
-- Backend: Render, Railway, Fly.io, VPS ou container Node.
+- Frontend: Vercel.
+- Backend: Railway ou Render.
 - Banco: PostgreSQL gerenciado.
-- Uploads: volume persistente em VPS ou storage externo.
+- Uploads: volume persistente no backend ou storage externo.
 
 ## Deploy do frontend
 
-Configurar:
+Configurar no projeto da Vercel:
 
 ```env
-BACKEND_API_URL=https://api.seudominio.com/api
+BACKEND_API_URL=https://url-do-backend/api
 ```
 
-Build:
+Configuração recomendada para monorepo:
+
+```text
+Root Directory: apps/frontend
+Framework Preset: Next.js
+Install Command: npm install
+Build Command: npm run build
+Output Directory: padrão da Vercel
+```
+
+Build local equivalente:
 
 ```bash
 npm run build:frontend
 ```
 
-Start:
+## Deploy do backend no Railway
 
-```bash
-npm run start --workspace @eloc/frontend
+Como o projeto é um monorepo, o backend deve ser criado a partir da raiz do repositório.
+
+Configuração recomendada:
+
+```text
+Root Directory: /
+Install Command: npm ci --include=dev
+Build Command: npm run build --workspace @eloc/backend
+Start Command: npm run start:prod --workspace @eloc/backend
 ```
 
-## Deploy do backend
+O script de build do backend executa `prisma generate` automaticamente antes do `nest build`. Isso é necessário porque os tipos do Prisma, como `Admin`, `ProductWhereInput` e `SaleEntryInclude`, só existem depois que o Prisma Client é gerado no ambiente de build.
 
-Configurar variáveis de produção:
+## Variáveis de produção do backend
 
 ```env
 PORT=3001
@@ -41,28 +56,18 @@ API_PREFIX=api
 JWT_SECRET=<segredo-forte>
 JWT_EXPIRES_IN=3600
 DATABASE_URL=<url-postgresql-producao>
-UPLOADS_LOCAL_ROOT=uploads
-UPLOADS_PUBLIC_BASE_URL=https://api.seudominio.com/uploads
+UPLOADS_LOCAL_ROOT=/data/uploads
+UPLOADS_PUBLIC_BASE_URL=https://url-do-backend/uploads
 UPLOADS_MAX_PRODUCT_IMAGE_SIZE_BYTES=5242880
 ```
 
-Build:
+Para usar imagens no Railway com storage local, criar um volume persistente e montar em:
 
-```bash
-npm run build:backend
+```text
+/data
 ```
 
-Aplicar migrations:
-
-```bash
-npm run prisma:migrate:deploy --workspace @eloc/backend
-```
-
-Start:
-
-```bash
-npm run start:prod --workspace @eloc/backend
-```
+Sem volume persistente, imagens enviadas podem ser perdidas em reinícios, rebuilds ou recriação da instância.
 
 ## Banco de dados
 
@@ -71,6 +76,22 @@ npm run start:prod --workspace @eloc/backend
 - Aplicar migrations com `prisma:migrate:deploy`.
 - Não usar `prisma:migrate:dev` em produção.
 - Não editar migrations antigas manualmente.
+
+Aplicar migrations:
+
+```bash
+npm run prisma:migrate:deploy --workspace @eloc/backend
+```
+
+## Criação do administrador inicial
+
+Após o backend estar conectado ao banco de produção, criar um administrador:
+
+```bash
+npm run admin:create --workspace @eloc/backend
+```
+
+Esse comando deve ser executado em ambiente seguro, com acesso às variáveis de produção.
 
 ## CORS
 
@@ -94,6 +115,7 @@ Sugestão:
 - Definir `DATABASE_URL` de produção.
 - Definir `BACKEND_API_URL` no frontend.
 - Definir `UPLOADS_PUBLIC_BASE_URL`.
+- Confirmar volume persistente ou storage externo para uploads.
 - Executar `npm run lint --workspace @eloc/frontend`.
 - Executar `npm run build:frontend`.
 - Executar `npm run build:backend`.
@@ -101,7 +123,6 @@ Sugestão:
 - Executar `npm run prisma:migrate:deploy --workspace @eloc/backend`.
 - Criar administrador inicial.
 - Confirmar estratégia de backup do banco.
-- Confirmar estratégia de persistência dos uploads.
 
 ## Checklist depois de publicar
 
@@ -116,6 +137,24 @@ Sugestão:
 - Registrar remessa.
 - Validar imagens públicas.
 - Validar HTTPS.
+
+## Problemas comuns
+
+### Erro: Prisma não exporta `Admin`, `ProductWhereInput` ou tipos similares
+
+Causa: Prisma Client não foi gerado no ambiente de build.
+
+Correção: garantir que o build execute `prisma generate` antes de `nest build`. O backend já possui `prebuild` para isso:
+
+```bash
+npm run build --workspace @eloc/backend
+```
+
+### Frontend na Vercel mostra erro de servidor
+
+Causa provável: `BACKEND_API_URL` ausente ou apontando para backend inexistente.
+
+Correção: publicar o backend, testar `/api/health` e configurar a URL real na Vercel.
 
 ## Riscos conhecidos
 

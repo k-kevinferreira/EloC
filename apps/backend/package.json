@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "nest start --watch",
+    "prebuild": "prisma generate --schema prisma/schema.prisma",
     "build": "nest build",
     "start": "node dist/main.js",
     "start:prod": "node dist/main.js",
