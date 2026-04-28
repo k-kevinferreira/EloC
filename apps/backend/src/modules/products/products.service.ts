@@ -43,6 +43,11 @@ export class ProductsService {
     const where: Prisma.ProductWhereInput = {
       categoryId: query.categoryId,
       subcategoryId: query.subcategoryId,
+      subcategory: query.subcategorySlug
+        ? {
+            slug: query.subcategorySlug,
+          }
+        : undefined,
       isActive: query.isActive,
       isFeatured: query.isFeatured,
     };

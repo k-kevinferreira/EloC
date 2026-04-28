@@ -6,7 +6,6 @@ import { ProductCard } from '@/components/catalog/product-card';
 import { SectionHeading } from '@/components/catalog/section-heading';
 import { listCategories } from '@/services/categories/list-categories';
 import { listProducts } from '@/services/products/list-products';
-import { listSubcategories } from '@/services/subcategories/list-subcategories';
 import { sortProducts } from '@/utils/catalog';
 
 type CatalogPageProps = {
@@ -17,23 +16,22 @@ type CatalogHrefOptions = {
   categoryId?: string;
   search?: string;
   sort?: string;
-  subcategoryId?: string;
+  materialSlug?: string;
 };
 
 export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   const params = await searchParams;
   const search = getSingleParam(params.search);
   const categoryId = getSingleParam(params.categoria);
-  const subcategoryId = getSingleParam(params.subcategoria);
+  const materialSlug = getMaterialFilterParam(params.subcategoria);
   const sort = getSingleParam(params.ordenar) ?? 'featured';
 
-  const [categories, subcategories, products] = await Promise.all([
+  const [categories, products] = await Promise.all([
     listCategories({ isActive: true }),
-    listSubcategories({ isActive: true }),
     listProducts({
       isActive: true,
       categoryId,
-      subcategoryId,
+      subcategorySlug: materialSlug,
       search,
       limit: 100,
     }),
@@ -51,8 +49,8 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
         />
 
         <form className="mb-10 grid gap-4 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 sm:grid-cols-[1fr_auto_auto]">
-          {subcategoryId ? (
-            <input type="hidden" name="subcategoria" value={subcategoryId} />
+          {materialSlug ? (
+            <input type="hidden" name="subcategoria" value={materialSlug} />
           ) : null}
 
           <input
@@ -101,8 +99,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
             ordenar: sort !== 'featured' ? sort : undefined,
             search,
           }}
-          selectedSubcategoryId={subcategoryId}
-          subcategories={subcategories}
+          selectedMaterialSlug={materialSlug}
         />
 
         <div className="mb-8 flex flex-wrap gap-3">
@@ -111,7 +108,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
               buildCatalogHref({
                 search,
                 sort,
-                subcategoryId,
+                materialSlug,
               }) as Route
             }
             className="rounded-full border border-[var(--border)] px-4 py-2 text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted)] transition hover:border-[var(--rose-bronze)]"
@@ -126,7 +123,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
                   categoryId: category.id,
                   search,
                   sort,
-                  subcategoryId,
+                  materialSlug,
                 }) as Route
               }
               className="rounded-full border border-[var(--border)] px-4 py-2 text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted)] transition hover:border-[var(--rose-bronze)]"
@@ -160,11 +157,21 @@ function getSingleParam(value: string | string[] | undefined) {
   return value;
 }
 
+function getMaterialFilterParam(value: string | string[] | undefined) {
+  const param = getSingleParam(value);
+
+  if (param === 'prata' || param === 'dourado') {
+    return param;
+  }
+
+  return undefined;
+}
+
 function buildCatalogHref({
   categoryId,
+  materialSlug,
   search,
   sort,
-  subcategoryId,
 }: CatalogHrefOptions) {
   const params = new URLSearchParams();
 
@@ -176,8 +183,8 @@ function buildCatalogHref({
     params.set('categoria', categoryId);
   }
 
-  if (subcategoryId) {
-    params.set('subcategoria', subcategoryId);
+  if (materialSlug) {
+    params.set('subcategoria', materialSlug);
   }
 
   if (sort && sort !== 'featured') {

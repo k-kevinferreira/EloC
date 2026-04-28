@@ -1,13 +1,10 @@
 import Link from 'next/link';
 import type { Route } from 'next';
 
-import type { Subcategory } from '@/types/catalog/catalog.types';
-
 type MaterialFilterButtonsProps = {
   pathname: string;
   query?: Record<string, string | undefined>;
-  selectedSubcategoryId?: string;
-  subcategories: Subcategory[];
+  selectedMaterialSlug?: string;
 };
 
 const materialFilterSlugs = ['prata', 'dourado'] as const;
@@ -15,41 +12,21 @@ const materialFilterSlugs = ['prata', 'dourado'] as const;
 export function MaterialFilterButtons({
   pathname,
   query = {},
-  selectedSubcategoryId,
-  subcategories,
+  selectedMaterialSlug,
 }: MaterialFilterButtonsProps) {
-  const materialFilters = materialFilterSlugs
-    .map((slug) => {
-      const subcategory = subcategories.find((item) => {
-        return item.slug === slug || normalizeFilterValue(item.name) === slug;
-      });
-
-      return subcategory
-        ? {
-            id: subcategory.id,
-            label: toTitleCase(slug),
-          }
-        : null;
-    })
-    .filter((filter) => filter !== null);
-
-  if (materialFilters.length === 0) {
-    return null;
-  }
-
   return (
     <div className="mb-6 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
-      {materialFilters.map((filter) => {
-        const isSelected = selectedSubcategoryId === filter.id;
+      {materialFilterSlugs.map((slug) => {
+        const isSelected = selectedMaterialSlug === slug;
 
         return (
           <Link
-            key={filter.id}
+            key={slug}
             href={
               buildHref({
                 pathname,
                 query,
-                subcategoryId: isSelected ? undefined : filter.id,
+                materialSlug: isSelected ? undefined : slug,
               }) as Route
             }
             className={[
@@ -60,7 +37,7 @@ export function MaterialFilterButtons({
             ].join(' ')}
             aria-pressed={isSelected}
           >
-            {filter.label}
+            {toTitleCase(slug)}
           </Link>
         );
       })}
@@ -69,13 +46,13 @@ export function MaterialFilterButtons({
 }
 
 function buildHref({
+  materialSlug,
   pathname,
   query,
-  subcategoryId,
 }: {
+  materialSlug?: string;
   pathname: string;
   query: Record<string, string | undefined>;
-  subcategoryId?: string;
 }) {
   const params = new URLSearchParams();
 
@@ -85,19 +62,11 @@ function buildHref({
     }
   }
 
-  if (subcategoryId) {
-    params.set('subcategoria', subcategoryId);
+  if (materialSlug) {
+    params.set('subcategoria', materialSlug);
   }
 
   return params.size > 0 ? `${pathname}?${params}` : pathname;
-}
-
-function normalizeFilterValue(value: string) {
-  return value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
 }
 
 function toTitleCase(value: string) {

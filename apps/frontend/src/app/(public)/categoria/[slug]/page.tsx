@@ -5,7 +5,6 @@ import { ProductCard } from '@/components/catalog/product-card';
 import { SectionHeading } from '@/components/catalog/section-heading';
 import { listCategories } from '@/services/categories/list-categories';
 import { listProducts } from '@/services/products/list-products';
-import { listSubcategories } from '@/services/subcategories/list-subcategories';
 
 type CategoryPageProps = {
   params: Promise<{
@@ -20,11 +19,8 @@ export default async function CategoryPage({
 }: CategoryPageProps) {
   const { slug } = await params;
   const query = await searchParams;
-  const subcategoryId = getSingleParam(query.subcategoria);
-  const [categories, subcategories] = await Promise.all([
-    listCategories({ isActive: true }),
-    listSubcategories({ isActive: true }),
-  ]);
+  const materialSlug = getMaterialFilterParam(query.subcategoria);
+  const categories = await listCategories({ isActive: true });
   const category = categories.find((item) => item.slug === slug);
 
   if (!category) {
@@ -34,7 +30,7 @@ export default async function CategoryPage({
   const products = await listProducts({
     isActive: true,
     categoryId: category.id,
-    subcategoryId,
+    subcategorySlug: materialSlug,
     limit: 100,
   });
 
@@ -64,8 +60,7 @@ export default async function CategoryPage({
 
           <MaterialFilterButtons
             pathname={`/categoria/${category.slug}`}
-            selectedSubcategoryId={subcategoryId}
-            subcategories={subcategories}
+            selectedMaterialSlug={materialSlug}
           />
 
           {products.length > 0 ? (
@@ -91,4 +86,14 @@ function getSingleParam(value: string | string[] | undefined) {
   }
 
   return value;
+}
+
+function getMaterialFilterParam(value: string | string[] | undefined) {
+  const param = getSingleParam(value);
+
+  if (param === 'prata' || param === 'dourado') {
+    return param;
+  }
+
+  return undefined;
 }

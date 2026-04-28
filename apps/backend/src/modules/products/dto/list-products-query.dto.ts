@@ -5,7 +5,9 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  Matches,
   Max,
+  MaxLength,
   Min,
 } from 'class-validator';
 
@@ -22,6 +24,12 @@ export class ListProductsQueryDto {
   @IsOptional()
   @IsUUID()
   subcategoryId?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+  subcategorySlug?: string;
 
   @IsOptional()
   @Transform(({ value }) => toOptionalBoolean(value))

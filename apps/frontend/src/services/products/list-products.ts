@@ -6,6 +6,7 @@ import type { Product } from '@/types/catalog/catalog.types';
 type ListProductsOptions = {
   categoryId?: string;
   subcategoryId?: string;
+  subcategorySlug?: string;
   isActive?: boolean;
   isFeatured?: boolean;
   search?: string;
@@ -22,6 +23,10 @@ export async function listProducts(options: ListProductsOptions = {}) {
 
   if (options.subcategoryId) {
     searchParams.set('subcategoryId', options.subcategoryId);
+  }
+
+  if (options.subcategorySlug) {
+    searchParams.set('subcategorySlug', options.subcategorySlug);
   }
 
   if (options.isActive !== undefined) {
