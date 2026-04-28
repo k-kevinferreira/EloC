@@ -23,17 +23,17 @@ export default async function HomePage() {
         <div className="mx-auto max-w-4xl space-y-8">
           <div className="space-y-6">
             <h1 className="font-heading text-5xl leading-none text-[var(--foreground)] sm:text-6xl lg:text-7xl">
-              Elegancia em Cada Detalhe
+              Elegância em Cada Detalhe
             </h1>
             <p className="mx-auto max-w-3xl text-base font-light leading-8 tracking-[0.02em] text-[var(--muted)] sm:text-xl">
-              Descubra nossa colecao exclusiva de pratas e semi joias, onde o
-              design contemporaneo encontra a qualidade premium.
+              Descubra nossa coleção exclusiva de pratas e semijoias, onde o
+              design contemporâneo encontra a qualidade premium.
             </p>
           </div>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <PublicButton href="/catalogo" size="lg">
-              Explorar catalogo
+              Explorar catálogo
             </PublicButton>
           </div>
         </div>
@@ -43,7 +43,7 @@ export default async function HomePage() {
         <div className="mx-auto max-w-7xl">
           <SectionHeading
             title="Nossas Categorias"
-            subtitle="Explore nossa selecao cuidadosamente curada"
+            subtitle="Explore nossa seleção cuidadosamente curada"
             centered
           />
 
@@ -62,8 +62,8 @@ export default async function HomePage() {
       <section className="px-6 py-16 lg:px-12 lg:py-24">
         <div className="mx-auto max-w-7xl">
           <SectionHeading
-            title="Pecas em Destaque"
-            subtitle="Selecao especial da colecao"
+            title="Peças em Destaque"
+            subtitle="Seleção especial da coleção"
             action={
               <Link
                 href="/catalogo"
@@ -89,14 +89,14 @@ export default async function HomePage() {
           </h2>
           <div className="mx-auto max-w-3xl space-y-5 text-sm leading-8 tracking-[0.02em] text-[var(--muted)] sm:text-base">
             <p>
-              A EloC nasceu da paixao por criar joias que traduzem elegancia e
-              sofisticacao em cada detalhe. Nossa colecao e cuidadosamente
+              A EloC nasceu da paixão por criar joias que traduzem elegância e
+              sofisticação em cada detalhe. Nossa coleção é cuidadosamente
               desenvolvida para mulheres que apreciam design exclusivo e
               qualidade premium.
             </p>
             <p>
-              Trabalhamos com pratas e acabamentos nobres, garantindo pecas
-              atemporais que acompanham voce em todos os momentos especiais.
+              Trabalhamos com pratas e acabamentos nobres, garantindo peças
+              atemporais que acompanham você em todos os momentos especiais.
             </p>
           </div>
         </div>

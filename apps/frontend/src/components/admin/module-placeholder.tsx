@@ -22,10 +22,10 @@ export function ModulePlaceholder({
       </div>
 
       <div className="rounded-[1.5rem] border border-dashed border-[var(--border-strong)] bg-[var(--surface)] p-5 shadow-[var(--shadow-md)] sm:p-6">
-        <p className="text-base font-semibold">Proximo passo recomendado</p>
+        <p className="text-base font-semibold">Próximo passo recomendado</p>
         <p className="mt-3 max-w-3xl text-base leading-7 text-[var(--muted)]">
-          Consolidar os contratos do backend para este modulo e so depois evoluir a
-          interface de escrita e consulta no painel. A navegacao e o shell ja estao
+          Consolidar os contratos do backend para este módulo e só depois evoluir a
+          interface de escrita e consulta no painel. A navegação e o shell já estão
           preparados para receber essa etapa sem reestruturacao.
         </p>
       </div>

@@ -60,7 +60,7 @@ export async function loginAdminAction(
 
     return {
       errors: {},
-      message: 'Nao foi possivel autenticar agora. Tente novamente.',
+      message: 'Não foi possível autenticar agora. Tente novamente.',
     };
   }
 

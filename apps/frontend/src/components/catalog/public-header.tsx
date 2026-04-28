@@ -78,7 +78,7 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
         <button
           type="button"
           className="inline-flex h-11 w-11 flex-col items-center justify-center gap-1.5 rounded-full border border-[var(--border)] text-[var(--foreground)] lg:hidden"
-          aria-label="Abrir menu de navegacao"
+          aria-label="Abrir menu de navegação"
           aria-expanded={isOpen}
           onClick={() => setIsOpen((current) => !current)}
         >

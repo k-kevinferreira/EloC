@@ -13,7 +13,7 @@ type PublicFooterProps = {
 
 export function PublicFooter({ categories }: PublicFooterProps) {
   const visibleCategories = categories.slice(0, 4);
-  const whatsappUrl = buildWhatsAppUrl('Ola, vim pelo site da EloC.');
+  const whatsappUrl = buildWhatsAppUrl('Olá, vim pelo site da EloC.');
 
   return (
     <footer className="border-t border-[var(--border)] bg-[var(--champagne)]">
@@ -23,16 +23,16 @@ export function PublicFooter({ categories }: PublicFooterProps) {
             EloC
           </Link>
           <p className="max-w-xs text-sm leading-7 text-[var(--muted)]">
-            Pratas e semi joias com design exclusivo e qualidade premium.
+            Pratas e semijoias com design exclusivo e qualidade premium.
           </p>
         </div>
 
         <div className="space-y-5">
           <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--muted)]">
-            Navegacao
+            Navegação
           </h2>
           <nav className="flex flex-col gap-4 text-sm text-[var(--muted)]">
-            <Link href="/catalogo">Catalogo</Link>
+            <Link href="/catalogo">Catálogo</Link>
             {visibleCategories.map((category) => (
               <Link
                 key={category.id}
@@ -73,7 +73,7 @@ export function PublicFooter({ categories }: PublicFooterProps) {
       </div>
 
       <div className="mx-auto max-w-7xl border-t border-[var(--border)] px-6 py-8 text-center text-xs tracking-[0.08em] text-[var(--muted)] lg:px-12">
-        <p>© 2026 EloC - Pratas e Semi Joias. Todos os direitos reservados.</p>
+        <p>© 2026 EloC - Pratas e Semijoias. Todos os direitos reservados.</p>
         <p className="mt-2">
           Desenvolvido por{' '}
           <a

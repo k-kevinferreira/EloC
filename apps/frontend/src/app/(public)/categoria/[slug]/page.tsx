@@ -45,7 +45,7 @@ export default async function CategoryPage({
             {category.name}
           </h1>
           <p className="mx-auto max-w-2xl text-sm leading-8 tracking-[0.03em] text-[var(--muted)]">
-            Uma curadoria especial para descobrir pecas com acabamento premium e
+            Uma curadoria especial para descobrir peças com acabamento premium e
             design atemporal.
           </p>
         </div>
@@ -71,7 +71,7 @@ export default async function CategoryPage({
             </div>
           ) : (
             <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center text-[var(--muted)]">
-              Ainda nao ha pecas ativas nesta categoria.
+              Ainda não há peças ativas nesta categoria.
             </div>
           )}
         </div>

@@ -41,7 +41,7 @@ export function CategoryCard({ category, products }: CategoryCardProps) {
           {category.name}
         </h3>
         <p className="mt-2 text-[0.65rem] font-medium uppercase tracking-[0.14em] text-white/80 sm:mt-3 sm:text-xs sm:tracking-[0.18em]">
-          {productCount} {productCount === 1 ? 'peca' : 'pecas'}
+          {productCount} {productCount === 1 ? 'peça' : 'peças'}
         </p>
       </div>
     </Link>

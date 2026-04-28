@@ -43,8 +43,8 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
     <main className="px-6 py-16 lg:px-12 lg:py-24">
       <div className="mx-auto max-w-7xl">
         <SectionHeading
-          title="Catalogo"
-          subtitle="Encontre a peca ideal para o seu momento"
+          title="Catálogo"
+          subtitle="Encontre a peça ideal para o seu momento"
           centered
         />
 
@@ -80,8 +80,8 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
           >
             <option value="featured">Destaques</option>
             <option value="name">Nome</option>
-            <option value="price-asc">Menor preco</option>
-            <option value="price-desc">Maior preco</option>
+            <option value="price-asc">Menor preço</option>
+            <option value="price-desc">Maior preço</option>
           </select>
 
           <button
@@ -141,7 +141,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
           </div>
         ) : (
           <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center text-[var(--muted)]">
-            Nenhuma peca encontrada com os filtros selecionados.
+            Nenhuma peça encontrada com os filtros selecionados.
           </div>
         )}
       </div>

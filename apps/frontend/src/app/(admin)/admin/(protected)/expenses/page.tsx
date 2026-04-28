@@ -14,12 +14,12 @@ export default async function AdminExpensesPage() {
     <section className="space-y-6">
       <div className="space-y-2">
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">
-          Financas
+          Finanças
         </p>
         <h1 className="text-3xl font-semibold sm:text-4xl">Despesas</h1>
         <p className="max-w-3xl text-base leading-7 text-[var(--muted)]">
           Controle custos operacionais e vincule despesas a remessas quando houver
-          relacao direta.
+          relação direta.
         </p>
       </div>
 

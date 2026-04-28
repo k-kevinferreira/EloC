@@ -108,7 +108,7 @@ export function ProductManagement({
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold">Produtos cadastrados</h2>
             <p className="max-w-2xl text-sm leading-6 text-[var(--muted)]">
-              Gerencie as pecas exibidas no catalogo, seus precos, status e imagens.
+              Gerencie as peças exibidas no catálogo, seus preços, status e imagens.
             </p>
           </div>
 
@@ -314,7 +314,7 @@ function CreateProductCard({
     <section className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-md)] sm:p-6">
       <FormHeader
         title="Novo produto"
-        description="Cadastre uma nova peca para o catalogo."
+        description="Cadastre uma nova peça para o catálogo."
       />
 
       <form key={formKey} action={formAction} className="mt-6 space-y-5">
@@ -383,7 +383,7 @@ function ProductEditorCard({
     <section className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-md)] sm:p-6">
       <FormHeader
         title={`Editar ${product.title}`}
-        description="Atualize os dados exibidos no catalogo."
+        description="Atualize os dados exibidos no catálogo."
       />
 
       <form key={formKey} action={updateFormAction} className="mt-6 space-y-5">
@@ -401,7 +401,7 @@ function ProductEditorCard({
             <FormActions onCancel={onCancel}>
               <SubmitButton
                 disabled={categories.length === 0}
-                idleLabel="Salvar alteracoes"
+                idleLabel="Salvar alterações"
                 pendingLabel="Salvando..."
               />
             </FormActions>
@@ -419,7 +419,7 @@ function ProductEditorCard({
               Excluir produto
             </p>
             <p className="text-sm text-[var(--muted)]">
-              A exclusao pode ser bloqueada se houver vendas ou remessas vinculadas.
+              A exclusão pode ser bloqueada se houver vendas ou remessas vinculadas.
             </p>
           </div>
 
@@ -708,7 +708,7 @@ function ProductFormFields({
           htmlFor={`${idPrefix}-shortDescription`}
           className="text-sm font-semibold"
         >
-          Descricao curta
+          Descrição curta
         </label>
         <textarea
           id={`${idPrefix}-shortDescription`}
@@ -721,7 +721,7 @@ function ProductFormFields({
 
       <div className="space-y-2">
         <label htmlFor={`${idPrefix}-description`} className="text-sm font-semibold">
-          Descricao completa
+          Descrição completa
         </label>
         <textarea
           id={`${idPrefix}-description`}
@@ -734,7 +734,7 @@ function ProductFormFields({
 
       <div className="space-y-2">
         <label htmlFor={`${idPrefix}-price`} className="text-sm font-semibold">
-          Preco
+          Preço
         </label>
         <input
           id={`${idPrefix}-price`}
@@ -784,13 +784,13 @@ function ProductFormFields({
             defaultChecked={state.values.isActive}
             className="h-4 w-4 accent-[var(--accent)]"
           />
-          <span className="font-medium">Produto ativo no catalogo</span>
+          <span className="font-medium">Produto ativo no catálogo</span>
         </label>
       </div>
 
       <details className="rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] px-4 py-3 md:col-span-2">
         <summary className="cursor-pointer text-sm font-semibold text-[var(--foreground)]">
-          Opcoes avancadas
+          Opções avançadas
         </summary>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -901,7 +901,7 @@ function ProductImagesEditor({
             Selecionar fotos do celular
           </span>
           <span className="mt-1 text-xs leading-5 text-[var(--muted)]">
-            Voce pode marcar varias imagens de uma vez.
+            Você pode marcar várias imagens de uma vez.
           </span>
         </label>
 
@@ -1024,7 +1024,7 @@ function ProductImagesEditor({
                     id={`${idPrefix}-image-alt-${index}`}
                     type="text"
                     value={image.altText}
-                    placeholder="Descricao acessivel da imagem"
+                    placeholder="Descrição acessível da imagem"
                     onChange={(event) => {
                       const nextValue = event.target.value;
                       setImages((currentImages) =>

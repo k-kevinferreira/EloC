@@ -14,11 +14,11 @@ export default async function AdminDashboardPage() {
         </p>
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="space-y-2">
-            <h1 className="text-3xl font-semibold sm:text-4xl">Visao geral do catalogo</h1>
+            <h1 className="text-3xl font-semibold sm:text-4xl">Visão geral do catálogo</h1>
             <p className="max-w-2xl text-base leading-7 text-[var(--muted)]">
               Esta primeira entrega do painel usa os contratos existentes do backend
-              para dar visibilidade operacional ao catalogo e preparar a entrada dos
-              modulos financeiros no mesmo shell administrativo.
+              para dar visibilidade operacional ao catálogo e preparar a entrada dos
+              módulos financeiros no mesmo shell administrativo.
             </p>
           </div>
         </div>

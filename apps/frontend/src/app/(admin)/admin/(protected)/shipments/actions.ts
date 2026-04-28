@@ -47,7 +47,7 @@ export async function createShipmentAction(
   if (!values.code || !values.supplier || !values.shipmentDate || items.length === 0) {
     return {
       status: 'error',
-      message: 'Informe codigo, fornecedor, data e ao menos um item valido.',
+      message: 'Informe código, fornecedor, data e ao menos um item válido.',
       values,
     };
   }
@@ -157,5 +157,5 @@ function extractActionErrorMessage(error: unknown) {
     return error.message;
   }
 
-  return 'Nao foi possivel concluir a operacao agora. Tente novamente.';
+  return 'Não foi possível concluir a operação agora. Tente novamente.';
 }

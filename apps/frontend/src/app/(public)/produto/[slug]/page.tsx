@@ -31,7 +31,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     .filter((item) => item.id !== product.id)
     .slice(0, 4);
 
-  const contactMessage = `Ola, tenho interesse na peca ${product.title}.`;
+  const contactMessage = `Olá, tenho interesse na peça ${product.title}.`;
   const productDescription = product.description ?? product.shortDescription;
 
   return (
@@ -58,7 +58,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {productDescription ? (
               <div className="border-y border-[var(--border)] py-5">
                 <h2 className="mb-2.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--muted)]">
-                  Descricao
+                  Descrição
                 </h2>
                 <p className="text-sm leading-6 text-[var(--muted)]">
                   {productDescription}
@@ -102,7 +102,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <section className="px-6 py-12 lg:px-12 lg:py-16">
           <div className="mx-auto max-w-6xl">
             <h2 className="mb-8 font-heading text-3xl leading-none text-[var(--foreground)] sm:text-4xl">
-              Voce tambem pode gostar
+              Você também pode gostar
             </h2>
             <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
               {relatedProducts.map((relatedProduct) => (

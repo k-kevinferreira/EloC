@@ -164,13 +164,13 @@ function parseSubcategoryFormData(formData: FormData): SubcategoryFormParseResul
   if (!values.name) {
     fieldErrors.name = 'Informe o nome da subcategoria.';
   } else if (values.name.length > 100) {
-    fieldErrors.name = 'O nome deve ter no maximo 100 caracteres.';
+    fieldErrors.name = 'O nome deve ter no máximo 100 caracteres.';
   }
 
   if (!values.slug) {
     fieldErrors.slug = 'Informe o slug da subcategoria.';
   } else if (values.slug.length > 120) {
-    fieldErrors.slug = 'O slug deve ter no maximo 120 caracteres.';
+    fieldErrors.slug = 'O slug deve ter no máximo 120 caracteres.';
   } else if (!subcategorySlugPattern.test(values.slug)) {
     fieldErrors.slug =
       'Use apenas letras minusculas, numeros e hifens simples entre termos.';
@@ -232,5 +232,5 @@ function extractActionErrorMessage(error: unknown) {
     return error.message;
   }
 
-  return 'Nao foi possivel concluir a operacao agora. Tente novamente.';
+  return 'Não foi possível concluir a operação agora. Tente novamente.';
 }

@@ -14,10 +14,10 @@ export default async function AdminLoginPage() {
               EloC Admin
             </span>
             <h1 className="text-5xl font-semibold leading-none">
-              Painel administrativo com base segura para catalogo e financas.
+              Painel administrativo com base segura para catálogo e finanças.
             </h1>
             <p className="max-w-md text-base leading-7 text-white/70">
-              Comecamos pelo shell administrativo e pela autenticacao do painel
+              Começamos pelo shell administrativo e pela autenticação do painel
               para consolidar padrao visual, protecao de rotas e integracao
               limpa com o backend NestJS.
             </p>

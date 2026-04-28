@@ -12,13 +12,13 @@ export default async function AdminCategoriesPage() {
     <section className="space-y-6">
       <div className="space-y-2">
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">
-          Catalogo
+          Catálogo
         </p>
         <h1 className="text-3xl font-semibold sm:text-4xl">Categorias</h1>
         <p className="max-w-3xl text-base leading-7 text-[var(--muted)]">
-          O painel agora avancou da leitura para a escrita administrativa do modulo
+          O painel agora avançou da leitura para a escrita administrativa do módulo
           de categorias. A API continua sendo a camada de verdade para regras de
-          negocio, enquanto o frontend orquestra formulario, feedback e sessao.
+          negócio, enquanto o frontend orquestra formulário, feedback e sessão.
         </p>
       </div>
 

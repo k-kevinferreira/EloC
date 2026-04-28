@@ -98,7 +98,7 @@ export function EntryManagement({ canDelete, entries, products }: EntryManagemen
     <div className="space-y-6">
       <AdminFormShell
         title="Nova entrada"
-        description="Registre vendas manuais vinculadas aos produtos do catalogo. O total e calculado no backend."
+        description="Registre vendas manuais vinculadas aos produtos do catálogo. O total é calculado no backend."
       >
         <form action={formAction} className="grid gap-4 md:grid-cols-2">
           <SelectField
@@ -225,7 +225,7 @@ export function ShipmentManagement({
         description="Registre compras de fornecedor com itens vinculados a produtos. Custos totais sao calculados no backend."
       >
         <form action={formAction} className="grid gap-4 md:grid-cols-2">
-          <TextField label="Codigo" name="code" defaultValue={state.values.code} />
+          <TextField label="Código" name="code" defaultValue={state.values.code} />
           <TextField label="Fornecedor" name="supplier" defaultValue={state.values.supplier} />
           <TextField label="Data da remessa" name="shipmentDate" type="date" defaultValue={state.values.shipmentDate} />
           <TextareaField label="Observacoes" name="notes" defaultValue={state.values.notes} />
@@ -424,7 +424,7 @@ function ProductTextInput({
         list={listId}
         value={value}
         disabled={disabled}
-        placeholder="Digite o nome ou codigo do produto"
+        placeholder="Digite o nome ou código do produto"
         onChange={(event) => onChange(event.target.value)}
         className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] px-4 py-3 font-normal outline-none transition focus:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
       />

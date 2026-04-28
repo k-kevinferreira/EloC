@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     template: '%s | EloC',
   },
   description:
-    'Catalogo virtual EloC de pratas e semi joias com design exclusivo, qualidade premium e atendimento personalizado.',
+    'Catálogo virtual EloC de pratas e semijoias com design exclusivo, qualidade premium e atendimento personalizado.',
   icons: {
     icon: '/favicon.svg',
     shortcut: '/favicon.svg',

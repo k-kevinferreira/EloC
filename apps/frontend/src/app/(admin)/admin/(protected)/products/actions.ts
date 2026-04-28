@@ -255,28 +255,28 @@ function parseProductFormData(formData: FormData): ProductFormParseResult {
   }
 
   if (!values.code) {
-    fieldErrors.code = 'Informe o codigo do produto.';
+    fieldErrors.code = 'Informe o código do produto.';
   } else if (values.code.length > 80) {
-    fieldErrors.code = 'O codigo deve ter no maximo 80 caracteres.';
+    fieldErrors.code = 'O código deve ter no máximo 80 caracteres.';
   }
 
   if (!values.slug) {
     fieldErrors.slug = 'Informe o slug do produto.';
   } else if (values.slug.length > 160) {
-    fieldErrors.slug = 'O slug deve ter no maximo 160 caracteres.';
+    fieldErrors.slug = 'O slug deve ter no máximo 160 caracteres.';
   } else if (!productSlugPattern.test(values.slug)) {
     fieldErrors.slug =
       'Use apenas letras minusculas, numeros e hifens simples entre termos.';
   }
 
   if (!values.title) {
-    fieldErrors.title = 'Informe o titulo do produto.';
+    fieldErrors.title = 'Informe o título do produto.';
   } else if (values.title.length > 160) {
-    fieldErrors.title = 'O titulo deve ter no maximo 160 caracteres.';
+    fieldErrors.title = 'O título deve ter no máximo 160 caracteres.';
   }
 
   if (!values.price) {
-    fieldErrors.price = 'Informe o preco do produto.';
+    fieldErrors.price = 'Informe o preço do produto.';
   }
 
   const normalizedPrice = values.price.replace(',', '.');
@@ -288,11 +288,11 @@ function parseProductFormData(formData: FormData): ProductFormParseResult {
       parsedPrice < 0 ||
       !/^\d+(?:[.,]\d{1,2})?$/.test(values.price))
   ) {
-    fieldErrors.price = 'Informe um preco valido com ate 2 casas decimais.';
+    fieldErrors.price = 'Informe um preço válido com até 2 casas decimais.';
   }
 
   if (parsedImages.invalidPayload) {
-    fieldErrors.images = 'Nao foi possivel interpretar as imagens informadas.';
+    fieldErrors.images = 'Não foi possível interpretar as imagens informadas.';
   }
 
   const primaryImagesCount = values.images.filter((image) => image.isPrimary).length;
@@ -386,7 +386,7 @@ function extractActionErrorMessage(error: unknown) {
     return error.message;
   }
 
-  return 'Nao foi possivel concluir a operacao agora. Tente novamente.';
+  return 'Não foi possível concluir a operação agora. Tente novamente.';
 }
 
 function parseProductImagesPayload(payload: string) {

@@ -11,7 +11,7 @@ async function getRequiredAdminAccessToken() {
   const accessToken = await getAdminAccessToken();
 
   if (!accessToken) {
-    throw new Error('Sua sessao administrativa expirou. Entre novamente.');
+    throw new Error('Sua sessão administrativa expirou. Entre novamente.');
   }
 
   return accessToken;

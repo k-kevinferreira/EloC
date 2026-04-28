@@ -198,5 +198,5 @@ function extractActionErrorMessage(error: unknown) {
     return error.message;
   }
 
-  return 'Nao foi possivel concluir a operacao agora. Tente novamente.';
+  return 'Não foi possível concluir a operação agora. Tente novamente.';
 }

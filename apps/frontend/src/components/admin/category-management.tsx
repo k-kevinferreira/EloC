@@ -54,7 +54,7 @@ export function CategoryManagement({
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold">Categorias cadastradas</h2>
             <p className="max-w-2xl text-sm leading-6 text-[var(--muted)]">
-              Edite nome, slug, status e ordem diretamente no painel. A exclusao
+              Edite nome, slug, status e ordem diretamente no painel. A exclusão
               continua condicionada ao papel administrativo e a integridade
               relacional definida no backend.
             </p>
@@ -70,15 +70,15 @@ export function CategoryManagement({
 
         {!canDelete ? (
           <div className="rounded-[1.25rem] border border-[rgba(183,121,31,0.18)] bg-[rgba(183,121,31,0.08)] px-4 py-3 text-sm text-[var(--warning)]">
-            O seu perfil pode criar e editar categorias, mas a exclusao continua
+            O seu perfil pode criar e editar categorias, mas a exclusão continua
             restrita a `super_admin`.
           </div>
         ) : null}
 
         {categories.length === 0 ? (
           <div className="rounded-[1.5rem] border border-dashed border-[var(--border-strong)] bg-[var(--surface)] p-5 text-sm text-[var(--muted)] shadow-[var(--shadow-md)]">
-            Nenhuma categoria foi encontrada. Use o formulario acima para iniciar o
-            catalogo administrativo.
+            Nenhuma categoria foi encontrada. Use o formulário acima para iniciar o
+            catálogo administrativo.
           </div>
         ) : (
           <div className="grid gap-4 xl:grid-cols-2">
@@ -119,7 +119,7 @@ function CreateCategoryCard() {
         </p>
         <h2 className="text-2xl font-semibold">Nova categoria</h2>
         <p className="max-w-2xl text-sm leading-6 text-[var(--muted)]">
-          Este formulario segue o contrato do backend e valida apenas o necessario
+          Este formulário segue o contrato do backend e valida apenas o necessário
           para evitar payloads inconsistentes antes do envio.
         </p>
       </div>
@@ -193,7 +193,7 @@ function CategoryEditorCard({
         <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <FormMessage state={updateState} />
-            <SubmitButton idleLabel="Salvar alteracoes" pendingLabel="Salvando..." />
+            <SubmitButton idleLabel="Salvar alterações" pendingLabel="Salvando..." />
           </div>
         </div>
       </form>
@@ -205,7 +205,7 @@ function CategoryEditorCard({
               Excluir categoria
             </p>
             <p className="text-sm text-[var(--muted)]">
-              O backend bloqueia a exclusao se ainda existirem subcategorias ou
+              O backend bloqueia a exclusão se ainda existirem subcategorias ou
               produtos relacionados.
             </p>
           </div>
@@ -291,7 +291,7 @@ function CategoryFormFields({
           defaultChecked={state.values.isActive}
           className="h-4 w-4 accent-[var(--accent)]"
         />
-        <span className="font-medium">Categoria ativa no catalogo</span>
+        <span className="font-medium">Categoria ativa no catálogo</span>
       </label>
     </div>
   );

@@ -37,7 +37,7 @@ export async function createExpenseAction(
   if (!values.type || !values.description || !values.expenseDate) {
     return {
       status: 'error',
-      message: 'Informe tipo, descricao e data da despesa.',
+      message: 'Informe tipo, descrição e data da despesa.',
       values,
     };
   }
@@ -45,7 +45,7 @@ export async function createExpenseAction(
   if (!Number.isFinite(parsedAmount) || parsedAmount < 0) {
     return {
       status: 'error',
-      message: 'Informe um valor valido para a despesa.',
+      message: 'Informe um valor válido para a despesa.',
       values,
     };
   }
@@ -116,5 +116,5 @@ function extractActionErrorMessage(error: unknown) {
     return error.message;
   }
 
-  return 'Nao foi possivel concluir a operacao agora. Tente novamente.';
+  return 'Não foi possível concluir a operação agora. Tente novamente.';
 }

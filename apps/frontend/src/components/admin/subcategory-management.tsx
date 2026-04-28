@@ -60,8 +60,8 @@ export function SubcategoryManagement({
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold">Subcategorias cadastradas</h2>
             <p className="max-w-2xl text-sm leading-6 text-[var(--muted)]">
-              Aqui o frontend administra a relacao entre categoria pai, slug e
-              ordenacao, enquanto a API segue protegendo unicidade por categoria e
+              Aqui o frontend administra a relação entre categoria pai, slug e
+              ordenação, enquanto a API segue protegendo unicidade por categoria e
               integridade com produtos.
             </p>
           </div>
@@ -77,21 +77,21 @@ export function SubcategoryManagement({
         {!hasCategories ? (
           <div className="rounded-[1.25rem] border border-[rgba(177,59,46,0.18)] bg-[rgba(177,59,46,0.08)] px-4 py-3 text-sm text-[var(--danger)]">
             Crie ao menos uma categoria antes de cadastrar subcategorias. Sem esse
-            relacionamento, o modulo nao possui integridade semantica.
+            relacionamento, o módulo não possui integridade semântica.
           </div>
         ) : null}
 
         {!canDelete ? (
           <div className="rounded-[1.25rem] border border-[rgba(183,121,31,0.18)] bg-[rgba(183,121,31,0.08)] px-4 py-3 text-sm text-[var(--warning)]">
-            O seu perfil pode criar e editar subcategorias, mas a exclusao continua
+            O seu perfil pode criar e editar subcategorias, mas a exclusão continua
             restrita a `super_admin`.
           </div>
         ) : null}
 
         {subcategories.length === 0 ? (
           <div className="rounded-[1.5rem] border border-dashed border-[var(--border-strong)] bg-[var(--surface)] p-5 text-sm text-[var(--muted)] shadow-[var(--shadow-md)]">
-            Nenhuma subcategoria foi encontrada. Use o formulario acima para
-            estruturar o catalogo abaixo das categorias principais.
+            Nenhuma subcategoria foi encontrada. Use o formulário acima para
+            estruturar o catálogo abaixo das categorias principais.
           </div>
         ) : (
           <div className="grid gap-4 xl:grid-cols-2">
@@ -136,7 +136,7 @@ function CreateSubcategoryCard({ categories }: { categories: Category[] }) {
         <h2 className="text-2xl font-semibold">Nova subcategoria</h2>
         <p className="max-w-2xl text-sm leading-6 text-[var(--muted)]">
           O cadastro exige categoria pai porque o contrato do backend garante slug
-          unico por categoria, e nao globalmente em todo o catalogo.
+          único por categoria, e não globalmente em todo o catálogo.
         </p>
       </div>
 
@@ -230,7 +230,7 @@ function SubcategoryEditorCard({
             <FormMessage state={updateState} />
             <SubmitButton
               disabled={categories.length === 0}
-              idleLabel="Salvar alteracoes"
+              idleLabel="Salvar alterações"
               pendingLabel="Salvando..."
             />
           </div>
@@ -247,7 +247,7 @@ function SubcategoryEditorCard({
               Excluir subcategoria
             </p>
             <p className="text-sm text-[var(--muted)]">
-              O backend bloqueia a exclusao quando ainda existem produtos
+              O backend bloqueia a exclusão quando ainda existem produtos
               vinculados a esta subcategoria.
             </p>
           </div>
@@ -360,7 +360,7 @@ function SubcategoryFormFields({
           defaultChecked={state.values.isActive}
           className="h-4 w-4 accent-[var(--accent)]"
         />
-        <span className="font-medium">Subcategoria ativa no catalogo</span>
+        <span className="font-medium">Subcategoria ativa no catálogo</span>
       </label>
     </div>
   );
