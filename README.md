@@ -1,182 +1,97 @@
 # EloC
 
-Monorepo simples para organizar o frontend e o backend do projeto de forma clara, profissional e escalável, sem introduzir complexidade desnecessária.
+Sistema web para catálogo público e painel administrativo da EloC Pratas e Semijoias.
 
-## Visão geral
+## Descrição
 
-O repositório está estruturado para centralizar:
+O projeto entrega uma aplicação web com catálogo de produtos, páginas públicas de navegação e painel administrativo protegido para gestão de categorias, subcategorias, produtos, entradas financeiras, despesas e remessas.
 
-- `apps/frontend`: aplicação web em Next.js com TypeScript e Tailwind CSS
-- `apps/backend`: API em NestJS com TypeScript, Prisma e PostgreSQL
-- `docs`: documentação funcional, técnica, arquitetura e decisões do projeto
+## Stack utilizada
 
-O objetivo desta organização é facilitar manutenção, onboarding, revisão técnica e crescimento do sistema por uma equipe pequena.
-
-## Stack
-
-- Frontend: Next.js + TypeScript + Tailwind CSS
-- Backend: NestJS + TypeScript
+- Frontend: Next.js, TypeScript e Tailwind CSS
+- Backend: NestJS e TypeScript
 - Banco de dados: PostgreSQL
 - ORM: Prisma
+- Estrutura: monorepo com workspaces npm
 
-## Estado atual
-
-O repositório agora possui a base estrutural do monorepo, a primeira etapa do banco de dados concluída e o bootstrap inicial do backend implementado.
-
-Situação atual:
-
-- monorepo organizado em `apps/frontend`, `apps/backend` e `docs`
-- Prisma instalado no backend
-- `schema.prisma` modelado a partir do domínio do catálogo de joias
-- migration inicial criada em `apps/backend/prisma/migrations/20260428_init`
-- banco local `eloc` utilizado no desenvolvimento; para novos ambientes, aplicar a migration com `prisma:migrate:deploy`
-- documentação técnica do banco registrada em `docs/technical/database-model.md`
-- backend NestJS inicial configurado com `ConfigModule`, `PrismaModule` e healthcheck
-- autenticação administrativa inicial implementada com JWT
-- autorização administrativa por papel implementada para rotas de escrita do catálogo
-- primeiros módulos de domínio iniciados no backend:
-  - `admins`
-  - `auth`
-  - `categories`
-  - `subcategories`
-  - `products`
-- operações administrativas de escrita disponíveis para:
-  - `categories`
-  - `subcategories`
-  - `products`
-- frontend administrativo base implementado com Next.js, App Router e Tailwind CSS
-- autenticação administrativa do frontend integrada ao backend com cookie `httpOnly`
-- fluxo de sessão do frontend ajustado para o App Router sem mutação indevida de cookies durante renderização
-- shell administrativo revisado para melhor responsividade e hierarquia visual em desktop e mobile
-- painel administrativo do catálogo agora com escrita disponível para:
-  - `dashboard`
-  - `categories`
-  - `subcategories`
-  - `products`
-- produtos agora possuem base relacional de imagens via `ProductImage`
-- o Admin já envia `images[]` como contrato principal, ainda com URLs manuais e sem upload real
-- `Product.imageUrl` permanece apenas como compatibilidade transitoria
-- o frontend público consome `images[]` como fonte principal, com fallback controlado para `imageUrl`
-- backend possui upload administrativo inicial de imagens de produto com storage local
-- formulário administrativo de produtos já integra upload e preenche `images[]` automaticamente
-- módulos administrativos iniciais implementados para:
-  - `entries`
-  - `expenses`
-  - `shipments`
-- tratamento de erro do cliente HTTP do frontend ajustado para expor melhor mensagens de validação do backend
-- dashboard administrativo consolida totais de catálogo, entradas, despesas e remessas
-
-Pendências atuais de desenvolvimento:
-
-- refinar UX de upload no formulário de produtos e planejar storage externo futuro
-- planejar a remoção futura da compatibilidade com `Product.imageUrl` depois da estabilização dos dados
-- consolidar primitivas reutilizáveis do painel administrativo sem abstrair cedo demais
-- padronizar ainda mais formulários, feedback de erro e estados de carregamento do painel
-- refinar a UI do painel por tela conforme os módulos crescerem, sem reabrir a base do shell sem necessidade
-- evoluir edição completa, filtros e refinamentos de UX dos contextos financeiros e operacionais (`entries`, `expenses`, `shipments`)
-
-## Estrutura do monorepo
+## Estrutura do projeto
 
 ```text
-root/
-|-- apps/
-|   |-- frontend/
-|   |   |-- src/
-|   |   |   |-- app/
-|   |   |   |-- components/
-|   |   |   |-- hooks/
-|   |   |   |-- lib/
-|   |   |   |-- services/
-|   |   |   |-- types/
-|   |   |   `-- utils/
-|   |   |-- package.json
-|   |   `-- README.md
-|   `-- backend/
-|       |-- prisma/
-|       |-- src/
-|       |   |-- common/
-|       |   |-- config/
-|       |   |-- modules/
-|       |   `-- prisma/
-|       |-- package.json
-|       `-- README.md
-|-- docs/
-|   |-- architecture/
-|   |-- decisions/
-|   |-- functional/
-|   `-- technical/
-|-- .gitignore
-|-- README.md
-`-- package.json
+apps/
+  frontend/   Aplicação Next.js
+  backend/    API NestJS, Prisma e scripts operacionais
+docs/         Documentação final do projeto
 ```
 
-## Como rodar o frontend
+## Como rodar localmente
 
-Para rodar o frontend administrativo:
-  
+1. Instalar dependências:
+
 ```bash
 npm install
+```
+
+2. Configurar variáveis de ambiente:
+
+```bash
+cp apps/backend/.env.example apps/backend/.env
+cp apps/frontend/.env.example apps/frontend/.env.local
+```
+
+3. Configurar o banco PostgreSQL e aplicar migrations:
+
+```bash
+npm run prisma:generate --workspace @eloc/backend
+npm run prisma:migrate:dev --workspace @eloc/backend
+```
+
+4. Criar um administrador:
+
+```bash
+npm run admin:create --workspace @eloc/backend
+```
+
+5. Iniciar backend e frontend:
+
+```bash
+npm run dev:backend
 npm run dev:frontend
 ```
 
-Configuração necessária:
+Por padrão:
 
-- copiar `apps/frontend/.env.example` para `apps/frontend/.env.local`
-- definir `BACKEND_API_URL=http://localhost:3001/api`
-- subir o backend antes de acessar o login administrativo
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:3001/api`
 
-## Como rodar o backend
-
-Quando a API backend estiver com o código de aplicação e dependências instaladas em `apps/backend`, use:
+## Comandos principais
 
 ```bash
-npm install
+npm run dev:frontend
 npm run dev:backend
-```
-
-Comandos de banco já disponíveis no backend:
-
-```bash
+npm run build:frontend
+npm run build:backend
 npm run prisma:validate --workspace @eloc/backend
 npm run prisma:generate --workspace @eloc/backend
-npm run prisma:migrate:dev --workspace @eloc/backend
 npm run prisma:migrate:deploy --workspace @eloc/backend
 ```
 
-## Como retomar depois
+## Documentação
 
-Se o projeto for retomado em outra sessão, consultar primeiro:
+- [01 - Escopo e requisitos](docs/01-escopo-e-requisitos.md)
+- [02 - Regras de negócio](docs/02-regras-de-negocio.md)
+- [03 - Arquitetura técnica](docs/03-arquitetura-tecnica.md)
+- [04 - Banco de dados](docs/04-banco-de-dados.md)
+- [05 - API](docs/05-api.md)
+- [06 - Instalação local](docs/06-instalacao-local.md)
+- [07 - Deploy em produção](docs/07-deploy-producao.md)
+- [08 - Manual do administrador](docs/08-manual-do-administrador.md)
+- [09 - Termo de entrega e aceite](docs/09-termo-de-entrega-e-aceite.md)
+- [10 - Manutenção e garantia](docs/10-manutencao-e-garantia.md)
 
-- `docs/codex-guide.md`
-- `docs/technical/database-model.md`
-- `apps/backend/prisma/schema.prisma`
-- `apps/backend/README.md`
+## Observações importantes
 
-Próximo passo recomendado no retorno:
-
-- refinar a experiência de upload no Admin e planejar a troca futura do storage local, mantendo `imageUrl` apenas como fallback legado até haver plano seguro de remoção
-
-## Checklist de deploy
-
-Antes de publicar:
-
-- definir `DATABASE_URL`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `UPLOADS_PUBLIC_BASE_URL` e demais variáveis de ambiente fora do código
-- usar um `JWT_SECRET` forte em produção; o valor do `.env.example` é apenas local
-- executar `npm run prisma:migrate:deploy --workspace @eloc/backend` no ambiente de produção
-- executar `npm run build:backend` e `npm run build:frontend`
-- configurar `BACKEND_API_URL` no frontend apontando para a API pública de produção
-- planejar storage persistente para uploads; o storage local funciona em VPS/volume persistente, mas não é ideal para ambientes serverless ou instâncias efêmeras
-
-## Convenções básicas
-
-- manter nomes de pastas e arquivos em inglês
-- concentrar regra de negócio no backend, especialmente em `services` dos módulos
-- evitar duplicação entre frontend e backend
-- manter documentação de arquitetura e decisões atualizada em `docs`
-- não criar `packages/` compartilhados antes de existir necessidade real
-- preservar contratos claros entre API, banco e frontend
-- manter aliases de import e configurações de build apontando para `apps/frontend` e `apps/backend`
-
-## Observação importante
-
-Os placeholders `.gitkeep` foram removidos quando deixaram de representar estrutura útil. A organização do monorepo agora deve ser mantida por código real, migrations, documentação e diretórios efetivamente utilizados.
+- As rotas administrativas dependem de autenticação JWT.
+- O frontend guarda a sessão administrativa em cookie `httpOnly`.
+- O storage de uploads é local no backend. Para produção em ambiente efêmero ou serverless, recomenda-se storage externo.
+- As migrations versionadas em `apps/backend/prisma/migrations` devem ser preservadas.
+- Arquivos `.env` não devem ser versionados.
