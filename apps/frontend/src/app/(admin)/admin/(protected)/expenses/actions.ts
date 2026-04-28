@@ -10,12 +10,10 @@ export type ExpenseFormState = {
   status: 'idle' | 'success' | 'error';
   message?: string;
   values: {
-    shipmentId: string;
     type: string;
     description: string;
     amount: string;
     expenseDate: string;
-    notes: string;
   };
 };
 
@@ -29,12 +27,10 @@ export async function createExpenseAction(
   formData: FormData,
 ): Promise<ExpenseFormState> {
   const values = {
-    shipmentId: String(formData.get('shipmentId') ?? '').trim(),
     type: String(formData.get('type') ?? '').trim(),
     description: String(formData.get('description') ?? '').trim(),
     amount: String(formData.get('amount') ?? '').trim(),
     expenseDate: String(formData.get('expenseDate') ?? '').trim(),
-    notes: String(formData.get('notes') ?? '').trim(),
   };
   const parsedAmount = Number(values.amount.replace(',', '.'));
 
@@ -55,12 +51,12 @@ export async function createExpenseAction(
   }
 
   const input: ExpenseMutationInput = {
-    shipmentId: values.shipmentId || null,
+    shipmentId: null,
     type: values.type,
     description: values.description,
     amount: parsedAmount,
     expenseDate: values.expenseDate,
-    notes: values.notes || null,
+    notes: null,
   };
 
   try {
@@ -80,12 +76,10 @@ export async function createExpenseAction(
     status: 'success',
     message: 'Despesa registrada com sucesso.',
     values: {
-      shipmentId: '',
       type: '',
       description: '',
       amount: '',
       expenseDate: new Date().toISOString().slice(0, 10),
-      notes: '',
     },
   };
 }

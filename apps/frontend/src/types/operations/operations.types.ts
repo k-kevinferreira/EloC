@@ -72,7 +72,7 @@ export type ShipmentItem = {
 export type ShipmentItemMutationInput = {
   productId: string;
   quantity: number;
-  unitCost: number;
+  unitCost?: number;
 };
 
 export type ShipmentMutationInput = {

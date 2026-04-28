@@ -3,11 +3,12 @@
 import { revalidatePath } from 'next/cache';
 
 import { BackendApiError } from '@/lib/http/backend-api';
-import { createEntry, deleteEntry } from '@/services/entries/admin-entries';
+import { createEntry, deleteEntry, updateEntry } from '@/services/entries/admin-entries';
 import type { SaleEntryMutationInput } from '@/types/operations/operations.types';
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const allowedEntryStatuses = ['paid', 'pending', 'installment'];
 
 export type EntryFormState = {
   status: 'idle' | 'success' | 'error';
@@ -46,16 +47,7 @@ export async function createEntryAction(
   const parsedQuantity = Number(values.quantity);
   const parsedUnitPrice = Number(values.unitPrice.replace(',', '.'));
 
-  if (
-    !uuidPattern.test(values.productId) ||
-    !Number.isInteger(parsedQuantity) ||
-    parsedQuantity < 1 ||
-    !Number.isFinite(parsedUnitPrice) ||
-    parsedUnitPrice < 0 ||
-    !values.paymentMethod ||
-    !values.status ||
-    !values.soldAt
-  ) {
+  if (!isValidEntryValues(values, parsedQuantity, parsedUnitPrice)) {
     return {
       status: 'error',
       message: 'Revise produto, quantidade, valor, forma de pagamento, status e data.',
@@ -103,6 +95,61 @@ export async function createEntryAction(
   };
 }
 
+export async function updateEntryAction(
+  entryId: string,
+  _previousState: EntryFormState,
+  formData: FormData,
+): Promise<EntryFormState> {
+  const values = {
+    productId: String(formData.get('productId') ?? '').trim(),
+    quantity: String(formData.get('quantity') ?? '1').trim(),
+    unitPrice: String(formData.get('unitPrice') ?? '').trim(),
+    paymentMethod: String(formData.get('paymentMethod') ?? '').trim(),
+    status: String(formData.get('status') ?? 'paid').trim(),
+    customerName: String(formData.get('customerName') ?? '').trim(),
+    notes: String(formData.get('notes') ?? '').trim(),
+    soldAt: String(formData.get('soldAt') ?? '').trim(),
+  };
+  const parsedQuantity = Number(values.quantity);
+  const parsedUnitPrice = Number(values.unitPrice.replace(',', '.'));
+
+  if (!isValidEntryValues(values, parsedQuantity, parsedUnitPrice)) {
+    return {
+      status: 'error',
+      message: 'Revise produto, quantidade, valor, forma de pagamento, status e data.',
+      values,
+    };
+  }
+
+  try {
+    await updateEntry(entryId, {
+      productId: values.productId,
+      quantity: parsedQuantity,
+      unitPrice: parsedUnitPrice,
+      paymentMethod: values.paymentMethod,
+      status: values.status,
+      customerName: values.customerName || null,
+      notes: values.notes || null,
+      soldAt: values.soldAt,
+    });
+  } catch (error) {
+    return {
+      status: 'error',
+      message: extractActionErrorMessage(error),
+      values,
+    };
+  }
+
+  revalidatePath('/admin/entries');
+  revalidatePath('/admin/dashboard');
+
+  return {
+    status: 'success',
+    message: 'Entrada atualizada com sucesso.',
+    values,
+  };
+}
+
 export async function deleteEntryAction(
   entryId: string,
   _previousState: EntryDeleteState,
@@ -123,6 +170,23 @@ export async function deleteEntryAction(
     status: 'success',
     message: 'Entrada removida com sucesso.',
   };
+}
+
+function isValidEntryValues(
+  values: EntryFormState['values'],
+  parsedQuantity: number,
+  parsedUnitPrice: number,
+) {
+  return (
+    uuidPattern.test(values.productId) &&
+    Number.isInteger(parsedQuantity) &&
+    parsedQuantity >= 1 &&
+    Number.isFinite(parsedUnitPrice) &&
+    parsedUnitPrice >= 0 &&
+    values.paymentMethod.length > 0 &&
+    allowedEntryStatuses.includes(values.status) &&
+    values.soldAt.length > 0
+  );
 }
 
 function extractActionErrorMessage(error: unknown) {

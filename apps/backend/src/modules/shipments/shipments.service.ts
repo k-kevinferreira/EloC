@@ -199,21 +199,27 @@ export class ShipmentsService {
       },
       select: {
         id: true,
+        price: true,
       },
     });
-    const existingProductIds = new Set(products.map((product) => product.id));
-    const missingProductId = productIds.find((productId) => !existingProductIds.has(productId));
+    const productById = new Map(products.map((product) => [product.id, product]));
+    const missingProductId = productIds.find((productId) => !productById.has(productId));
 
     if (missingProductId) {
       throw new NotFoundException(`Product with id "${missingProductId}" was not found.`);
     }
 
-    return items.map((item) => ({
-      productId: item.productId,
-      quantity: item.quantity,
-      unitCost: item.unitCost,
-      totalCost: this.calculateItemTotal(item.quantity, item.unitCost),
-    }));
+    return items.map((item) => {
+      const product = productById.get(item.productId);
+      const unitCost = item.unitCost ?? Number(product?.price ?? 0);
+
+      return {
+        productId: item.productId,
+        quantity: item.quantity,
+        unitCost,
+        totalCost: this.calculateItemTotal(item.quantity, unitCost),
+      };
+    });
   }
 
   private calculateItemTotal(quantity: number, unitCost: number) {

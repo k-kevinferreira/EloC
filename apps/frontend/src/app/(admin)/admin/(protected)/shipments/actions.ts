@@ -24,7 +24,6 @@ export type ShipmentFormState = {
 export type ShipmentItemFormValue = {
   productId: string;
   quantity: string;
-  unitCost: string;
 };
 
 export type ShipmentDeleteState = {
@@ -132,15 +131,12 @@ function normalizeItems(items: ShipmentItemFormValue[]): ShipmentItemMutationInp
     .map((item) => ({
       productId: item.productId,
       quantity: Number(item.quantity),
-      unitCost: Number(item.unitCost.replace(',', '.')),
     }))
     .filter((item) => {
       return (
         item.productId.length > 0 &&
         Number.isInteger(item.quantity) &&
-        item.quantity > 0 &&
-        Number.isFinite(item.unitCost) &&
-        item.unitCost >= 0
+        item.quantity > 0
       );
     });
 }
@@ -149,7 +145,6 @@ function createEmptyShipmentItem(): ShipmentItemFormValue {
   return {
     productId: '',
     quantity: '1',
-    unitCost: '',
   };
 }
 

@@ -36,6 +36,16 @@ export async function createEntry(input: SaleEntryMutationInput) {
   });
 }
 
+export async function updateEntry(id: string, input: SaleEntryMutationInput) {
+  const accessToken = await getRequiredAdminAccessToken();
+
+  return requestBackend<SaleEntry>(`admin/entries/${id}`, {
+    method: 'PATCH',
+    accessToken,
+    body: input,
+  });
+}
+
 export async function deleteEntry(id: string) {
   const accessToken = await getRequiredAdminAccessToken();
 

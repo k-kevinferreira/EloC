@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsNumber, IsUUID, Min } from 'class-validator';
+import { IsInt, IsNumber, IsOptional, IsUUID, Min } from 'class-validator';
 
 export class ShipmentItemInputDto {
   @IsUUID()
@@ -11,7 +11,8 @@ export class ShipmentItemInputDto {
   quantity!: number;
 
   @Type(() => Number)
+  @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
-  unitCost!: number;
+  unitCost?: number;
 }

@@ -1,11 +1,12 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { Fragment, useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
 import {
   createEntryAction,
   deleteEntryAction,
+  updateEntryAction,
   type EntryDeleteState,
   type EntryFormState,
 } from '@/app/(admin)/admin/(protected)/entries/actions';
@@ -44,6 +45,8 @@ type ShipmentManagementProps = {
   shipments: Shipment[];
 };
 
+type ActiveEntryForm = string | null;
+
 const today = new Date().toISOString().slice(0, 10);
 const nowForInput = new Date().toISOString().slice(0, 16);
 
@@ -64,12 +67,10 @@ const initialEntryFormState: EntryFormState = {
 const initialExpenseFormState: ExpenseFormState = {
   status: 'idle',
   values: {
-    shipmentId: '',
     type: '',
     description: '',
     amount: '',
     expenseDate: today,
-    notes: '',
   },
 };
 
@@ -90,6 +91,7 @@ const initialDeleteState = {
 
 export function EntryManagement({ canDelete, entries, products }: EntryManagementProps) {
   const [state, formAction] = useActionState(createEntryAction, initialEntryFormState);
+  const [activeEntryForm, setActiveEntryForm] = useState<ActiveEntryForm>(null);
   const hasProducts = products.length > 0;
 
   return (
@@ -115,7 +117,7 @@ export function EntryManagement({ canDelete, entries, products }: EntryManagemen
           <TextField label="Quantidade" name="quantity" type="number" min="1" defaultValue={state.values.quantity} />
           <TextField label="Valor unitario" name="unitPrice" inputMode="decimal" defaultValue={state.values.unitPrice} />
           <TextField label="Forma de pagamento" name="paymentMethod" defaultValue={state.values.paymentMethod} />
-          <TextField label="Status" name="status" defaultValue={state.values.status} />
+          <EntryStatusSelect defaultValue={state.values.status} />
           <TextField label="Data da venda" name="soldAt" type="datetime-local" defaultValue={state.values.soldAt} />
           <TextField label="Cliente" name="customerName" defaultValue={state.values.customerName} />
           <TextareaField label="Observacoes" name="notes" defaultValue={state.values.notes} />
@@ -125,16 +127,33 @@ export function EntryManagement({ canDelete, entries, products }: EntryManagemen
 
       <ListShell emptyMessage="Nenhuma entrada registrada." title="Entradas registradas">
         {entries.map((entry) => (
-          <FinancialListItem
-            key={entry.id}
-            title={entry.product.title}
-            detail={`${entry.quantity} x ${formatCurrency(entry.unitPrice)} - ${entry.paymentMethod}`}
-            amount={entry.totalAmount}
-            date={entry.soldAt}
-            status={entry.status}
-          >
-            <EntryDeleteForm canDelete={canDelete} entryId={entry.id} />
-          </FinancialListItem>
+          <Fragment key={entry.id}>
+            <FinancialListItem
+              title={entry.product.title}
+              detail={`${entry.quantity} x ${formatCurrency(entry.unitPrice)} - ${entry.paymentMethod}`}
+              amount={entry.totalAmount}
+              date={entry.soldAt}
+              status={formatEntryStatus(entry.status)}
+            >
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setActiveEntryForm((currentEntryId) =>
+                      currentEntryId === entry.id ? null : entry.id,
+                    )
+                  }
+                  className="inline-flex items-center justify-center rounded-full border border-[var(--border-strong)] px-4 py-2 text-sm font-semibold transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                >
+                  {activeEntryForm === entry.id ? 'Fechar' : 'Editar'}
+                </button>
+                <EntryDeleteForm canDelete={canDelete} entryId={entry.id} />
+              </div>
+            </FinancialListItem>
+            {activeEntryForm === entry.id ? (
+              <EntryEditForm entry={entry} products={products} />
+            ) : null}
+          </Fragment>
         ))}
       </ListShell>
     </div>
@@ -144,7 +163,6 @@ export function EntryManagement({ canDelete, entries, products }: EntryManagemen
 export function ExpenseManagement({
   canDelete,
   expenses,
-  shipments,
 }: ExpenseManagementProps) {
   const [state, formAction] = useActionState(
     createExpenseAction,
@@ -158,19 +176,10 @@ export function ExpenseManagement({
         description="Registre custos operacionais e, quando fizer sentido, vincule a despesa a uma remessa."
       >
         <form action={formAction} className="grid gap-4 md:grid-cols-2">
-          <SelectField label="Remessa vinculada" name="shipmentId" defaultValue={state.values.shipmentId}>
-            <option value="">Sem remessa vinculada</option>
-            {shipments.map((shipment) => (
-              <option key={shipment.id} value={shipment.id}>
-                {shipment.code} - {shipment.supplier}
-              </option>
-            ))}
-          </SelectField>
+          <TextField label="Despesa" name="description" defaultValue={state.values.description} />
           <TextField label="Tipo" name="type" defaultValue={state.values.type} placeholder="ex.: frete" />
-          <TextField label="Descricao" name="description" defaultValue={state.values.description} />
           <TextField label="Valor" name="amount" inputMode="decimal" defaultValue={state.values.amount} />
           <TextField label="Data" name="expenseDate" type="date" defaultValue={state.values.expenseDate} />
-          <TextareaField label="Observacoes" name="notes" defaultValue={state.values.notes} />
           <FormFooter state={state} submitLabel="Registrar despesa" pendingLabel="Registrando..." />
         </form>
       </AdminFormShell>
@@ -202,8 +211,12 @@ export function ShipmentManagement({
     createShipmentAction,
     initialShipmentFormState,
   );
-  const [items, setItems] = useState(state.values.items);
+  const [item, setItem] = useState(state.values.items[0] ?? createEmptyShipmentItem());
+  const [productSearch, setProductSearch] = useState('');
   const hasProducts = products.length > 0;
+  const selectedShipmentProduct = products.find(
+    (product) => product.id === item.productId,
+  );
 
   return (
     <div className="space-y-6">
@@ -217,62 +230,30 @@ export function ShipmentManagement({
           <TextField label="Data da remessa" name="shipmentDate" type="date" defaultValue={state.values.shipmentDate} />
           <TextareaField label="Observacoes" name="notes" defaultValue={state.values.notes} />
 
-          <input type="hidden" name="items" value={JSON.stringify(items)} />
+          <input type="hidden" name="items" value={JSON.stringify([item])} />
           <div className="space-y-3 md:col-span-2">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-semibold">Itens da remessa</p>
-              <button
-                type="button"
-                onClick={() => setItems((currentItems) => [...currentItems, createEmptyShipmentItem()])}
-                className="rounded-full border border-[var(--border-strong)] px-4 py-2 text-sm font-semibold transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
-              >
-                Adicionar item
-              </button>
+            <p className="text-sm font-semibold">Item da remessa</p>
+            <div className="grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-3 md:grid-cols-[minmax(0,1fr)_120px] md:items-end">
+              <ProductTextInput
+                label="Produto"
+                listId="shipment-product-options"
+                value={productSearch || formatProductOptionLabel(selectedShipmentProduct)}
+                products={products}
+                disabled={!hasProducts}
+                onChange={(value) =>
+                  handleShipmentProductInput(value, products, setProductSearch, setItem)
+                }
+              />
+              <ControlledTextField
+                label="Qtd."
+                type="number"
+                min="1"
+                value={item.quantity}
+                onChange={(value) =>
+                  setItem((currentItem) => ({ ...currentItem, quantity: value }))
+                }
+              />
             </div>
-            {items.map((item, index) => (
-              <div key={`shipment-item-${index}`} className="grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-3 md:grid-cols-[minmax(0,1fr)_120px_140px_auto] md:items-end">
-                <SelectField
-                  label="Produto"
-                  name={`productId-${index}`}
-                  value={item.productId}
-                  disabled={!hasProducts}
-                  onChange={(value) => updateShipmentItem(setItems, index, 'productId', value)}
-                >
-                  <option value="">Selecione</option>
-                  {products.map((product) => (
-                    <option key={product.id} value={product.id}>
-                      {product.title}
-                    </option>
-                  ))}
-                </SelectField>
-                <ControlledTextField
-                  label="Qtd."
-                  type="number"
-                  min="1"
-                  value={item.quantity}
-                  onChange={(value) => updateShipmentItem(setItems, index, 'quantity', value)}
-                />
-                <ControlledTextField
-                  label="Custo unit."
-                  inputMode="decimal"
-                  value={item.unitCost}
-                  onChange={(value) => updateShipmentItem(setItems, index, 'unitCost', value)}
-                />
-                <button
-                  type="button"
-                  onClick={() =>
-                    setItems((currentItems) =>
-                      currentItems.length === 1
-                        ? [createEmptyShipmentItem()]
-                        : currentItems.filter((_, currentIndex) => currentIndex !== index),
-                    )
-                  }
-                  className="rounded-full border border-[rgba(177,59,46,0.24)] bg-[rgba(177,59,46,0.08)] px-4 py-3 text-sm font-semibold text-[var(--danger)]"
-                >
-                  Remover
-                </button>
-              </div>
-            ))}
           </div>
 
           <FormFooter state={state} submitLabel="Registrar remessa" pendingLabel="Registrando..." disabled={!hasProducts} />
@@ -420,6 +401,42 @@ function ControlledTextField({
   );
 }
 
+function ProductTextInput({
+  disabled,
+  label,
+  listId,
+  onChange,
+  products,
+  value,
+}: {
+  disabled?: boolean;
+  label: string;
+  listId: string;
+  onChange: (value: string) => void;
+  products: Product[];
+  value: string;
+}) {
+  return (
+    <label className="space-y-2 text-sm font-semibold">
+      <span>{label}</span>
+      <input
+        type="text"
+        list={listId}
+        value={value}
+        disabled={disabled}
+        placeholder="Digite o nome ou codigo do produto"
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] px-4 py-3 font-normal outline-none transition focus:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
+      />
+      <datalist id={listId}>
+        {products.map((product) => (
+          <option key={product.id} value={formatProductOptionLabel(product)} />
+        ))}
+      </datalist>
+    </label>
+  );
+}
+
 function TextareaField({
   label,
   ...textareaProps
@@ -533,6 +550,65 @@ function EntryDeleteForm({ canDelete, entryId }: { canDelete: boolean; entryId: 
   return <DeleteForm canDelete={canDelete} formAction={formAction} state={state} />;
 }
 
+function EntryEditForm({ entry, products }: { entry: SaleEntry; products: Product[] }) {
+  const updateAction = updateEntryAction.bind(null, entry.id);
+  const [state, formAction] = useActionState(
+    updateAction,
+    buildEntryFormState(entry),
+  );
+
+  return (
+    <form
+      action={formAction}
+      className="grid gap-4 border-b border-[var(--border)] bg-[var(--surface-strong)] p-4 md:grid-cols-2"
+    >
+      <SelectField label="Produto" name="productId" defaultValue={state.values.productId}>
+        {products.map((product) => (
+          <option key={product.id} value={product.id}>
+            {product.title} - {formatCurrency(product.price)}
+          </option>
+        ))}
+      </SelectField>
+      <TextField
+        label="Quantidade"
+        name="quantity"
+        type="number"
+        min="1"
+        defaultValue={state.values.quantity}
+      />
+      <TextField
+        label="Valor unitario"
+        name="unitPrice"
+        inputMode="decimal"
+        defaultValue={state.values.unitPrice}
+      />
+      <TextField
+        label="Forma de pagamento"
+        name="paymentMethod"
+        defaultValue={state.values.paymentMethod}
+      />
+      <EntryStatusSelect defaultValue={state.values.status} />
+      <TextField
+        label="Data da venda"
+        name="soldAt"
+        type="datetime-local"
+        defaultValue={state.values.soldAt}
+      />
+      <TextField
+        label="Cliente"
+        name="customerName"
+        defaultValue={state.values.customerName}
+      />
+      <TextareaField label="Observacoes" name="notes" defaultValue={state.values.notes} />
+      <FormFooter
+        state={state}
+        submitLabel="Salvar entrada"
+        pendingLabel="Salvando..."
+      />
+    </form>
+  );
+}
+
 function ExpenseDeleteForm({
   canDelete,
   expenseId,
@@ -590,6 +666,16 @@ function DeleteForm({
   );
 }
 
+function EntryStatusSelect({ defaultValue }: { defaultValue: string }) {
+  return (
+    <SelectField label="Status" name="status" defaultValue={defaultValue}>
+      <option value="paid">Pago</option>
+      <option value="pending">Pendente</option>
+      <option value="installment">Parcelado</option>
+    </SelectField>
+  );
+}
+
 function StatusBadge({ children }: { children: React.ReactNode }) {
   return (
     <span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold text-[var(--accent)]">
@@ -602,21 +688,33 @@ function createEmptyShipmentItem(): ShipmentItemFormValue {
   return {
     productId: '',
     quantity: '1',
-    unitCost: '',
   };
 }
 
-function updateShipmentItem(
-  setItems: React.Dispatch<React.SetStateAction<ShipmentItemFormValue[]>>,
-  index: number,
-  key: keyof ShipmentItemFormValue,
+function handleShipmentProductInput(
   value: string,
+  products: Product[],
+  setProductSearch: React.Dispatch<React.SetStateAction<string>>,
+  setItem: React.Dispatch<React.SetStateAction<ShipmentItemFormValue>>,
 ) {
-  setItems((currentItems) =>
-    currentItems.map((item, currentIndex) =>
-      currentIndex === index ? { ...item, [key]: value } : item,
-    ),
-  );
+  setProductSearch(value);
+
+  const matchedProduct = products.find((product) => {
+    return formatProductOptionLabel(product).toLowerCase() === value.trim().toLowerCase();
+  });
+
+  setItem((currentItem) => ({
+    ...currentItem,
+    productId: matchedProduct?.id ?? '',
+  }));
+}
+
+function formatProductOptionLabel(product: Product | undefined) {
+  if (!product) {
+    return '';
+  }
+
+  return `${product.title} (${product.code})`;
 }
 
 function formatDate(value: string, dateOnly = false) {
@@ -632,4 +730,37 @@ function formatDate(value: string, dateOnly = false) {
     dateStyle: 'short',
     timeStyle: value.includes('T') ? 'short' : undefined,
   }).format(new Date(value));
+}
+
+function formatEntryStatus(status: string) {
+  const statusLabels: Record<string, string> = {
+    paid: 'Pago',
+    pending: 'Pendente',
+    installment: 'Parcelado',
+  };
+
+  return statusLabels[status] ?? status;
+}
+
+function buildEntryFormState(entry: SaleEntry): EntryFormState {
+  return {
+    status: 'idle',
+    values: {
+      productId: entry.productId,
+      quantity: String(entry.quantity),
+      unitPrice: entry.unitPrice,
+      paymentMethod: entry.paymentMethod,
+      status: entry.status,
+      customerName: entry.customerName ?? '',
+      notes: entry.notes ?? '',
+      soldAt: toDateTimeLocalValue(entry.soldAt),
+    },
+  };
+}
+
+function toDateTimeLocalValue(value: string) {
+  const date = new Date(value);
+  const timezoneOffset = date.getTimezoneOffset() * 60000;
+
+  return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 16);
 }
