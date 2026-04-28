@@ -1,87 +1,97 @@
 # EloC
 
-Monorepo simples para organizar o frontend e o backend do projeto de forma clara, profissional e escalavel, sem introduzir complexidade desnecessaria.
+Sistema web para catálogo público e painel administrativo da EloC Pratas e Semijoias.
 
-## Visao geral
+## Descrição
 
-O repositorio esta estruturado para centralizar:
+O projeto entrega uma aplicação web com catálogo de produtos, páginas públicas de navegação e painel administrativo protegido para gestão de categorias, subcategorias, produtos, entradas financeiras, despesas e remessas.
 
-- `apps/frontend`: aplicacao web em Next.js com TypeScript e Tailwind CSS
-- `apps/backend`: API em NestJS com TypeScript, Prisma e PostgreSQL
-- `docs`: documentacao funcional, tecnica, arquitetura e decisoes do projeto
+## Stack utilizada
 
-O objetivo desta organizacao e facilitar manutencao, onboarding, revisao tecnica e crescimento do sistema por uma equipe pequena.
-
-## Stack
-
-- Frontend: Next.js + TypeScript + Tailwind CSS
-- Backend: NestJS + TypeScript
+- Frontend: Next.js, TypeScript e Tailwind CSS
+- Backend: NestJS e TypeScript
 - Banco de dados: PostgreSQL
 - ORM: Prisma
+- Estrutura: monorepo com workspaces npm
 
-## Estrutura do monorepo
+## Estrutura do projeto
 
 ```text
-root/
-|-- apps/
-|   |-- frontend/
-|   |   |-- src/
-|   |   |   |-- app/
-|   |   |   |-- components/
-|   |   |   |-- hooks/
-|   |   |   |-- lib/
-|   |   |   |-- services/
-|   |   |   |-- types/
-|   |   |   `-- utils/
-|   |   |-- package.json
-|   |   `-- README.md
-|   `-- backend/
-|       |-- prisma/
-|       |-- src/
-|       |   |-- common/
-|       |   |-- config/
-|       |   |-- modules/
-|       |   `-- prisma/
-|       |-- package.json
-|       `-- README.md
-|-- docs/
-|   |-- architecture/
-|   |-- decisions/
-|   |-- functional/
-|   `-- technical/
-|-- .gitignore
-|-- README.md
-`-- package.json
+apps/
+  frontend/   Aplicação Next.js
+  backend/    API NestJS, Prisma e scripts operacionais
+docs/         Documentação final do projeto
 ```
 
-## Como rodar o frontend
+## Como rodar localmente
 
-Quando o app frontend estiver com o codigo de aplicacao e dependencias instaladas em `apps/frontend`, use:
+1. Instalar dependências:
 
 ```bash
 npm install
+```
+
+2. Configurar variáveis de ambiente:
+
+```bash
+cp apps/backend/.env.example apps/backend/.env
+cp apps/frontend/.env.example apps/frontend/.env.local
+```
+
+3. Configurar o banco PostgreSQL e aplicar migrations:
+
+```bash
+npm run prisma:generate --workspace @eloc/backend
+npm run prisma:migrate:dev --workspace @eloc/backend
+```
+
+4. Criar um administrador:
+
+```bash
+npm run admin:create --workspace @eloc/backend
+```
+
+5. Iniciar backend e frontend:
+
+```bash
+npm run dev:backend
 npm run dev:frontend
 ```
 
-## Como rodar o backend
+Por padrão:
 
-Quando a API backend estiver com o codigo de aplicacao e dependencias instaladas em `apps/backend`, use:
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:3001/api`
+
+## Comandos principais
 
 ```bash
-npm install
+npm run dev:frontend
 npm run dev:backend
+npm run build:frontend
+npm run build:backend
+npm run prisma:validate --workspace @eloc/backend
+npm run prisma:generate --workspace @eloc/backend
+npm run prisma:migrate:deploy --workspace @eloc/backend
 ```
 
-## Convencoes basicas
+## Documentação
 
-- manter nomes de pastas e arquivos em ingles
-- concentrar regra de negocio no backend, especialmente em `services` dos modulos
-- evitar duplicacao entre frontend e backend
-- manter documentacao de arquitetura e decisoes atualizada em `docs`
-- nao criar `packages/` compartilhados antes de existir necessidade real
-- preservar contratos claros entre API, banco e frontend
-- manter aliases de import e configuracoes de build apontando para `apps/frontend` e `apps/backend`
+- [01 - Escopo e requisitos](docs/01-escopo-e-requisitos.md)
+- [02 - Regras de negócio](docs/02-regras-de-negocio.md)
+- [03 - Arquitetura técnica](docs/03-arquitetura-tecnica.md)
+- [04 - Banco de dados](docs/04-banco-de-dados.md)
+- [05 - API](docs/05-api.md)
+- [06 - Instalação local](docs/06-instalacao-local.md)
+- [07 - Deploy em produção](docs/07-deploy-producao.md)
+- [08 - Manual do administrador](docs/08-manual-do-administrador.md)
+- [09 - Termo de entrega e aceite](docs/09-termo-de-entrega-e-aceite.md)
+- [10 - Manutenção e garantia](docs/10-manutencao-e-garantia.md)
 
-## Observacao importante
+## Observações importantes
 
-Este repositorio esta versionando a estrutura com arquivos placeholder, porque o Git nao rastreia diretorios vazios. Isso garante que o monorepo continue consistente para qualquer pessoa que clone o projeto.
+- As rotas administrativas dependem de autenticação JWT.
+- O frontend guarda a sessão administrativa em cookie `httpOnly`.
+- O storage de uploads é local no backend. Para produção em ambiente efêmero ou serverless, recomenda-se storage externo.
+- As migrations versionadas em `apps/backend/prisma/migrations` devem ser preservadas.
+- Arquivos `.env` não devem ser versionados.

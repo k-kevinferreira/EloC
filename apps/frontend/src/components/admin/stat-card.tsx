@@ -1,0 +1,19 @@
+import type { ReactNode } from 'react';
+
+type StatCardProps = {
+  label: string;
+  value: ReactNode;
+  detail: string;
+};
+
+export function StatCard({ label, value, detail }: StatCardProps) {
+  return (
+    <article className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-md)] lg:rounded-[1.75rem] lg:p-6">
+      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
+        {label}
+      </p>
+      <p className="mt-4 text-4xl font-semibold leading-none sm:text-5xl">{value}</p>
+      <p className="mt-3 text-sm leading-6 text-[var(--muted)]">{detail}</p>
+    </article>
+  );
+}

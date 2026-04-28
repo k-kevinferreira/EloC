@@ -14,7 +14,7 @@ model Admin {
   passwordHash String   @map("password_hash") @db.VarChar(255)
   role         String   @db.VarChar(50)
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@map("admins")
 }
@@ -24,29 +24,33 @@ model Category {
   name          String        @db.VarChar(100)
   slug          String        @unique @db.VarChar(120)
   isActive      Boolean       @default(true) @map("is_active")
+  displayOrder  Int           @default(0) @map("display_order")
   createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedAt     DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   subcategories Subcategory[]
   products      Product[]
 
   @@index([isActive], map: "categories_is_active_idx")
+  @@index([displayOrder], map: "categories_display_order_idx")
   @@map("categories")
 }
 
 model Subcategory {
-  id         String    @id @default(uuid()) @db.Uuid
-  categoryId String    @map("category_id") @db.Uuid
-  name       String    @db.VarChar(100)
-  slug       String    @db.VarChar(120)
-  isActive   Boolean   @default(true) @map("is_active")
-  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
-  category   Category  @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  products   Product[]
+  id           String    @id @default(uuid()) @db.Uuid
+  categoryId   String    @map("category_id") @db.Uuid
+  name         String    @db.VarChar(100)
+  slug         String    @db.VarChar(120)
+  isActive     Boolean   @default(true) @map("is_active")
+  displayOrder Int       @default(0) @map("display_order")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  category     Category  @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  products     Product[]
 
   @@unique([categoryId, slug], map: "subcategories_category_id_slug_key")
   @@index([categoryId], map: "subcategories_category_id_idx")
   @@index([isActive], map: "subcategories_is_active_idx")
+  @@index([displayOrder], map: "subcategories_display_order_idx")
   @@map("subcategories")
 }
 
@@ -55,29 +59,56 @@ model Product {
   categoryId       String        @map("category_id") @db.Uuid
   subcategoryId    String?       @map("subcategory_id") @db.Uuid
   code             String        @unique @db.VarChar(80)
+  slug             String        @unique @db.VarChar(160)
   title            String        @db.VarChar(160)
   shortDescription String?       @map("short_description") @db.Text
+  description      String?       @db.Text
   price            Decimal       @db.Decimal(12, 2)
   imageUrl         String?       @map("image_url") @db.Text
+  isFeatured       Boolean       @default(false) @map("is_featured")
   isActive         Boolean       @default(true) @map("is_active")
+  displayOrder     Int           @default(0) @map("display_order")
   createdAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedAt        DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   category         Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   subcategory      Subcategory?  @relation(fields: [subcategoryId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  images           ProductImage[]
   saleEntries      SaleEntry[]
   shipmentItems    ShipmentItem[]
 
   @@index([categoryId], map: "products_category_id_idx")
   @@index([subcategoryId], map: "products_subcategory_id_idx")
   @@index([isActive], map: "products_is_active_idx")
+  @@index([isFeatured], map: "products_is_featured_idx")
+  @@index([displayOrder], map: "products_display_order_idx")
   @@map("products")
+}
+
+model ProductImage {
+  id           String   @id @default(uuid()) @db.Uuid
+  productId    String   @map("product_id") @db.Uuid
+  url          String   @db.Text
+  altText      String?  @map("alt_text") @db.VarChar(255)
+  displayOrder Int      @default(0) @map("display_order")
+  isPrimary    Boolean  @default(false) @map("is_primary")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([productId], map: "product_images_product_id_idx")
+  @@index([displayOrder], map: "product_images_display_order_idx")
+  @@index([isPrimary], map: "product_images_is_primary_idx")
+  @@map("product_images")
 }
 
 model SaleEntry {
   id            String   @id @default(uuid()) @db.Uuid
   productId     String   @map("product_id") @db.Uuid
-  amount        Decimal  @db.Decimal(12, 2)
+  quantity      Int      @default(1)
+  unitPrice     Decimal  @map("unit_price") @db.Decimal(12, 2)
+  totalAmount   Decimal  @map("total_amount") @db.Decimal(12, 2)
   paymentMethod String   @map("payment_method") @db.VarChar(50)
+  status        String   @default("paid") @db.VarChar(30)
   customerName  String?  @map("customer_name") @db.VarChar(160)
   notes         String?  @db.Text
   soldAt        DateTime @map("sold_at") @db.Timestamptz(6)
@@ -86,6 +117,8 @@ model SaleEntry {
 
   @@index([productId], map: "sales_entries_product_id_idx")
   @@index([soldAt], map: "sales_entries_sold_at_idx")
+  @@index([status], map: "sales_entries_status_idx")
+  @@index([paymentMethod], map: "sales_entries_payment_method_idx")
   @@map("sales_entries")
 }
 
@@ -102,6 +135,7 @@ model Expense {
 
   @@index([shipmentId], map: "expenses_shipment_id_idx")
   @@index([expenseDate], map: "expenses_expense_date_idx")
+  @@index([type], map: "expenses_type_idx")
   @@map("expenses")
 }
 
