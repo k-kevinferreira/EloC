@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
 import {
@@ -59,6 +59,10 @@ type ProductFormFieldsProps = {
 };
 
 type ProductImageFormValue = ProductFormState['values']['images'][number];
+type UploadFeedback = {
+  status: 'error' | 'pending' | 'success';
+  message: string;
+};
 
 const initialProductFormState: ProductFormState = {
   status: 'idle',
@@ -284,6 +288,12 @@ function CreateProductCard({
     initialProductFormState,
   );
 
+  useEffect(() => {
+    if (state.status === 'success') {
+      onCancel();
+    }
+  }, [onCancel, state.status]);
+
   const hasCategories = categories.length > 0;
   const formKey = [
     state.status,
@@ -307,7 +317,6 @@ function CreateProductCard({
       <FormHeader
         title="Novo produto"
         description="Cadastre uma nova peca para o catalogo."
-        onCancel={onCancel}
       />
 
       <form key={formKey} action={formAction} className="mt-6 space-y-5">
@@ -321,11 +330,13 @@ function CreateProductCard({
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <FormMessage state={state} />
-          <SubmitButton
-            disabled={!hasCategories}
-            idleLabel="Criar produto"
-            pendingLabel="Criando..."
-          />
+          <FormActions onCancel={onCancel}>
+            <SubmitButton
+              disabled={!hasCategories}
+              idleLabel="Criar produto"
+              pendingLabel="Criando..."
+            />
+          </FormActions>
         </div>
       </form>
     </section>
@@ -375,7 +386,6 @@ function ProductEditorCard({
       <FormHeader
         title={`Editar ${product.title}`}
         description="Atualize os dados exibidos no catalogo."
-        onCancel={onCancel}
       />
 
       <form key={formKey} action={updateFormAction} className="mt-6 space-y-5">
@@ -390,11 +400,13 @@ function ProductEditorCard({
         <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <FormMessage state={updateState} />
-            <SubmitButton
-              disabled={categories.length === 0}
-              idleLabel="Salvar alteracoes"
-              pendingLabel="Salvando..."
-            />
+            <FormActions onCancel={onCancel}>
+              <SubmitButton
+                disabled={categories.length === 0}
+                idleLabel="Salvar alteracoes"
+                pendingLabel="Salvando..."
+              />
+            </FormActions>
           </div>
         </div>
       </form>
@@ -426,22 +438,30 @@ function ProductEditorCard({
 
 function FormHeader({
   description,
-  onCancel,
   title,
 }: {
   description: string;
-  onCancel: () => void;
   title: string;
 }) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-      <div className="space-y-2">
-        <h2 className="text-2xl font-semibold">{title}</h2>
-        <p className="max-w-2xl text-sm leading-6 text-[var(--muted)]">
-          {description}
-        </p>
-      </div>
+    <div className="space-y-2">
+      <h2 className="text-2xl font-semibold">{title}</h2>
+      <p className="max-w-2xl text-sm leading-6 text-[var(--muted)]">
+        {description}
+      </p>
+    </div>
+  );
+}
 
+function FormActions({
+  children,
+  onCancel,
+}: {
+  children: React.ReactNode;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
       <button
         type="button"
         onClick={onCancel}
@@ -449,6 +469,7 @@ function FormHeader({
       >
         Fechar
       </button>
+      {children}
     </div>
   );
 }
@@ -470,8 +491,11 @@ function ProductFormFields({
     state.values.slug.length > 0,
   );
   const [images, setImages] = useState(state.values.images);
+  const [galleryUploadState, setGalleryUploadState] = useState<UploadFeedback | null>(
+    null,
+  );
   const [uploadStateByIndex, setUploadStateByIndex] = useState<
-    Record<number, { status: 'error' | 'pending' | 'success'; message: string }>
+    Record<number, UploadFeedback>
   >({});
 
   const filteredSubcategories = subcategories.filter(
@@ -524,6 +548,75 @@ function ProductFormFields({
         message: 'Upload concluido.',
       },
     }));
+  }
+
+  async function handleMultipleImagesUpload(fileList: FileList | null) {
+    const files = Array.from(fileList ?? []);
+
+    if (files.length === 0) {
+      return;
+    }
+
+    setGalleryUploadState({
+      status: 'pending',
+      message:
+        files.length === 1
+          ? 'Enviando 1 imagem...'
+          : `Enviando ${files.length} imagens...`,
+    });
+
+    const uploadedImages: Pick<ProductImageFormValue, 'url' | 'altText'>[] = [];
+
+    for (const file of files) {
+      const formData = new FormData();
+      formData.set('file', file);
+
+      const result = await uploadProductImageAction(formData);
+
+      if (result.status === 'error') {
+        setGalleryUploadState({
+          status: 'error',
+          message: result.message,
+        });
+        return;
+      }
+
+      uploadedImages.push({
+        url: result.image.url,
+        altText: titleValue || '',
+      });
+    }
+
+    setImages((currentImages) => {
+      const filledImages = currentImages.filter(
+        (image) => image.url.trim().length > 0 || image.altText.trim().length > 0,
+      );
+      const nextImages = [
+        ...filledImages,
+        ...uploadedImages.map((image, index) => ({
+          ...image,
+          displayOrder: String(filledImages.length + index),
+          isPrimary: false,
+        })),
+      ];
+
+      if (!nextImages.some((image) => image.isPrimary)) {
+        return nextImages.map((image, index) => ({
+          ...image,
+          isPrimary: index === 0,
+        }));
+      }
+
+      return nextImages;
+    });
+
+    setGalleryUploadState({
+      status: 'success',
+      message:
+        files.length === 1
+          ? 'Imagem adicionada.'
+          : `${files.length} imagens adicionadas.`,
+    });
   }
 
   return (
@@ -585,26 +678,7 @@ function ProductFormFields({
 
       <input type="hidden" name="code" value={state.values.code} />
 
-      <div className="space-y-2">
-        <label htmlFor={`${idPrefix}-slug`} className="text-sm font-semibold">
-          Slug
-        </label>
-        <input
-          id={`${idPrefix}-slug`}
-          name="slug"
-          type="text"
-          value={slugValue}
-          placeholder="ex.: anel-solitario-ouro"
-          onChange={(event) => {
-            setIsSlugManuallyEdited(true);
-            setSlugValue(slugifyProductTitle(event.target.value));
-          }}
-          className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface-strong)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
-        />
-        {state.fieldErrors.slug ? (
-          <p className="text-sm text-[var(--danger)]">{state.fieldErrors.slug}</p>
-        ) : null}
-      </div>
+      <input type="hidden" name="slug" value={slugValue} />
 
       <div className="space-y-2 md:col-span-2">
         <label htmlFor={`${idPrefix}-title`} className="text-sm font-semibold">
@@ -678,30 +752,12 @@ function ProductFormFields({
         ) : null}
       </div>
 
-      <div className="space-y-2">
-        <label htmlFor={`${idPrefix}-displayOrder`} className="text-sm font-semibold">
-          Ordem de exibicao
-        </label>
-        <input
-          id={`${idPrefix}-displayOrder`}
-          name="displayOrder"
-          type="number"
-          min="0"
-          step="1"
-          defaultValue={state.values.displayOrder}
-          className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface-strong)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
-        />
-        {state.fieldErrors.displayOrder ? (
-          <p className="text-sm text-[var(--danger)]">
-            {state.fieldErrors.displayOrder}
-          </p>
-        ) : null}
-      </div>
-
       <ProductImagesEditor
+        galleryUploadState={galleryUploadState}
         idPrefix={idPrefix}
         images={images}
         onImageUpload={handleImageUpload}
+        onImagesUpload={handleMultipleImagesUpload}
         setImages={setImages}
         uploadStateByIndex={uploadStateByIndex}
       />
@@ -733,25 +789,79 @@ function ProductFormFields({
           <span className="font-medium">Produto ativo no catalogo</span>
         </label>
       </div>
+
+      <details className="rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] px-4 py-3 md:col-span-2">
+        <summary className="cursor-pointer text-sm font-semibold text-[var(--foreground)]">
+          Opcoes avancadas
+        </summary>
+
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <label htmlFor={`${idPrefix}-slug`} className="text-sm font-semibold">
+              Slug
+            </label>
+            <input
+              id={`${idPrefix}-slug`}
+              type="text"
+              value={slugValue}
+              placeholder="ex.: anel-solitario-ouro"
+              onChange={(event) => {
+                setIsSlugManuallyEdited(true);
+                setSlugValue(slugifyProductTitle(event.target.value));
+              }}
+              className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
+            />
+            {state.fieldErrors.slug ? (
+              <p className="text-sm text-[var(--danger)]">
+                {state.fieldErrors.slug}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor={`${idPrefix}-displayOrder`}
+              className="text-sm font-semibold"
+            >
+              Ordem de exibicao
+            </label>
+            <input
+              id={`${idPrefix}-displayOrder`}
+              name="displayOrder"
+              type="number"
+              min="0"
+              step="1"
+              defaultValue={state.values.displayOrder}
+              className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
+            />
+            {state.fieldErrors.displayOrder ? (
+              <p className="text-sm text-[var(--danger)]">
+                {state.fieldErrors.displayOrder}
+              </p>
+            ) : null}
+          </div>
+        </div>
+      </details>
     </div>
   );
 }
 
 function ProductImagesEditor({
+  galleryUploadState,
   idPrefix,
   images,
   onImageUpload,
+  onImagesUpload,
   setImages,
   uploadStateByIndex,
 }: {
+  galleryUploadState: UploadFeedback | null;
   idPrefix: string;
   images: ProductImageFormValue[];
   onImageUpload: (file: File | undefined, index: number) => Promise<void>;
+  onImagesUpload: (fileList: FileList | null) => Promise<void>;
   setImages: React.Dispatch<React.SetStateAction<ProductImageFormValue[]>>;
-  uploadStateByIndex: Record<
-    number,
-    { status: 'error' | 'pending' | 'success'; message: string }
-  >;
+  uploadStateByIndex: Record<number, UploadFeedback>;
 }) {
   return (
     <div className="space-y-3 md:col-span-2">
@@ -763,139 +873,62 @@ function ProductImagesEditor({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            setImages((currentImages) => [
-              ...currentImages,
-              createEmptyProductImageFormValue(false, String(currentImages.length)),
-            ]);
-          }}
-          className="inline-flex items-center justify-center rounded-full border border-[var(--border-strong)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+        <label
+          htmlFor={`${idPrefix}-gallery-upload`}
+          className="inline-flex cursor-pointer items-center justify-center rounded-full bg-[var(--surface-contrast)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)]"
         >
-          Adicionar imagem
-        </button>
+          Adicionar fotos
+        </label>
       </div>
 
       <input type="hidden" name="images" value={JSON.stringify(images)} />
+      <input
+        id={`${idPrefix}-gallery-upload`}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        multiple
+        onChange={(event) => {
+          void onImagesUpload(event.target.files);
+          event.target.value = '';
+        }}
+        className="sr-only"
+      />
+
+      <div className="rounded-[1.25rem] border border-dashed border-[var(--border-strong)] bg-[var(--surface-strong)] p-4">
+        <label
+          htmlFor={`${idPrefix}-gallery-upload`}
+          className="flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-2xl bg-[var(--surface)] px-4 py-5 text-center transition hover:bg-[var(--champagne)]"
+        >
+          <span className="text-sm font-semibold text-[var(--foreground)]">
+            Selecionar fotos do celular
+          </span>
+          <span className="mt-1 text-xs leading-5 text-[var(--muted)]">
+            Voce pode marcar varias imagens de uma vez.
+          </span>
+        </label>
+
+        {galleryUploadState ? (
+          <p
+            className={`mt-3 text-sm ${
+              galleryUploadState.status === 'error'
+                ? 'text-[var(--danger)]'
+                : 'text-[var(--muted)]'
+            }`}
+          >
+            {galleryUploadState.message}
+          </p>
+        ) : null}
+      </div>
 
       <div className="space-y-3">
         {images.map((image, index) => (
           <div
             key={`${idPrefix}-image-${index}`}
-            className="grid gap-4 rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-4 lg:grid-cols-[144px_minmax(0,1fr)]"
+            className="grid gap-3 rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-3 sm:p-4 lg:grid-cols-[144px_minmax(0,1fr)]"
           >
             <ImagePreview image={image} index={index} />
 
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label
-                  htmlFor={`${idPrefix}-image-upload-${index}`}
-                  className="text-sm font-semibold"
-                >
-                  Upload da imagem {index + 1}
-                </label>
-                <input
-                  id={`${idPrefix}-image-upload-${index}`}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={(event) => {
-                    void onImageUpload(event.target.files?.[0], index);
-                    event.target.value = '';
-                  }}
-                  className="w-full rounded-2xl border border-dashed border-[var(--border-strong)] bg-[var(--surface)] px-4 py-3 text-sm outline-none transition file:mr-4 file:rounded-full file:border-0 file:bg-[var(--surface-contrast)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:border-[var(--accent)] focus:border-[var(--accent)]"
-                />
-                {uploadStateByIndex[index] ? (
-                  <p
-                    className={`text-sm ${
-                      uploadStateByIndex[index].status === 'error'
-                        ? 'text-[var(--danger)]'
-                        : 'text-[var(--muted)]'
-                    }`}
-                  >
-                    {uploadStateByIndex[index].message}
-                  </p>
-                ) : null}
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label
-                    htmlFor={`${idPrefix}-image-alt-${index}`}
-                    className="text-sm font-semibold"
-                  >
-                    Alt text
-                  </label>
-                  <input
-                    id={`${idPrefix}-image-alt-${index}`}
-                    type="text"
-                    value={image.altText}
-                    placeholder="Descricao acessivel da imagem"
-                    onChange={(event) => {
-                      const nextValue = event.target.value;
-                      setImages((currentImages) =>
-                        currentImages.map((currentImage, currentIndex) =>
-                          currentIndex === index
-                            ? { ...currentImage, altText: nextValue }
-                            : currentImage,
-                        ),
-                      );
-                    }}
-                    className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor={`${idPrefix}-image-order-${index}`}
-                    className="text-sm font-semibold"
-                  >
-                    Ordem
-                  </label>
-                  <input
-                    id={`${idPrefix}-image-order-${index}`}
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={image.displayOrder}
-                    onChange={(event) => {
-                      const nextValue = event.target.value;
-                      setImages((currentImages) =>
-                        currentImages.map((currentImage, currentIndex) =>
-                          currentIndex === index
-                            ? { ...currentImage, displayOrder: nextValue }
-                            : currentImage,
-                        ),
-                      );
-                    }}
-                    className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
-                  />
-                </div>
-              </div>
-
-              <details className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3">
-                <summary className="cursor-pointer text-sm font-semibold text-[var(--foreground)]">
-                  URL manual
-                </summary>
-                <input
-                  id={`${idPrefix}-image-url-${index}`}
-                  type="url"
-                  value={image.url}
-                  placeholder="https://..."
-                  onChange={(event) => {
-                    const nextValue = event.target.value;
-                    setImages((currentImages) =>
-                      currentImages.map((currentImage, currentIndex) =>
-                        currentIndex === index
-                          ? { ...currentImage, url: nextValue }
-                          : currentImage,
-                      ),
-                    );
-                  }}
-                  className="mt-3 w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface-strong)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
-                />
-              </details>
-
+            <div className="space-y-3">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <button
                   type="button"
@@ -914,7 +947,7 @@ function ProductImagesEditor({
                       : 'border border-[var(--border-strong)] text-[var(--foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)]',
                   ].join(' ')}
                 >
-                  {image.isPrimary ? 'Imagem principal' : 'Definir como principal'}
+                  {image.isPrimary ? 'Principal' : 'Tornar principal'}
                 </button>
 
                 <button
@@ -941,9 +974,128 @@ function ProductImagesEditor({
                   }}
                   className="inline-flex items-center justify-center rounded-full border border-[rgba(177,59,46,0.24)] bg-[rgba(177,59,46,0.08)] px-4 py-2 text-sm font-semibold text-[var(--danger)] transition hover:bg-[rgba(177,59,46,0.14)]"
                 >
-                  Remover imagem
+                  Remover
                 </button>
               </div>
+
+              <details className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3">
+                <summary className="cursor-pointer text-sm font-semibold text-[var(--foreground)]">
+                  Ajustes da imagem
+                </summary>
+
+                <div className="mt-4 space-y-4">
+                  <div className="space-y-2">
+                    <label
+                      htmlFor={`${idPrefix}-image-upload-${index}`}
+                      className="text-sm font-semibold"
+                    >
+                      Trocar arquivo
+                    </label>
+                    <input
+                      id={`${idPrefix}-image-upload-${index}`}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={(event) => {
+                        void onImageUpload(event.target.files?.[0], index);
+                        event.target.value = '';
+                      }}
+                      className="w-full rounded-2xl border border-dashed border-[var(--border-strong)] bg-[var(--surface-strong)] px-4 py-3 text-sm outline-none transition file:mr-4 file:rounded-full file:border-0 file:bg-[var(--surface-contrast)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:border-[var(--accent)] focus:border-[var(--accent)]"
+                    />
+                    {uploadStateByIndex[index] ? (
+                      <p
+                        className={`text-sm ${
+                          uploadStateByIndex[index].status === 'error'
+                            ? 'text-[var(--danger)]'
+                            : 'text-[var(--muted)]'
+                        }`}
+                      >
+                        {uploadStateByIndex[index].message}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label
+                    htmlFor={`${idPrefix}-image-alt-${index}`}
+                    className="text-sm font-semibold"
+                  >
+                    Alt text
+                  </label>
+                  <input
+                    id={`${idPrefix}-image-alt-${index}`}
+                    type="text"
+                    value={image.altText}
+                    placeholder="Descricao acessivel da imagem"
+                    onChange={(event) => {
+                      const nextValue = event.target.value;
+                      setImages((currentImages) =>
+                        currentImages.map((currentImage, currentIndex) =>
+                          currentIndex === index
+                            ? { ...currentImage, altText: nextValue }
+                            : currentImage,
+                        ),
+                      );
+                    }}
+                    className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface-strong)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor={`${idPrefix}-image-order-${index}`}
+                    className="text-sm font-semibold"
+                  >
+                    Ordem
+                  </label>
+                  <input
+                    id={`${idPrefix}-image-order-${index}`}
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={image.displayOrder}
+                    onChange={(event) => {
+                      const nextValue = event.target.value;
+                      setImages((currentImages) =>
+                        currentImages.map((currentImage, currentIndex) =>
+                          currentIndex === index
+                            ? { ...currentImage, displayOrder: nextValue }
+                            : currentImage,
+                        ),
+                      );
+                    }}
+                    className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface-strong)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
+                  />
+                </div>
+              </div>
+
+                  <div className="space-y-2">
+                    <label
+                      htmlFor={`${idPrefix}-image-url-${index}`}
+                      className="text-sm font-semibold"
+                    >
+                      URL manual
+                    </label>
+                    <input
+                      id={`${idPrefix}-image-url-${index}`}
+                      type="url"
+                      value={image.url}
+                      placeholder="https://..."
+                      onChange={(event) => {
+                        const nextValue = event.target.value;
+                        setImages((currentImages) =>
+                          currentImages.map((currentImage, currentIndex) =>
+                            currentIndex === index
+                              ? { ...currentImage, url: nextValue }
+                              : currentImage,
+                          ),
+                        );
+                      }}
+                      className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface-strong)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
+                    />
+                  </div>
+                </div>
+              </details>
             </div>
           </div>
         ))}

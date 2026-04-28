@@ -112,7 +112,7 @@ root/
 ## Como rodar o frontend
 
 Para rodar o frontend administrativo:
-
+  
 ```bash
 npm install
 npm run dev:frontend
