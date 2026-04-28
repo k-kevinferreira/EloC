@@ -62,7 +62,7 @@ Estado consolidado:
 - frontend publico ajustado para consumir `images[]` como fonte principal, com fallback transitorio para `imageUrl`
 - backend de `uploads` iniciado com endpoint administrativo protegido para imagens de produto, validacao de arquivo e storage local
 - formulario administrativo de produtos integrado ao upload, preenchendo URLs em `images[]`
-- placeholders estruturais ja disponiveis para:
+- modulos administrativos iniciais ja disponiveis para:
   - `entries`
   - `expenses`
   - `shipments`
@@ -83,7 +83,8 @@ Limites atuais do estado do sistema:
 - a base visual do shell ja foi revisada, mas refinamentos de UX futuros devem acontecer por tela e por componente
 - o frontend publico ja consome `images[]` como contrato principal
 - o upload administrativo local ja existe no backend e esta integrado ao formulario de produtos no frontend
-- os contextos de `entries`, `expenses`, `shipments` e `uploads` ainda nao foram implementados no runtime do backend
+- `uploads` ja existe no runtime do backend e esta integrado ao formulario administrativo de produtos
+- os contextos de `entries`, `expenses` e `shipments` agora possuem runtime administrativo inicial no backend e telas iniciais no Admin
 - ainda nao ha suite de testes automatizados configurada no backend
 
 ## 2.2. O que foi concluido na ultima etapa
@@ -109,9 +110,11 @@ O ponto atual de continuidade do projeto e este:
 - frontend publico do catalogo lendo `images[]` de forma consistente com o contrato do backend
 - endpoint administrativo de upload de imagens de produto disponivel no backend
 - formulario administrativo de produtos usando o endpoint de upload para preencher a galeria
+- endpoints e telas administrativas iniciais disponiveis para `entries`, `expenses` e `shipments`
+- dashboard administrativo consolidando totais de catalogo, entradas, despesas e remessas
 - compatibilidade transitoria com `imageUrl` preservada apenas para nao quebrar contratos durante a transicao
 
-Em termos de prioridade arquitetural, o projeto agora parou logo depois de concluir a base relacional de imagens de produto, adaptar o Admin e o catalogo publico para esse contrato, iniciar a infraestrutura local de upload e integra-la ao formulario administrativo.
+Em termos de prioridade arquitetural, o projeto agora parou depois de concluir a base relacional de imagens de produto, adaptar o Admin e o catalogo publico para esse contrato, iniciar a infraestrutura local de upload, integra-la ao formulario administrativo e abrir o runtime inicial dos contextos financeiros e operacionais.
 
 Isso significa que o proximo trabalho deve priorizar refinamento de UX do upload, planejamento de storage externo, ou a revisao de uma serializacao publica especifica caso o contrato atual fique pesado para a vitrine. O backend so deve voltar para `categories`, `subcategories` e `products` se surgir bug, refinamento contratual, necessidade de endpoint complementar ou ajuste de serializacao para o catalogo publico. Ajustes visuais adicionais do shell devem ser pontuais, e nao reabrir a fundacao da interface sem necessidade clara.
 
@@ -123,7 +126,7 @@ Ordem recomendada de continuidade:
 2. revisar se o backend precisa expor uma serializacao publica especifica para produtos
 3. planejar quando remover a compatibilidade transitoria com `Product.imageUrl`
 4. revisar extracoes reutilizaveis do painel apenas se a repeticao se provar estavel
-5. na sequencia, avancar para os contextos operacionais e financeiros:
+5. evoluir os contextos operacionais e financeiros ja iniciados:
    - `entries`
    - `expenses`
    - `shipments`
@@ -154,6 +157,8 @@ Pontos validados na revisao mais recente:
 - o frontend publico passou a normalizar `images[]` como fonte principal de exibicao, preservando fallback legado para `imageUrl`
 - o backend passou a aceitar upload administrativo de imagens de produto com allowlist de JPEG, PNG e WebP
 - o formulario administrativo passou a preencher automaticamente a URL retornada pelo upload em `images[]`
+- os modulos administrativos de `entries`, `expenses` e `shipments` foram iniciados com controllers protegidos, DTOs, services e telas no Admin
+- totais financeiros de entradas e remessas passaram a ser calculados no backend, sem depender de valores enviados pelo frontend
 
 Riscos e observacoes registrados:
 

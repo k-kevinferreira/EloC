@@ -19,9 +19,10 @@ Estado atual da entrega:
 - `imageUrl` continua existindo apenas como compatibilidade transitória de contrato
 - o frontend publico consome `images[]` como fonte principal, com fallback legado para `imageUrl`
 - o formulario administrativo de produtos ja integra o endpoint de upload e preenche a URL em `images[]`
-- placeholders de `entries`, `expenses` e `shipments`
+- telas administrativas iniciais de `entries`, `expenses` e `shipments`
 - leitura e escrita do catalogo integradas ao backend por server actions + services server-side autenticados
 - tratamento de erro do cliente HTTP ajustado para aproveitar melhor mensagens de validacao do NestJS
+- dashboard administrativo consolidando totais de catalogo, entradas, despesas e remessas
 
 Ponto atual de continuidade:
 
@@ -30,7 +31,7 @@ Ponto atual de continuidade:
 - a evolucao estrutural de imagens de produto ja foi iniciada, e o painel administrativo e o catalogo publico ja operam sobre `images[]`
 - o proximo passo principal e refinar a UX de upload e planejar a troca futura do storage local por um provider externo
 - ajustes de UI restantes devem ser tratados por tela e por componente, evitando reabrir a arquitetura base sem necessidade
-- a sequencia mais coerente depois disso e avancar para `entries`, `expenses` e `shipments`
+- a sequencia mais coerente depois disso e refinar edicao, filtros e feedback de `entries`, `expenses` e `shipments`
 
 Configuracao local:
 

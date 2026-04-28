@@ -358,8 +358,8 @@ Esses pontos nao devem ser delegados apenas ao frontend.
 3. manter `Product.imageUrl` apenas como fallback legado enquanto houver dados antigos dependentes desse campo
 4. refinar a UX de upload no formulario de produtos
 5. revisar quando remover a compatibilidade com `imageUrl`
-6. padronizar valores aceitos para `paymentMethod`, `Expense.type` e `status` antes de expor os modulos financeiros
-7. implementar os modulos de runtime para `entries`, `expenses` e `shipments` no backend quando a direcao estrutural das imagens estiver estabilizada
+6. padronizar valores aceitos para `paymentMethod`, `Expense.type` e `status` antes de endurecer esses contratos como enums
+7. evoluir edicao, filtros e feedback dos modulos administrativos de `entries`, `expenses` e `shipments`
 
 ## Ponto de retomada
 
@@ -369,4 +369,5 @@ Se o projeto for retomado depois de uma pausa, o ponto tecnico atual e este:
 - backend NestJS inicial ja implementado e integrado ao Prisma
 - autenticacao administrativa inicial com JWT ja implementada
 - modulos de leitura e escrita para `categories`, `subcategories` e `products` ja disponiveis
-- proximo passo recomendado: refinar a UX de upload e planejar a troca futura do storage local por provider externo
+- modulos administrativos iniciais de `entries`, `expenses` e `shipments` ja disponiveis no backend e no Admin
+- proximo passo recomendado: refinar a UX de upload, planejar a troca futura do storage local por provider externo e evoluir edicao/filtros dos modulos financeiros e operacionais

@@ -40,6 +40,21 @@ export default async function AdminDashboardPage() {
           value={overview.loadedProducts}
           detail={`${overview.featuredProducts} em destaque nas listagens`}
         />
+        <StatCard
+          label="Entradas"
+          value={formatCurrency(overview.totalEntryAmount)}
+          detail={`${overview.totalEntries} registros financeiros`}
+        />
+        <StatCard
+          label="Despesas"
+          value={formatCurrency(overview.totalExpenseAmount)}
+          detail={`${overview.totalExpenses} registros operacionais`}
+        />
+        <StatCard
+          label="Remessas"
+          value={formatCurrency(overview.totalShipmentCost)}
+          detail={`${overview.totalShipments} remessas registradas`}
+        />
       </section>
 
       <section className="grid gap-4 lg:gap-6 xl:grid-cols-3">

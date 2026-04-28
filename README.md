@@ -59,11 +59,12 @@ Situacao atual:
 - o frontend publico consome `images[]` como fonte principal, com fallback controlado para `imageUrl`
 - backend possui upload administrativo inicial de imagens de produto com storage local
 - formulario administrativo de produtos ja integra upload e preenche `images[]` automaticamente
-- placeholders estruturais mantidos para:
+- modulos administrativos iniciais implementados para:
   - `entries`
   - `expenses`
   - `shipments`
 - tratamento de erro do cliente HTTP do frontend ajustado para expor melhor mensagens de validacao do backend
+- dashboard administrativo consolida totais de catalogo, entradas, despesas e remessas
 
 Pendencias atuais de desenvolvimento:
 
@@ -72,7 +73,7 @@ Pendencias atuais de desenvolvimento:
 - consolidar primitivas reutilizaveis do painel administrativo sem abstrair cedo demais
 - padronizar ainda mais formularios, feedback de erro e estados de carregamento do painel
 - refinar a UI do painel por tela conforme os modulos crescerem, sem reabrir a base do shell sem necessidade
-- evoluir os contextos financeiros e operacionais (`entries`, `expenses`, `shipments`)
+- evoluir edicao completa, filtros e refinamentos de UX dos contextos financeiros e operacionais (`entries`, `expenses`, `shipments`)
 
 ## Estrutura do monorepo
 

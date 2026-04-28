@@ -11,7 +11,10 @@ import { uploadsConfig } from './config/uploads/uploads.config';
 import { AdminsModule } from './modules/admins/admins.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CategoriesModule } from './modules/categories/categories.module';
+import { EntriesModule } from './modules/entries/entries.module';
+import { ExpensesModule } from './modules/expenses/expenses.module';
 import { ProductsModule } from './modules/products/products.module';
+import { ShipmentsModule } from './modules/shipments/shipments.module';
 import { SubcategoriesModule } from './modules/subcategories/subcategories.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -32,6 +35,9 @@ import { PrismaModule } from './prisma/prisma.module';
     CategoriesModule,
     SubcategoriesModule,
     ProductsModule,
+    EntriesModule,
+    ExpensesModule,
+    ShipmentsModule,
     UploadsModule,
   ],
   controllers: [AppController],

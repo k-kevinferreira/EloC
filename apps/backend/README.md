@@ -26,6 +26,9 @@ O backend agora possui uma base real em NestJS com:
   - `subcategories`
   - `products`
   - `uploads`
+  - `entries`
+  - `expenses`
+  - `shipments`
 
 Esses modulos comecam a camada de dominio com:
 
@@ -37,6 +40,7 @@ Esses modulos comecam a camada de dominio com:
 - modelagem relacional inicial de imagens de produto via `ProductImage`
 - compatibilidade transitoria de `Product.imageUrl` preservada no contrato
 - upload administrativo inicial de imagens de produto com storage local e validacao de arquivo
+- runtime administrativo inicial de entradas, despesas e remessas
 
 ## Endpoints iniciais
 
@@ -62,6 +66,18 @@ Esses endpoints exigem `Bearer token` administrativo. Criacao e edicao aceitam `
 - `PATCH /api/admin/products/:id`
 - `DELETE /api/admin/products/:id`
 - `POST /api/admin/uploads/product-images`
+- `GET /api/admin/entries`
+- `POST /api/admin/entries`
+- `PATCH /api/admin/entries/:id`
+- `DELETE /api/admin/entries/:id`
+- `GET /api/admin/expenses`
+- `POST /api/admin/expenses`
+- `PATCH /api/admin/expenses/:id`
+- `DELETE /api/admin/expenses/:id`
+- `GET /api/admin/shipments`
+- `POST /api/admin/shipments`
+- `PATCH /api/admin/shipments/:id`
+- `DELETE /api/admin/shipments/:id`
 
 O endpoint de upload administrativo recebe `multipart/form-data` com o campo `file` e retorna:
 
@@ -129,4 +145,4 @@ Com a base administrativa do catalogo pronta no backend e integrada ao frontend,
 
 - refinar a experiencia de upload no formulario de produtos
 - manter `Product.imageUrl` apenas como fallback legado enquanto houver dados antigos dependentes desse campo
-- so depois avancar para os modulos de `entries`, `expenses` e `shipments`
+- refinar filtros, edicao e feedback dos modulos administrativos de `entries`, `expenses` e `shipments`

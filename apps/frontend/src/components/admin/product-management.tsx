@@ -11,6 +11,7 @@ import {
   type ProductDeleteState,
   type ProductFormState,
 } from '@/app/(admin)/admin/(protected)/products/actions';
+import { ImageWithFallback } from '@/components/catalog/image-with-fallback';
 import type { Category, Product, Subcategory } from '@/types/catalog/catalog.types';
 import { getPrimaryProductImage, getProductImageAlt } from '@/utils/catalog';
 import { formatCurrency } from '@/utils/formatters/currency';
@@ -240,14 +241,11 @@ function ProductThumbnail({ product }: { product: Product }) {
 
   return (
     <div className="h-[72px] w-[72px] overflow-hidden rounded-2xl bg-[var(--champagne)]">
-      {imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={imageUrl} alt={imageAlt} className="h-full w-full object-cover" />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
-          EloC
-        </div>
-      )}
+      <ImageWithFallback
+        src={imageUrl}
+        alt={imageAlt}
+        className="h-full w-full object-cover"
+      />
     </div>
   );
 }
@@ -1113,18 +1111,11 @@ function ImagePreview({
 }) {
   return (
     <div className="aspect-square overflow-hidden rounded-2xl bg-[var(--champagne)]">
-      {image.url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={image.url}
-          alt={image.altText || `Imagem ${index + 1}`}
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center text-center text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
-          Sem imagem
-        </div>
-      )}
+      <ImageWithFallback
+        src={image.url || null}
+        alt={image.altText || `Imagem ${index + 1}`}
+        className="h-full w-full object-cover"
+      />
     </div>
   );
 }

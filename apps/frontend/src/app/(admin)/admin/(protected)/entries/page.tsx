@@ -1,11 +1,35 @@
-import { ModulePlaceholder } from '@/components/admin/module-placeholder';
+import { EntryManagement } from '@/components/admin/operations-management';
+import { requireAuthenticatedAdmin } from '@/lib/auth/session';
+import { listEntries } from '@/services/entries/admin-entries';
+import { listProducts } from '@/services/products/list-products';
 
-export default function AdminEntriesPage() {
+export default async function AdminEntriesPage() {
+  const [admin, entries, products] = await Promise.all([
+    requireAuthenticatedAdmin(),
+    listEntries(),
+    listProducts({
+      limit: 100,
+    }),
+  ]);
+
   return (
-    <ModulePlaceholder
-      eyebrow="Financas"
-      title="Entradas ainda dependem de contrato no backend"
-      description="O modulo financeiro sera implementado depois que os contratos de entries forem definidos no NestJS. O shell administrativo ja esta pronto para receber essas telas sem reestruturacao."
-    />
+    <section className="space-y-6">
+      <div className="space-y-2">
+        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">
+          Financas
+        </p>
+        <h1 className="text-3xl font-semibold sm:text-4xl">Entradas</h1>
+        <p className="max-w-3xl text-base leading-7 text-[var(--muted)]">
+          Registre vendas manuais e mantenha o historico financeiro vinculado ao
+          catalogo.
+        </p>
+      </div>
+
+      <EntryManagement
+        canDelete={admin.role === 'super_admin'}
+        entries={entries}
+        products={products}
+      />
+    </section>
   );
 }
