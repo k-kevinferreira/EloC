@@ -1,19 +1,30 @@
 import { notFound } from 'next/navigation';
 
+import { MaterialFilterButtons } from '@/components/catalog/material-filter-buttons';
 import { ProductCard } from '@/components/catalog/product-card';
 import { SectionHeading } from '@/components/catalog/section-heading';
 import { listCategories } from '@/services/categories/list-categories';
 import { listProducts } from '@/services/products/list-products';
+import { listSubcategories } from '@/services/subcategories/list-subcategories';
 
 type CategoryPageProps = {
   params: Promise<{
     slug: string;
   }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
+export default async function CategoryPage({
+  params,
+  searchParams,
+}: CategoryPageProps) {
   const { slug } = await params;
-  const categories = await listCategories({ isActive: true });
+  const query = await searchParams;
+  const subcategoryId = getSingleParam(query.subcategoria);
+  const [categories, subcategories] = await Promise.all([
+    listCategories({ isActive: true }),
+    listSubcategories({ isActive: true }),
+  ]);
   const category = categories.find((item) => item.slug === slug);
 
   if (!category) {
@@ -23,6 +34,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const products = await listProducts({
     isActive: true,
     categoryId: category.id,
+    subcategoryId,
     limit: 100,
   });
 
@@ -50,6 +62,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             subtitle={`${products.length} ${products.length === 1 ? 'item encontrado' : 'itens encontrados'}`}
           />
 
+          <MaterialFilterButtons
+            pathname={`/categoria/${category.slug}`}
+            selectedSubcategoryId={subcategoryId}
+            subcategories={subcategories}
+          />
+
           {products.length > 0 ? (
             <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
               {products.map((product) => (
@@ -65,4 +83,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       </section>
     </main>
   );
+}
+
+function getSingleParam(value: string | string[] | undefined) {
+  if (Array.isArray(value)) {
+    return value[0];
+  }
+
+  return value;
 }
