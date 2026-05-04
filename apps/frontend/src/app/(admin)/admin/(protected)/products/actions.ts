@@ -17,6 +17,7 @@ import type {
 const productSlugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const imageUploadStatuses = ['idle', 'pending', 'success', 'error'] as const;
 
 type ProductFormValues = {
   categoryId: string;
@@ -223,6 +224,9 @@ function parseProductFormData(formData: FormData): ProductFormParseResult {
   const slug = String(formData.get('slug') ?? '')
     .trim()
     .toLowerCase();
+  const imageUploadStatus = parseImageUploadStatus(
+    String(formData.get('imageUploadStatus') ?? 'idle'),
+  );
   const values: ProductFormValues = {
     categoryId: String(formData.get('categoryId') ?? '').trim(),
     subcategoryId: String(formData.get('subcategoryId') ?? '').trim(),
@@ -293,6 +297,15 @@ function parseProductFormData(formData: FormData): ProductFormParseResult {
 
   if (parsedImages.invalidPayload) {
     fieldErrors.images = 'Não foi possível interpretar as imagens informadas.';
+  }
+
+  if (imageUploadStatus === 'pending') {
+    fieldErrors.images = 'Aguarde o envio da imagem terminar antes de salvar.';
+  }
+
+  if (imageUploadStatus === 'error' && values.images.length === 0) {
+    fieldErrors.images =
+      'O upload da imagem falhou. Envie a imagem novamente ou remova a tentativa antes de salvar.';
   }
 
   const primaryImagesCount = values.images.filter((image) => image.isPrimary).length;
@@ -454,6 +467,14 @@ function normalizeImagesForMutation(
   }
 
   return filledImages;
+}
+
+function parseImageUploadStatus(value: string) {
+  return imageUploadStatuses.includes(
+    value as (typeof imageUploadStatuses)[number],
+  )
+    ? (value as (typeof imageUploadStatuses)[number])
+    : 'idle';
 }
 
 function createEmptyImageFormValue(): ProductImageFormValue {
