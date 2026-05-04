@@ -881,6 +881,11 @@ function ProductImagesEditor({
 
       <input type="hidden" name="images" value={JSON.stringify(images)} />
       <input
+        type="hidden"
+        name="imageUploadStatus"
+        value={resolveImageUploadStatus(galleryUploadState, uploadStateByIndex)}
+      />
+      <input
         id={`${idPrefix}-gallery-upload`}
         type="file"
         accept="image/jpeg,image/png,image/webp"
@@ -1210,6 +1215,30 @@ function createEmptyProductImageFormValue(
     displayOrder,
     isPrimary,
   };
+}
+
+function resolveImageUploadStatus(
+  galleryUploadState: UploadFeedback | null,
+  uploadStateByIndex: Record<number, UploadFeedback>,
+) {
+  const uploadStates = [
+    ...(galleryUploadState ? [galleryUploadState] : []),
+    ...Object.values(uploadStateByIndex),
+  ];
+
+  if (uploadStates.some((state) => state.status === 'pending')) {
+    return 'pending';
+  }
+
+  if (uploadStates.some((state) => state.status === 'error')) {
+    return 'error';
+  }
+
+  if (uploadStates.some((state) => state.status === 'success')) {
+    return 'success';
+  }
+
+  return 'idle';
 }
 
 function slugifyProductTitle(value: string) {

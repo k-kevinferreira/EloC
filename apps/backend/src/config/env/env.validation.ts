@@ -11,6 +11,10 @@ export function validateEnv(config: EnvConfig) {
     String(maxProductImageSizeValue),
     10,
   );
+  const uploadsPublicBaseUrl =
+    typeof config.UPLOADS_PUBLIC_BASE_URL === 'string'
+      ? config.UPLOADS_PUBLIC_BASE_URL.trim()
+      : undefined;
 
   if (!config.DATABASE_URL || typeof config.DATABASE_URL !== 'string') {
     throw new Error('DATABASE_URL is required to start the backend.');
@@ -34,10 +38,27 @@ export function validateEnv(config: EnvConfig) {
     );
   }
 
+  if (uploadsPublicBaseUrl) {
+    try {
+      const parsedUploadsPublicBaseUrl = new URL(uploadsPublicBaseUrl);
+
+      if (!['http:', 'https:'].includes(parsedUploadsPublicBaseUrl.protocol)) {
+        throw new Error();
+      }
+    } catch {
+      throw new Error(
+        'UPLOADS_PUBLIC_BASE_URL must be a valid http(s) URL when provided.',
+      );
+    }
+  }
+
   return {
     ...config,
     JWT_EXPIRES_IN: jwtExpiresIn,
     PORT: port,
+    ...(uploadsPublicBaseUrl && {
+      UPLOADS_PUBLIC_BASE_URL: uploadsPublicBaseUrl,
+    }),
     UPLOADS_MAX_PRODUCT_IMAGE_SIZE_BYTES: maxProductImageSize,
   };
 }
