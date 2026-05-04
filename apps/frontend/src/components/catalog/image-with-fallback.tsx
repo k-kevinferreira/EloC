@@ -15,6 +15,7 @@ export function ImageWithFallback({
 }: ImageWithFallbackProps) {
   const [failed, setFailed] = useState(false);
   const shouldShowFallback = !src || failed;
+  const displaySrc = src ? resolveDisplayImageSrc(src) : null;
 
   if (shouldShowFallback) {
     return (
@@ -33,11 +34,33 @@ export function ImageWithFallback({
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={src}
+      src={displaySrc ?? src}
       alt={alt}
       className={className}
       loading="lazy"
       onError={() => setFailed(true)}
     />
   );
+}
+
+function resolveDisplayImageSrc(src: string) {
+  if (src.startsWith('/api/uploads/')) {
+    return src;
+  }
+
+  if (src.startsWith('/uploads/')) {
+    return `/api${src}`;
+  }
+
+  try {
+    const url = new URL(src);
+
+    if (url.pathname.startsWith('/uploads/')) {
+      return `/api${url.pathname}`;
+    }
+  } catch {
+    return src;
+  }
+
+  return src;
 }
