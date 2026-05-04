@@ -502,61 +502,10 @@ function ProductFormFields({
   const [galleryUploadState, setGalleryUploadState] = useState<UploadFeedback | null>(
     null,
   );
-  const [uploadStateByIndex, setUploadStateByIndex] = useState<
-    Record<number, UploadFeedback>
-  >({});
 
   const filteredSubcategories = subcategories.filter(
     (subcategory) => subcategory.categoryId === selectedCategoryId,
   );
-
-  async function handleImageUpload(file: File | undefined, index: number) {
-    if (!file) {
-      return;
-    }
-
-    setUploadStateByIndex((currentState) => ({
-      ...currentState,
-      [index]: {
-        status: 'pending',
-        message: 'Enviando imagem...',
-      },
-    }));
-
-    const formData = new FormData();
-    formData.set('file', file);
-
-    const result = await uploadProductImageAction(formData);
-
-    if (result.status === 'error') {
-      setUploadStateByIndex((currentState) => ({
-        ...currentState,
-        [index]: {
-          status: 'error',
-          message: result.message,
-        },
-      }));
-      return;
-    }
-
-    setImages((currentImages) =>
-      currentImages.map((currentImage, currentIndex) =>
-        currentIndex === index
-          ? {
-              ...currentImage,
-              url: result.image.url,
-            }
-          : currentImage,
-      ),
-    );
-    setUploadStateByIndex((currentState) => ({
-      ...currentState,
-      [index]: {
-        status: 'success',
-        message: 'Upload concluido.',
-      },
-    }));
-  }
 
   async function handleMultipleImagesUpload(fileList: FileList | null) {
     const files = Array.from(fileList ?? []);
@@ -764,10 +713,8 @@ function ProductFormFields({
         galleryUploadState={galleryUploadState}
         idPrefix={idPrefix}
         images={images}
-        onImageUpload={handleImageUpload}
         onImagesUpload={handleMultipleImagesUpload}
         setImages={setImages}
-        uploadStateByIndex={uploadStateByIndex}
       />
 
       {state.fieldErrors.images ? (
@@ -858,42 +805,35 @@ function ProductImagesEditor({
   galleryUploadState,
   idPrefix,
   images,
-  onImageUpload,
   onImagesUpload,
   setImages,
-  uploadStateByIndex,
 }: {
   galleryUploadState: UploadFeedback | null;
   idPrefix: string;
   images: ProductImageFormValue[];
-  onImageUpload: (file: File | undefined, index: number) => Promise<void>;
   onImagesUpload: (fileList: FileList | null) => Promise<void>;
   setImages: React.Dispatch<React.SetStateAction<ProductImageFormValue[]>>;
-  uploadStateByIndex: Record<number, UploadFeedback>;
 }) {
+  const visibleImages = images
+    .map((image, index) => ({ image, index }))
+    .filter(({ image }) => hasProductImageContent(image));
+
   return (
     <div className="space-y-3 md:col-span-2">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="space-y-1">
         <div>
           <p className="text-sm font-semibold">Galeria</p>
           <p className="text-sm text-[var(--muted)]">
-            Envie imagens e defina qual sera a principal.
+            Adicione as fotos do produto e defina qual sera a principal.
           </p>
         </div>
-
-        <label
-          htmlFor={`${idPrefix}-gallery-upload`}
-          className="inline-flex cursor-pointer items-center justify-center rounded-full bg-[var(--surface-contrast)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)]"
-        >
-          Adicionar fotos
-        </label>
       </div>
 
       <input type="hidden" name="images" value={JSON.stringify(images)} />
       <input
         type="hidden"
         name="imageUploadStatus"
-        value={resolveImageUploadStatus(galleryUploadState, uploadStateByIndex)}
+        value={resolveImageUploadStatus(galleryUploadState)}
       />
       <input
         id={`${idPrefix}-gallery-upload`}
@@ -913,10 +853,10 @@ function ProductImagesEditor({
           className="flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-2xl bg-[var(--surface)] px-4 py-5 text-center transition hover:bg-[var(--champagne)]"
         >
           <span className="text-sm font-semibold text-[var(--foreground)]">
-            Selecionar fotos do celular
+            Adicionar fotos
           </span>
           <span className="mt-1 text-xs leading-5 text-[var(--muted)]">
-            Você pode marcar várias imagens de uma vez.
+            Selecione uma ou varias imagens de uma vez.
           </span>
         </label>
 
@@ -933,8 +873,13 @@ function ProductImagesEditor({
         ) : null}
       </div>
 
-      <div className="space-y-3">
-        {images.map((image, index) => (
+      {visibleImages.length === 0 ? (
+        <div className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--muted)]">
+          Nenhuma foto adicionada.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {visibleImages.map(({ image, index }) => (
           <div
             key={`${idPrefix}-image-${index}`}
             className="grid gap-3 rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-3 sm:p-4 lg:grid-cols-[144px_minmax(0,1fr)]"
@@ -993,40 +938,10 @@ function ProductImagesEditor({
 
               <details className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3">
                 <summary className="cursor-pointer text-sm font-semibold text-[var(--foreground)]">
-                  Ajustes da imagem
+                  Detalhes da imagem
                 </summary>
 
                 <div className="mt-4 space-y-4">
-                  <div className="space-y-2">
-                    <label
-                      htmlFor={`${idPrefix}-image-upload-${index}`}
-                      className="text-sm font-semibold"
-                    >
-                      Trocar arquivo
-                    </label>
-                    <input
-                      id={`${idPrefix}-image-upload-${index}`}
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      onChange={(event) => {
-                        void onImageUpload(event.target.files?.[0], index);
-                        event.target.value = '';
-                      }}
-                      className="w-full rounded-2xl border border-dashed border-[var(--border-strong)] bg-[var(--surface-strong)] px-4 py-3 text-sm outline-none transition file:mr-4 file:rounded-full file:border-0 file:bg-[var(--surface-contrast)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:border-[var(--accent)] focus:border-[var(--accent)]"
-                    />
-                    {uploadStateByIndex[index] ? (
-                      <p
-                        className={`text-sm ${
-                          uploadStateByIndex[index].status === 'error'
-                            ? 'text-[var(--danger)]'
-                            : 'text-[var(--muted)]'
-                        }`}
-                      >
-                        {uploadStateByIndex[index].message}
-                      </p>
-                    ) : null}
-                  </div>
-
                   <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <label
@@ -1081,38 +996,13 @@ function ProductImagesEditor({
                   />
                 </div>
               </div>
-
-                  <div className="space-y-2">
-                    <label
-                      htmlFor={`${idPrefix}-image-url-${index}`}
-                      className="text-sm font-semibold"
-                    >
-                      URL manual
-                    </label>
-                    <input
-                      id={`${idPrefix}-image-url-${index}`}
-                      type="url"
-                      value={image.url}
-                      placeholder="https://..."
-                      onChange={(event) => {
-                        const nextValue = event.target.value;
-                        setImages((currentImages) =>
-                          currentImages.map((currentImage, currentIndex) =>
-                            currentIndex === index
-                              ? { ...currentImage, url: nextValue }
-                              : currentImage,
-                          ),
-                        );
-                      }}
-                      className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface-strong)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
-                    />
-                  </div>
                 </div>
               </details>
             </div>
           </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -1227,24 +1117,20 @@ function createEmptyProductImageFormValue(
   };
 }
 
-function resolveImageUploadStatus(
-  galleryUploadState: UploadFeedback | null,
-  uploadStateByIndex: Record<number, UploadFeedback>,
-) {
-  const uploadStates = [
-    ...(galleryUploadState ? [galleryUploadState] : []),
-    ...Object.values(uploadStateByIndex),
-  ];
+function hasProductImageContent(image: ProductImageFormValue) {
+  return image.url.trim().length > 0 || image.altText.trim().length > 0;
+}
 
-  if (uploadStates.some((state) => state.status === 'pending')) {
+function resolveImageUploadStatus(galleryUploadState: UploadFeedback | null) {
+  if (galleryUploadState?.status === 'pending') {
     return 'pending';
   }
 
-  if (uploadStates.some((state) => state.status === 'error')) {
+  if (galleryUploadState?.status === 'error') {
     return 'error';
   }
 
-  if (uploadStates.some((state) => state.status === 'success')) {
+  if (galleryUploadState?.status === 'success') {
     return 'success';
   }
 
