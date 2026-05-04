@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
@@ -281,6 +282,7 @@ function CreateProductCard({
   onCancel: () => void;
   subcategories: Subcategory[];
 }) {
+  const router = useRouter();
   const [state, formAction] = useActionState(
     createProductAction,
     initialProductFormState,
@@ -288,9 +290,10 @@ function CreateProductCard({
 
   useEffect(() => {
     if (state.status === 'success') {
+      router.refresh();
       onCancel();
     }
-  }, [onCancel, state.status]);
+  }, [onCancel, router, state.status]);
 
   const hasCategories = categories.length > 0;
   const formKey = [
@@ -348,6 +351,7 @@ function ProductEditorCard({
   product,
   subcategories,
 }: ProductEditorCardProps) {
+  const router = useRouter();
   const updateAction = updateProductAction.bind(null, product.id);
   const deleteAction = deleteProductAction.bind(null, product.id);
 
@@ -359,6 +363,12 @@ function ProductEditorCard({
     deleteAction,
     initialProductDeleteState,
   );
+
+  useEffect(() => {
+    if (updateState.status === 'success' || deleteState.status === 'success') {
+      router.refresh();
+    }
+  }, [deleteState.status, router, updateState.status]);
 
   const formKey = [
     product.id,
