@@ -299,6 +299,10 @@ function parseProductFormData(formData: FormData): ProductFormParseResult {
     fieldErrors.images = 'Não foi possível interpretar as imagens informadas.';
   }
 
+  if (values.images.length === 0) {
+    fieldErrors.images = 'Adicione pelo menos uma imagem ao produto.';
+  }
+
   if (imageUploadStatus === 'pending') {
     fieldErrors.images = 'Aguarde o envio da imagem terminar antes de salvar.';
   }
