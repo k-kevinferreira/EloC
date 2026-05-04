@@ -3,6 +3,8 @@ export const fixedCatalogCategories = [
   { name: 'Brincos', slug: 'brincos', displayOrder: 20 },
   { name: 'Colares', slug: 'colares', displayOrder: 30 },
   { name: 'Pulseiras', slug: 'pulseiras', displayOrder: 40 },
+  { name: 'Conjuntos', slug: 'conjuntos', displayOrder: 50 },
+  { name: 'Tornozeleiras', slug: 'tornozeleiras', displayOrder: 60 },
 ] as const;
 
 export const fixedCatalogMaterials = [
