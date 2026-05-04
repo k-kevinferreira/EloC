@@ -50,7 +50,7 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
           EloC
         </Link>
 
-        <nav className="hidden items-center gap-10 text-sm font-medium uppercase tracking-[0.22em] text-[var(--muted)] lg:flex">
+        <nav className="hidden items-center gap-4 text-xs font-medium uppercase tracking-[0.14em] text-[var(--muted)] lg:flex xl:gap-7 xl:text-sm xl:tracking-[0.18em] 2xl:gap-10 2xl:tracking-[0.22em]">
           {navigationItems.map((item) => (
             <Link
               key={item.label}
@@ -62,7 +62,7 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-5 text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted)] lg:flex">
+        <div className="hidden items-center gap-3 text-sm font-medium uppercase tracking-[0.14em] text-[var(--muted)] lg:flex xl:gap-5 xl:tracking-[0.18em]">
           <button
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-transparent transition hover:border-[var(--border)] hover:text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--rose-bronze)]"
