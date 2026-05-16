@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { WebSocketLikeConstructor } from '@supabase/realtime-js';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
@@ -12,6 +12,7 @@ import {
 
 @Injectable()
 export class SupabaseProductImageStorage implements ProductImageStorage {
+  private readonly logger = new Logger(SupabaseProductImageStorage.name);
   private readonly client: SupabaseClient;
   private readonly bucket: string;
   private readonly publicBaseUrl: string;
@@ -49,6 +50,10 @@ export class SupabaseProductImageStorage implements ProductImageStorage {
       });
 
     if (error) {
+      this.logger.error(
+        `Could not upload product image to Supabase Storage. Bucket="${this.bucket}" Path="${storagePath}" Status="${'statusCode' in error ? error.statusCode : 'unknown'}" Error="${error.message}"`,
+      );
+
       throw new InternalServerErrorException(
         'Could not upload product image to storage.',
       );
