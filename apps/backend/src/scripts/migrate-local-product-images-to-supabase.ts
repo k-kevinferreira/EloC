@@ -3,7 +3,9 @@ import { access, stat } from 'node:fs/promises';
 import { basename, join, relative, resolve } from 'node:path';
 
 import { PrismaClient } from '@prisma/client';
+import { WebSocketLikeConstructor } from '@supabase/realtime-js';
 import { createClient } from '@supabase/supabase-js';
+import WebSocket from 'ws';
 
 const prisma = new PrismaClient();
 
@@ -29,6 +31,9 @@ const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
   auth: {
     persistSession: false,
     autoRefreshToken: false,
+  },
+  realtime: {
+    transport: WebSocket as unknown as WebSocketLikeConstructor,
   },
 });
 
