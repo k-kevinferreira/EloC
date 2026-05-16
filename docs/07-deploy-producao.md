@@ -7,7 +7,7 @@ Para este projeto, a composição recomendada é:
 - Frontend: Vercel.
 - Backend: Railway ou Render.
 - Banco: PostgreSQL gerenciado.
-- Uploads: volume persistente no backend ou storage externo.
+- Uploads: Supabase Storage em producao; storage local apenas para desenvolvimento ou fallback controlado.
 
 ## Deploy do frontend
 
@@ -59,9 +59,26 @@ DATABASE_URL=<url-postgresql-producao>
 UPLOADS_LOCAL_ROOT=/data/uploads
 UPLOADS_PUBLIC_BASE_URL=https://url-do-backend/uploads
 UPLOADS_MAX_PRODUCT_IMAGE_SIZE_BYTES=5242880
+UPLOADS_STORAGE_PROVIDER=supabase
+SUPABASE_URL=https://<project-ref>.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+SUPABASE_STORAGE_BUCKET=product-images
+SUPABASE_STORAGE_PUBLIC_BASE_URL=https://<project-ref>.supabase.co/storage/v1/object/public/product-images
 ```
 
-Para usar imagens no Railway com storage local, criar um volume persistente e montar em:
+Para o projeto Supabase atual informado durante a migracao:
+
+```env
+SUPABASE_URL=https://ppzxtknftcnlpofelbzp.supabase.co
+SUPABASE_STORAGE_BUCKET=product-images
+SUPABASE_STORAGE_PUBLIC_BASE_URL=https://ppzxtknftcnlpofelbzp.supabase.co/storage/v1/object/public/product-images
+```
+
+`SUPABASE_SERVICE_ROLE_KEY` deve ser configurada somente em variaveis seguras do backend. Nao expor no frontend nem registrar em documentacao versionada.
+
+Em producao, usar Supabase Storage para imagens do catalogo. Plano detalhado: `docs/technical/supabase-storage-migration.md`.
+
+Para usar imagens no Railway com storage local apenas como fallback, criar um volume persistente e montar em:
 
 ```text
 /data
@@ -114,8 +131,10 @@ Sugestão:
 - Definir `JWT_SECRET` forte.
 - Definir `DATABASE_URL` de produção.
 - Definir `BACKEND_API_URL` no frontend.
-- Definir `UPLOADS_PUBLIC_BASE_URL`.
-- Confirmar volume persistente ou storage externo para uploads.
+- Definir `UPLOADS_PUBLIC_BASE_URL` quando storage local estiver habilitado.
+- Definir `UPLOADS_STORAGE_PROVIDER=supabase` em producao.
+- Definir `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET` e `SUPABASE_STORAGE_PUBLIC_BASE_URL`.
+- Confirmar bucket publico de leitura no Supabase Storage.
 - Executar `npm run lint --workspace @eloc/frontend`.
 - Executar `npm run build:frontend`.
 - Executar `npm run build:backend`.
@@ -158,6 +177,6 @@ Correção: publicar o backend, testar `/api/health` e configurar a URL real na 
 
 ## Riscos conhecidos
 
-- Storage local exige volume persistente.
+- Storage local exige volume persistente e deve ficar restrito a desenvolvimento/fallback.
 - Sem storage externo, imagens podem ser perdidas em deploys efêmeros.
 - Sem CORS explícito, chamadas diretas do navegador ao backend podem falhar se forem adicionadas futuramente.

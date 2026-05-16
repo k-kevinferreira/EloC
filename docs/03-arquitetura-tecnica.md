@@ -85,7 +85,7 @@ O projeto usa monorepo simples com separação entre frontend, backend e documen
 - `categories`: categorias públicas e administrativas.
 - `subcategories`: subcategorias públicas e administrativas.
 - `products`: produtos públicos e administrativos.
-- `uploads`: upload local de imagens de produto.
+- `uploads`: upload de imagens de produto; local em desenvolvimento e storage externo em producao.
 - `entries`: entradas financeiras administrativas.
 - `expenses`: despesas administrativas.
 - `shipments`: remessas administrativas.
@@ -93,6 +93,6 @@ O projeto usa monorepo simples com separação entre frontend, backend e documen
 
 ## Pontos de atenção arquitetural
 
-- Upload local deve ser substituído por storage externo se o deploy for serverless ou com instâncias efêmeras.
+- Upload local deve ser substituido por Supabase Storage antes de producao. Plano: `docs/technical/supabase-storage-migration.md`.
 - O dashboard pode evoluir para endpoint próprio no backend se os dados crescerem.
 - A compatibilidade legada com `Product.imageUrl` deve ser removida apenas após migração segura dos dados.

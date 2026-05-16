@@ -15,6 +15,28 @@ export function validateEnv(config: EnvConfig) {
     typeof config.UPLOADS_PUBLIC_BASE_URL === 'string'
       ? config.UPLOADS_PUBLIC_BASE_URL.trim()
       : undefined;
+  const storageProvider =
+    typeof config.UPLOADS_STORAGE_PROVIDER === 'string'
+      ? config.UPLOADS_STORAGE_PROVIDER.trim()
+      : 'local';
+  const nodeEnv =
+    typeof config.NODE_ENV === 'string' ? config.NODE_ENV.trim() : undefined;
+  const supabaseUrl =
+    typeof config.SUPABASE_URL === 'string'
+      ? config.SUPABASE_URL.trim()
+      : undefined;
+  const supabaseServiceRoleKey =
+    typeof config.SUPABASE_SERVICE_ROLE_KEY === 'string'
+      ? config.SUPABASE_SERVICE_ROLE_KEY.trim()
+      : undefined;
+  const supabaseStorageBucket =
+    typeof config.SUPABASE_STORAGE_BUCKET === 'string'
+      ? config.SUPABASE_STORAGE_BUCKET.trim()
+      : 'product-images';
+  const supabaseStoragePublicBaseUrl =
+    typeof config.SUPABASE_STORAGE_PUBLIC_BASE_URL === 'string'
+      ? config.SUPABASE_STORAGE_PUBLIC_BASE_URL.trim()
+      : undefined;
 
   if (!config.DATABASE_URL || typeof config.DATABASE_URL !== 'string') {
     throw new Error('DATABASE_URL is required to start the backend.');
@@ -52,13 +74,74 @@ export function validateEnv(config: EnvConfig) {
     }
   }
 
+  if (!['local', 'supabase'].includes(storageProvider)) {
+    throw new Error('UPLOADS_STORAGE_PROVIDER must be either local or supabase.');
+  }
+
+  if (nodeEnv === 'production' && storageProvider !== 'supabase') {
+    throw new Error(
+      'UPLOADS_STORAGE_PROVIDER must be supabase when NODE_ENV is production.',
+    );
+  }
+
+  if (storageProvider === 'supabase') {
+    if (!supabaseUrl) {
+      throw new Error('SUPABASE_URL is required when using Supabase Storage.');
+    }
+
+    if (!supabaseServiceRoleKey) {
+      throw new Error(
+        'SUPABASE_SERVICE_ROLE_KEY is required when using Supabase Storage.',
+      );
+    }
+
+    if (!supabaseStorageBucket) {
+      throw new Error(
+        'SUPABASE_STORAGE_BUCKET is required when using Supabase Storage.',
+      );
+    }
+
+    if (!supabaseStoragePublicBaseUrl) {
+      throw new Error(
+        'SUPABASE_STORAGE_PUBLIC_BASE_URL is required when using Supabase Storage.',
+      );
+    }
+
+    assertHttpUrl(supabaseUrl, 'SUPABASE_URL');
+    assertHttpUrl(
+      supabaseStoragePublicBaseUrl,
+      'SUPABASE_STORAGE_PUBLIC_BASE_URL',
+    );
+  }
+
   return {
     ...config,
     JWT_EXPIRES_IN: jwtExpiresIn,
     PORT: port,
+    UPLOADS_STORAGE_PROVIDER: storageProvider,
     ...(uploadsPublicBaseUrl && {
       UPLOADS_PUBLIC_BASE_URL: uploadsPublicBaseUrl,
     }),
     UPLOADS_MAX_PRODUCT_IMAGE_SIZE_BYTES: maxProductImageSize,
+    ...(supabaseUrl && { SUPABASE_URL: supabaseUrl }),
+    ...(supabaseServiceRoleKey && {
+      SUPABASE_SERVICE_ROLE_KEY: supabaseServiceRoleKey,
+    }),
+    SUPABASE_STORAGE_BUCKET: supabaseStorageBucket,
+    ...(supabaseStoragePublicBaseUrl && {
+      SUPABASE_STORAGE_PUBLIC_BASE_URL: supabaseStoragePublicBaseUrl,
+    }),
   };
+}
+
+function assertHttpUrl(value: string, envName: string) {
+  try {
+    const parsedUrl = new URL(value);
+
+    if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+      throw new Error();
+    }
+  } catch {
+    throw new Error(`${envName} must be a valid http(s) URL.`);
+  }
 }
