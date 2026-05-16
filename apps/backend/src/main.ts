@@ -14,13 +14,21 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const globalPrefix = configService.get<string>('app.globalPrefix', 'api');
   const port = configService.get<number>('app.port', 3001);
-  const uploadsRoot = resolve(
-    process.cwd(),
-    configService.get<string>('uploads.localRoot', 'uploads'),
+  const uploadsStorageProvider = configService.get<string>(
+    'uploads.storageProvider',
+    'local',
   );
 
-  mkdirSync(uploadsRoot, { recursive: true });
-  app.use('/uploads', express.static(uploadsRoot));
+  if (uploadsStorageProvider === 'local') {
+    const uploadsRoot = resolve(
+      process.cwd(),
+      configService.get<string>('uploads.localRoot', 'uploads'),
+    );
+
+    mkdirSync(uploadsRoot, { recursive: true });
+    app.use('/uploads', express.static(uploadsRoot));
+  }
+
   app.setGlobalPrefix(globalPrefix);
   app.useGlobalPipes(
     new ValidationPipe({

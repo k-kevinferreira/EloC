@@ -1,11 +1,14 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { extname, join, resolve } from 'node:path';
+import { extname, join } from 'node:path';
 
 import { UploadedFile } from './interfaces/uploaded-file.interface';
 import { UploadedProductImage } from './interfaces/uploaded-product-image.interface';
+import {
+  PRODUCT_IMAGE_STORAGE,
+  ProductImageStorage,
+} from './storage/product-image-storage.interface';
 
 const allowedProductImageTypes = {
   'image/jpeg': ['.jpg', '.jpeg'],
@@ -15,36 +18,26 @@ const allowedProductImageTypes = {
 
 @Injectable()
 export class UploadsService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    @Inject(PRODUCT_IMAGE_STORAGE)
+    private readonly productImageStorage: ProductImageStorage,
+  ) {}
 
   async saveProductImage(file?: UploadedFile): Promise<UploadedProductImage> {
     this.assertProductImageFile(file);
 
     const extension = this.resolveAllowedExtension(file);
     const filename = `product-image-${Date.now()}-${randomUUID()}${extension}`;
-    const relativePath = join('product-images', filename);
-    const storageRoot = this.getStorageRoot();
-    const destinationDirectory = join(storageRoot, 'product-images');
-    const destinationPath = join(destinationDirectory, filename);
+    const relativePath = this.buildProductImagePath(filename);
 
-    await mkdir(destinationDirectory, { recursive: true });
-    await writeFile(destinationPath, file.buffer);
-
-    return {
+    return this.productImageStorage.saveProductImage({
+      buffer: file.buffer,
       filename,
-      url: this.resolvePublicUrl(relativePath),
+      relativePath,
       mimeType: file.mimetype,
       size: file.size,
-    };
-  }
-
-  getStorageRoot() {
-    const configuredRoot = this.configService.get<string>(
-      'uploads.localRoot',
-      'uploads',
-    );
-
-    return resolve(process.cwd(), configuredRoot);
+    });
   }
 
   private assertProductImageFile(
@@ -140,15 +133,11 @@ export class UploadsService {
     return false;
   }
 
-  private resolvePublicUrl(relativePath: string) {
-    const configuredBaseUrl = this.configService.get<string | null>(
-      'uploads.publicBaseUrl',
-      null,
-    );
-    const publicBaseUrl =
-      configuredBaseUrl ??
-      `http://localhost:${this.configService.get<number>('app.port', 3001)}/uploads`;
+  private buildProductImagePath(filename: string) {
+    const now = new Date();
+    const year = String(now.getUTCFullYear());
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
 
-    return `${publicBaseUrl.replace(/\/$/, '')}/${relativePath.replace(/\\/g, '/')}`;
+    return join('products', year, month, filename);
   }
 }
