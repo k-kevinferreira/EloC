@@ -19,11 +19,13 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigationItems = publicCatalogNavigationItems.map((item) => ({
     label: item.label,
+    mobileOnly: 'mobileOnly' in item ? item.mobileOnly : false,
     href:
       'href' in item
         ? item.href
         : getCategoryHref(categories, item.categorySlug),
   }));
+  const desktopNavigationItems = navigationItems.filter((item) => !item.mobileOnly);
 
   function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -51,7 +53,7 @@ export function PublicHeader({ categories }: PublicHeaderProps) {
         </Link>
 
         <nav className="hidden items-center gap-4 text-xs font-medium uppercase tracking-[0.14em] text-[var(--muted)] lg:flex xl:gap-7 xl:text-sm xl:tracking-[0.18em] 2xl:gap-10 2xl:tracking-[0.22em]">
-          {navigationItems.map((item) => (
+          {desktopNavigationItems.map((item) => (
             <Link
               key={item.label}
               href={item.href as Route}

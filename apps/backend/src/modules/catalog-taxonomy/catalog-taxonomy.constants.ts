@@ -5,6 +5,7 @@ export const fixedCatalogCategories = [
   { name: 'Pulseiras', slug: 'pulseiras', displayOrder: 40 },
   { name: 'Conjuntos', slug: 'conjuntos', displayOrder: 50 },
   { name: 'Tornozeleiras', slug: 'tornozeleiras', displayOrder: 60 },
+  { name: 'Berloques', slug: 'berloques', displayOrder: 70 },
 ] as const;
 
 export const fixedCatalogMaterials = [
