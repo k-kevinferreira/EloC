@@ -32,6 +32,18 @@ export class CreateCategoryDto {
   slug!: string;
 
   @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @IsString()
+  @MaxLength(2048)
+  coverImageUrl?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @IsString()
+  @MaxLength(255)
+  coverImageAlt?: string;
+
+  @IsOptional()
   @IsBoolean()
   isActive?: boolean;
 

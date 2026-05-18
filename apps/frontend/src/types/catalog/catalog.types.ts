@@ -2,6 +2,8 @@ export type Category = {
   id: string;
   name: string;
   slug: string;
+  coverImageUrl: string | null;
+  coverImageAlt: string | null;
   isActive: boolean;
   displayOrder: number;
   createdAt: string;
@@ -11,6 +13,8 @@ export type Category = {
 export type CategoryMutationInput = {
   name: string;
   slug: string;
+  coverImageUrl: string | null;
+  coverImageAlt: string | null;
   isActive: boolean;
   displayOrder: number;
 };

@@ -5,7 +5,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { normalizeSlug, normalizeText } from 'src/common/utils/normalizers';
+import {
+  normalizeOptionalText,
+  normalizeSlug,
+  normalizeText,
+} from 'src/common/utils/normalizers';
 import { fixedCatalogCategorySlugs } from 'src/modules/catalog-taxonomy/catalog-taxonomy.constants';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -34,6 +38,8 @@ export class CategoriesService {
       data: {
         name: normalizeText(createCategoryDto.name),
         slug: normalizeSlug(createCategoryDto.slug),
+        coverImageUrl: normalizeOptionalText(createCategoryDto.coverImageUrl),
+        coverImageAlt: normalizeOptionalText(createCategoryDto.coverImageAlt),
         isActive: createCategoryDto.isActive ?? true,
         displayOrder: createCategoryDto.displayOrder ?? 0,
       },
@@ -56,6 +62,12 @@ export class CategoriesService {
         }),
         ...(updateCategoryDto.slug !== undefined && {
           slug: normalizeSlug(updateCategoryDto.slug),
+        }),
+        ...(updateCategoryDto.coverImageUrl !== undefined && {
+          coverImageUrl: normalizeOptionalText(updateCategoryDto.coverImageUrl),
+        }),
+        ...(updateCategoryDto.coverImageAlt !== undefined && {
+          coverImageAlt: normalizeOptionalText(updateCategoryDto.coverImageAlt),
         }),
         ...(updateCategoryDto.isActive !== undefined && {
           isActive: updateCategoryDto.isActive,

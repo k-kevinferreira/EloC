@@ -1,15 +1,17 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
 import {
   createCategoryAction,
   deleteCategoryAction,
   updateCategoryAction,
+  uploadCategoryCoverAction,
   type CategoryDeleteState,
   type CategoryFormState,
 } from '@/app/(admin)/admin/(protected)/categories/actions';
+import { ImageWithFallback } from '@/components/catalog/image-with-fallback';
 import type { Category } from '@/types/catalog/catalog.types';
 
 type CategoryManagementProps = {
@@ -32,6 +34,8 @@ const initialCategoryFormState: CategoryFormState = {
   values: {
     name: '',
     slug: '',
+    coverImageUrl: '',
+    coverImageAlt: '',
     displayOrder: '0',
     isActive: true,
   },
@@ -107,6 +111,8 @@ function CreateCategoryCard() {
     state.message ?? '',
     state.values.name,
     state.values.slug,
+    state.values.coverImageUrl,
+    state.values.coverImageAlt,
     state.values.displayOrder,
     String(state.values.isActive),
   ].join(':');
@@ -159,6 +165,8 @@ function CategoryEditorCard({
     updateState.message ?? '',
     updateState.values.name,
     updateState.values.slug,
+    updateState.values.coverImageUrl,
+    updateState.values.coverImageAlt,
     updateState.values.displayOrder,
     String(updateState.values.isActive),
   ].join(':');
@@ -228,6 +236,44 @@ function CategoryFormFields({
   idPrefix: string;
   state: CategoryFormState;
 }) {
+  const [coverImageUrl, setCoverImageUrl] = useState(state.values.coverImageUrl);
+  const [uploadFeedback, setUploadFeedback] = useState<{
+    status: 'error' | 'pending' | 'success';
+    message: string;
+  } | null>(null);
+
+  async function handleCoverUpload(fileList: FileList | null) {
+    const file = fileList?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    setUploadFeedback({
+      status: 'pending',
+      message: 'Enviando imagem de capa...',
+    });
+
+    const formData = new FormData();
+    formData.set('file', file);
+
+    const result = await uploadCategoryCoverAction(formData);
+
+    if (result.status === 'error') {
+      setUploadFeedback({
+        status: 'error',
+        message: result.message,
+      });
+      return;
+    }
+
+    setCoverImageUrl(result.image.url);
+    setUploadFeedback({
+      status: 'success',
+      message: 'Imagem de capa adicionada.',
+    });
+  }
+
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <div className="space-y-2">
@@ -282,6 +328,102 @@ function CategoryFormFields({
             {state.fieldErrors.displayOrder}
           </p>
         ) : null}
+      </div>
+
+      <div className="space-y-3 md:col-span-2">
+        <div className="space-y-1">
+          <p className="text-sm font-semibold">Imagem de capa</p>
+          <p className="text-sm text-[var(--muted)]">
+            Use uma imagem fixa para o card da categoria sem criar um produto.
+          </p>
+        </div>
+
+        <div className="grid gap-4 rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-4 lg:grid-cols-[160px_minmax(0,1fr)]">
+          <div className="aspect-[4/5] overflow-hidden rounded-2xl bg-[var(--champagne)]">
+            <ImageWithFallback
+              src={coverImageUrl || null}
+              alt={state.values.coverImageAlt || 'Imagem de capa da categoria'}
+              className="h-full w-full object-cover"
+            />
+          </div>
+
+          <div className="space-y-4">
+            <input
+              id={`${idPrefix}-cover-upload`}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={(event) => {
+                void handleCoverUpload(event.target.files);
+                event.target.value = '';
+              }}
+              className="sr-only"
+            />
+
+            <label
+              htmlFor={`${idPrefix}-cover-upload`}
+              className="inline-flex cursor-pointer items-center justify-center rounded-full bg-[var(--surface-contrast)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)]"
+            >
+              Enviar imagem
+            </label>
+
+            {uploadFeedback ? (
+              <p
+                className={`text-sm ${
+                  uploadFeedback.status === 'error'
+                    ? 'text-[var(--danger)]'
+                    : 'text-[var(--muted)]'
+                }`}
+              >
+                {uploadFeedback.message}
+              </p>
+            ) : null}
+
+            <div className="space-y-2">
+              <label
+                htmlFor={`${idPrefix}-coverImageUrl`}
+                className="text-sm font-semibold"
+              >
+                URL da capa
+              </label>
+              <input
+                id={`${idPrefix}-coverImageUrl`}
+                name="coverImageUrl"
+                type="text"
+                value={coverImageUrl}
+                onChange={(event) => setCoverImageUrl(event.target.value)}
+                placeholder="Envie uma imagem ou cole uma URL"
+                className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
+              />
+              {state.fieldErrors.coverImageUrl ? (
+                <p className="text-sm text-[var(--danger)]">
+                  {state.fieldErrors.coverImageUrl}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor={`${idPrefix}-coverImageAlt`}
+                className="text-sm font-semibold"
+              >
+                Texto alternativo
+              </label>
+              <input
+                id={`${idPrefix}-coverImageAlt`}
+                name="coverImageAlt"
+                type="text"
+                defaultValue={state.values.coverImageAlt}
+                placeholder="Ex.: Composicao de aneis em prata"
+                className="w-full rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] px-4 py-3 outline-none transition focus:border-[var(--accent)]"
+              />
+              {state.fieldErrors.coverImageAlt ? (
+                <p className="text-sm text-[var(--danger)]">
+                  {state.fieldErrors.coverImageAlt}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </div>
       </div>
 
       <label className="flex items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--foreground)]">
@@ -353,6 +495,8 @@ function buildInitialUpdateState(category: Category): CategoryFormState {
     values: {
       name: category.name,
       slug: category.slug,
+      coverImageUrl: category.coverImageUrl ?? '',
+      coverImageAlt: category.coverImageAlt ?? '',
       displayOrder: String(category.displayOrder),
       isActive: category.isActive,
     },
