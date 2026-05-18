@@ -257,7 +257,17 @@ function CategoryFormFields({
     const formData = new FormData();
     formData.set('file', file);
 
-    const result = await uploadCategoryCoverAction(formData);
+    let result: Awaited<ReturnType<typeof uploadCategoryCoverAction>>;
+
+    try {
+      result = await uploadCategoryCoverAction(formData);
+    } catch {
+      setUploadFeedback({
+        status: 'error',
+        message: 'Nao foi possivel enviar a imagem de capa agora.',
+      });
+      return;
+    }
 
     if (result.status === 'error') {
       setUploadFeedback({
