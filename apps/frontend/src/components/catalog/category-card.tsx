@@ -21,6 +21,10 @@ export function CategoryCard({ category, products }: CategoryCardProps) {
       product.categoryId === category.id &&
       getPublicProductImages(product).length > 0,
   );
+  const coverImageUrl =
+    category.coverImageUrl ??
+    (representativeProduct ? getPrimaryProductImage(representativeProduct) : null);
+  const coverImageAlt = category.coverImageAlt ?? `Categoria ${category.name}`;
   const productCount = getCategoryProductCount(category, products);
 
   return (
@@ -29,10 +33,8 @@ export function CategoryCard({ category, products }: CategoryCardProps) {
       className="group relative block aspect-[4/5] overflow-hidden rounded-lg bg-[var(--champagne)] focus:outline-none focus:ring-1 focus:ring-[var(--rose-bronze)] sm:aspect-[3/4]"
     >
       <ImageWithFallback
-        src={
-          representativeProduct ? getPrimaryProductImage(representativeProduct) : null
-        }
-        alt={`Categoria ${category.name}`}
+        src={coverImageUrl}
+        alt={coverImageAlt}
         className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />

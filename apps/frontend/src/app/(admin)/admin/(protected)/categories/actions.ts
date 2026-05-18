@@ -8,6 +8,7 @@ import {
   deleteCategory,
   updateCategory,
 } from '@/services/categories/admin-categories';
+import { uploadProductImage } from '@/services/uploads/admin-uploads';
 import type { CategoryMutationInput } from '@/types/catalog/catalog.types';
 
 const categorySlugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -15,6 +16,8 @@ const categorySlugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 type CategoryFormValues = {
   name: string;
   slug: string;
+  coverImageUrl: string;
+  coverImageAlt: string;
   displayOrder: string;
   isActive: boolean;
 };
@@ -22,6 +25,8 @@ type CategoryFormValues = {
 type CategoryFieldErrors = {
   name?: string;
   slug?: string;
+  coverImageUrl?: string;
+  coverImageAlt?: string;
   displayOrder?: string;
 };
 
@@ -46,6 +51,21 @@ export type CategoryDeleteState = {
   status: 'idle' | 'success' | 'error';
   message?: string;
 };
+
+export type CategoryCoverUploadState =
+  | {
+      status: 'success';
+      image: {
+        url: string;
+        filename: string;
+        mimeType: string;
+        size: number;
+      };
+    }
+  | {
+      status: 'error';
+      message: string;
+    };
 
 export async function createCategoryAction(
   _previousState: CategoryFormState,
@@ -77,10 +97,26 @@ export async function createCategoryAction(
     values: {
       name: '',
       slug: '',
+      coverImageUrl: '',
+      coverImageAlt: '',
       displayOrder: '0',
       isActive: true,
     },
   };
+}
+
+function isValidImageUrl(value: string) {
+  if (value.startsWith('/')) {
+    return true;
+  }
+
+  try {
+    const url = new URL(value);
+
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
 }
 
 export async function updateCategoryAction(
@@ -137,12 +173,46 @@ export async function deleteCategoryAction(
   };
 }
 
+export async function uploadCategoryCoverAction(
+  formData: FormData,
+): Promise<CategoryCoverUploadState> {
+  const file = formData.get('file');
+
+  if (!(file instanceof File) || file.size === 0) {
+    return {
+      status: 'error',
+      message: 'Selecione uma imagem antes de enviar.',
+    };
+  }
+
+  try {
+    const uploadedImage = await uploadProductImage(file);
+
+    return {
+      status: 'success',
+      image: {
+        url: uploadedImage.url,
+        filename: uploadedImage.filename,
+        mimeType: uploadedImage.mimeType,
+        size: uploadedImage.size,
+      },
+    };
+  } catch (error) {
+    return {
+      status: 'error',
+      message: extractActionErrorMessage(error),
+    };
+  }
+}
+
 function parseCategoryFormData(formData: FormData): CategoryFormParseResult {
   const values: CategoryFormValues = {
     name: String(formData.get('name') ?? '').trim(),
     slug: String(formData.get('slug') ?? '')
       .trim()
       .toLowerCase(),
+    coverImageUrl: String(formData.get('coverImageUrl') ?? '').trim(),
+    coverImageAlt: String(formData.get('coverImageAlt') ?? '').trim(),
     displayOrder: String(formData.get('displayOrder') ?? '0').trim(),
     isActive: formData.get('isActive') === 'on',
   };
@@ -162,6 +232,17 @@ function parseCategoryFormData(formData: FormData): CategoryFormParseResult {
   } else if (!categorySlugPattern.test(values.slug)) {
     fieldErrors.slug =
       'Use apenas letras minusculas, numeros e hifens simples entre termos.';
+  }
+
+  if (values.coverImageUrl.length > 2048) {
+    fieldErrors.coverImageUrl = 'A URL da capa deve ter no maximo 2048 caracteres.';
+  } else if (values.coverImageUrl && !isValidImageUrl(values.coverImageUrl)) {
+    fieldErrors.coverImageUrl = 'Informe uma URL valida para a imagem de capa.';
+  }
+
+  if (values.coverImageAlt.length > 255) {
+    fieldErrors.coverImageAlt =
+      'O texto alternativo deve ter no maximo 255 caracteres.';
   }
 
   if (!values.displayOrder) {
@@ -187,6 +268,8 @@ function parseCategoryFormData(formData: FormData): CategoryFormParseResult {
   const input: CategoryMutationInput = {
     name: values.name,
     slug: values.slug,
+    coverImageUrl: values.coverImageUrl || null,
+    coverImageAlt: values.coverImageAlt || null,
     isActive: values.isActive,
     displayOrder: parsedDisplayOrder,
   };
