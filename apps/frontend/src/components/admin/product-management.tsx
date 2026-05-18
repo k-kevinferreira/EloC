@@ -37,6 +37,7 @@ type ActiveProductForm =
 type ProductEditorCardProps = {
   categories: Category[];
   canDelete: boolean;
+  className?: string;
   onCancel: () => void;
   product: Product;
   subcategories: Subcategory[];
@@ -97,10 +98,6 @@ export function ProductManagement({
 }: ProductManagementProps) {
   const [activeForm, setActiveForm] = useState<ActiveProductForm>(null);
   const hasCategories = categories.length > 0;
-  const selectedProduct =
-    activeForm?.type === 'edit'
-      ? products.find((product) => product.id === activeForm.productId)
-      : null;
 
   return (
     <div className="space-y-6">
@@ -153,16 +150,6 @@ export function ProductManagement({
         />
       ) : null}
 
-      {selectedProduct ? (
-        <ProductEditorCard
-          categories={categories}
-          canDelete={canDelete}
-          onCancel={() => setActiveForm(null)}
-          product={selectedProduct}
-          subcategories={subcategories}
-        />
-      ) : null}
-
       <section className="space-y-3">
         {products.length === 0 ? (
           <div className="rounded-[1.5rem] border border-dashed border-[var(--border-strong)] bg-[var(--surface)] p-5 text-sm text-[var(--muted)] shadow-[var(--shadow-md)]">
@@ -170,19 +157,36 @@ export function ProductManagement({
           </div>
         ) : (
           <div className="overflow-hidden rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-md)]">
-            {products.map((product) => (
-              <ProductListItem
-                key={product.id}
-                isSelected={activeForm?.type === 'edit' && activeForm.productId === product.id}
-                onEdit={() =>
-                  setActiveForm({
-                    type: 'edit',
-                    productId: product.id,
-                  })
-                }
-                product={product}
-              />
-            ))}
+            {products.map((product) => {
+              const isSelected =
+                activeForm?.type === 'edit' && activeForm.productId === product.id;
+
+              return (
+                <div key={product.id}>
+                  <ProductListItem
+                    isSelected={isSelected}
+                    onEdit={() =>
+                      setActiveForm({
+                        type: 'edit',
+                        productId: product.id,
+                      })
+                    }
+                    product={product}
+                  />
+
+                  {isSelected ? (
+                    <ProductEditorCard
+                      categories={categories}
+                      canDelete={canDelete}
+                      className="border-b border-[var(--border)] bg-[var(--surface-strong)] p-4 last:border-b-0 sm:p-5"
+                      onCancel={() => setActiveForm(null)}
+                      product={product}
+                      subcategories={subcategories}
+                    />
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
         )}
       </section>
@@ -347,6 +351,7 @@ function CreateProductCard({
 function ProductEditorCard({
   categories,
   canDelete,
+  className = 'rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-md)] sm:p-6',
   onCancel,
   product,
   subcategories,
@@ -390,7 +395,7 @@ function ProductEditorCard({
   ].join(':');
 
   return (
-    <section className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-md)] sm:p-6">
+    <section className={className}>
       <FormHeader
         title={`Editar ${product.title}`}
         description="Atualize os dados exibidos no catálogo."
