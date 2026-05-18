@@ -4,7 +4,7 @@ export const publicCatalogNavigationItems = [
   { label: 'COLARES', categorySlug: 'colares' },
   { label: 'PULSEIRAS', categorySlug: 'pulseiras' },
   { label: 'CONJUNTOS', categorySlug: 'conjuntos' },
-  { label: 'TORNOZELEIRAS', categorySlug: 'tornozeleiras' },
+  { label: 'TORNOZELEIRAS', categorySlug: 'tornozeleiras', mobileOnly: true },
   { label: 'BERLOQUES', categorySlug: 'berloques', mobileOnly: true },
 ] as const;
 
