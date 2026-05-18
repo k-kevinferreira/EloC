@@ -154,7 +154,7 @@ function getCategoryHref(categories: Category[], categorySlug: string) {
       normalizeCategoryName(item.name) === categorySlug,
   );
 
-  return category ? `/categoria/${category.slug}` : '/catalogo';
+  return `/categoria/${category?.slug ?? categorySlug}`;
 }
 
 function normalizeCategoryName(name: string) {
