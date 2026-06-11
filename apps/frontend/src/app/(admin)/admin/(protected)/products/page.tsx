@@ -1,7 +1,7 @@
 import { ProductManagement } from '@/components/admin/product-management';
 import { requireAuthenticatedAdmin } from '@/lib/auth/session';
 import { listCategories } from '@/services/categories/list-categories';
-import { listProducts } from '@/services/products/list-products';
+import { listAdminProducts } from '@/services/products/admin-products';
 import { listSubcategories } from '@/services/subcategories/list-subcategories';
 
 export default async function AdminProductsPage() {
@@ -9,7 +9,7 @@ export default async function AdminProductsPage() {
     requireAuthenticatedAdmin(),
     listCategories(),
     listSubcategories(),
-    listProducts({
+    listAdminProducts({
       limit: 100,
     }),
   ]);

@@ -210,6 +210,12 @@ function ProductListItem({ isSelected, onEdit, product }: ProductListItemProps) 
           <StatusBadge tone={product.isActive ? 'success' : 'danger'}>
             {product.isActive ? 'Ativo' : 'Inativo'}
           </StatusBadge>
+          {product.aiGenerated ? (
+            <StatusBadge tone="info">Gerado por IA</StatusBadge>
+          ) : null}
+          {product.source === 'TELEGRAM_AI' ? (
+            <StatusBadge tone="info">Origem: Telegram + Gemini</StatusBadge>
+          ) : null}
           {product.isFeatured ? (
             <StatusBadge tone="warning">Destaque</StatusBadge>
           ) : null}
@@ -220,6 +226,9 @@ function ProductListItem({ isSelected, onEdit, product }: ProductListItemProps) 
             {product.category.name}
             {product.subcategory ? ` - ${product.subcategory.name}` : ''}
           </span>
+          {product.suggestedCategory ? (
+            <span>Categoria sugerida: {product.suggestedCategory}</span>
+          ) : null}
           <span>{product.images.length} imagens</span>
         </div>
       </div>
@@ -260,10 +269,11 @@ function StatusBadge({
   tone,
 }: {
   children: React.ReactNode;
-  tone: 'danger' | 'success' | 'warning';
+  tone: 'danger' | 'info' | 'success' | 'warning';
 }) {
   const classNameByTone = {
     danger: 'bg-[rgba(177,59,46,0.12)] text-[var(--danger)]',
+    info: 'bg-[rgba(84,75,66,0.10)] text-[var(--foreground)]',
     success: 'bg-[var(--accent-soft)] text-[var(--accent)]',
     warning: 'bg-[rgba(183,121,31,0.15)] text-[var(--warning)]',
   };

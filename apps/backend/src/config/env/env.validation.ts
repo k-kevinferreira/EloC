@@ -32,10 +32,24 @@ export function validateEnv(config: EnvConfig) {
   const supabaseStorageBucket =
     typeof config.SUPABASE_STORAGE_BUCKET === 'string'
       ? config.SUPABASE_STORAGE_BUCKET.trim()
+      : typeof config.SUPABASE_BUCKET === 'string'
+        ? config.SUPABASE_BUCKET.trim()
       : 'product-images';
   const supabaseStoragePublicBaseUrl =
     typeof config.SUPABASE_STORAGE_PUBLIC_BASE_URL === 'string'
       ? config.SUPABASE_STORAGE_PUBLIC_BASE_URL.trim()
+      : undefined;
+  const telegramAllowedChatIds =
+    typeof config.TELEGRAM_ALLOWED_CHAT_IDS === 'string'
+      ? config.TELEGRAM_ALLOWED_CHAT_IDS.trim()
+      : undefined;
+  const telegramWebhookSecret =
+    typeof config.TELEGRAM_WEBHOOK_SECRET === 'string'
+      ? config.TELEGRAM_WEBHOOK_SECRET.trim()
+      : undefined;
+  const geminiModel =
+    typeof config.GEMINI_MODEL === 'string'
+      ? config.GEMINI_MODEL.trim()
       : undefined;
 
   if (!config.DATABASE_URL || typeof config.DATABASE_URL !== 'string') {
@@ -114,6 +128,22 @@ export function validateEnv(config: EnvConfig) {
     );
   }
 
+  if (telegramAllowedChatIds) {
+    const invalidChatIds = telegramAllowedChatIds
+      .split(',')
+      .map((chatId) => chatId.trim())
+      .filter((chatId) => chatId.length > 0)
+      .filter((chatId) => !/^-?\d+$/.test(chatId));
+
+    if (invalidChatIds.length > 0) {
+      throw new Error('TELEGRAM_ALLOWED_CHAT_IDS must contain numeric chat ids.');
+    }
+  }
+
+  if (telegramWebhookSecret && telegramWebhookSecret.length < 16) {
+    throw new Error('TELEGRAM_WEBHOOK_SECRET must have at least 16 characters.');
+  }
+
   return {
     ...config,
     JWT_EXPIRES_IN: jwtExpiresIn,
@@ -128,8 +158,18 @@ export function validateEnv(config: EnvConfig) {
       SUPABASE_SERVICE_ROLE_KEY: supabaseServiceRoleKey,
     }),
     SUPABASE_STORAGE_BUCKET: supabaseStorageBucket,
+    SUPABASE_BUCKET: supabaseStorageBucket,
     ...(supabaseStoragePublicBaseUrl && {
       SUPABASE_STORAGE_PUBLIC_BASE_URL: supabaseStoragePublicBaseUrl,
+    }),
+    ...(telegramAllowedChatIds && {
+      TELEGRAM_ALLOWED_CHAT_IDS: telegramAllowedChatIds,
+    }),
+    ...(telegramWebhookSecret && {
+      TELEGRAM_WEBHOOK_SECRET: telegramWebhookSecret,
+    }),
+    ...(geminiModel && {
+      GEMINI_MODEL: geminiModel,
     }),
   };
 }

@@ -14,7 +14,10 @@ export const uploadsConfig = registerAs('uploads', () => ({
   supabase: {
     url: process.env.SUPABASE_URL ?? null,
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? null,
-    bucket: process.env.SUPABASE_STORAGE_BUCKET ?? 'product-images',
+    bucket:
+      process.env.SUPABASE_STORAGE_BUCKET ??
+      process.env.SUPABASE_BUCKET ??
+      'product-images',
     publicBaseUrl: process.env.SUPABASE_STORAGE_PUBLIC_BASE_URL ?? null,
   },
 }));

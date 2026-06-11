@@ -35,9 +35,26 @@ type ProductWithRelations = Prisma.ProductGetPayload<{
   };
 }>;
 
+type CreateTelegramAiProductInput = {
+  title: string;
+  shortDescription: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  suggestedCategory: string;
+  aiTags: string[];
+};
+
 @Injectable()
 export class ProductsService {
   constructor(private readonly prismaService: PrismaService) {}
+
+  async findPublicAll(query: ListProductsQueryDto) {
+    return this.findAll({
+      ...query,
+      isActive: true,
+    });
+  }
 
   async findAll(query: ListProductsQueryDto) {
     const where: Prisma.ProductWhereInput = {
@@ -87,14 +104,61 @@ export class ProductsService {
   }
 
   async findBySlug(slug: string) {
-    const product = await this.prismaService.product.findUnique({
-      where: { slug },
+    const product = await this.prismaService.product.findFirst({
+      where: {
+        slug,
+        isActive: true,
+      },
       include: productInclude,
     });
 
     if (!product) {
       throw new NotFoundException(`Product with slug "${slug}" was not found.`);
     }
+
+    return this.serializeProduct(product);
+  }
+
+  async createTelegramAiProduct(input: CreateTelegramAiProductInput) {
+    const reviewTaxonomy = await this.resolveReviewTaxonomyOrThrow();
+    const title = normalizeText(input.title || 'Produto pendente de revisão').slice(
+      0,
+      160,
+    );
+    const code = await this.generateAvailableProductCode(title);
+    const slug = await this.generateAvailableProductSlug(title);
+
+    const product = await this.prismaService.product.create({
+      data: {
+        categoryId: reviewTaxonomy.categoryId,
+        subcategoryId: reviewTaxonomy.subcategoryId,
+        code,
+        slug,
+        title,
+        shortDescription: normalizeOptionalText(input.shortDescription),
+        description: normalizeOptionalText(input.description),
+        price: input.price,
+        imageUrl: input.imageUrl,
+        source: 'TELEGRAM_AI',
+        aiGenerated: true,
+        suggestedCategory: normalizeOptionalText(input.suggestedCategory),
+        aiTags: input.aiTags.slice(0, 10),
+        isFeatured: false,
+        isActive: false,
+        displayOrder: 0,
+        images: {
+          create: [
+            {
+              url: input.imageUrl,
+              altText: title,
+              displayOrder: 0,
+              isPrimary: true,
+            },
+          ],
+        },
+      },
+      include: productInclude,
+    });
 
     return this.serializeProduct(product);
   }
@@ -486,6 +550,101 @@ export class ProductsService {
     }
 
     return product.subcategoryId;
+  }
+
+  private async resolveReviewTaxonomyOrThrow() {
+    const category = await this.prismaService.category.findUnique({
+      where: {
+        slug: 'revisar',
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!category) {
+      throw new NotFoundException('Review category was not found.');
+    }
+
+    const subcategory = await this.prismaService.subcategory.findFirst({
+      where: {
+        categoryId: category.id,
+        slug: 'revisar',
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!subcategory) {
+      throw new NotFoundException('Review subcategory was not found.');
+    }
+
+    return {
+      categoryId: category.id,
+      subcategoryId: subcategory.id,
+    };
+  }
+
+  private async generateAvailableProductCode(title: string) {
+    const baseCode = this.slugifyProductText(title)
+      .toUpperCase()
+      .slice(0, 40) || 'PRODUTO';
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const suffix = `${Date.now().toString(36)}${attempt ? `-${attempt}` : ''}`
+        .toUpperCase()
+        .slice(0, 16);
+      const code = normalizeCode(`TG-${baseCode}-${suffix}`).slice(0, 80);
+      const existingProduct = await this.prismaService.product.findUnique({
+        where: {
+          code,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!existingProduct) {
+        return code;
+      }
+    }
+
+    throw new ConflictException('Could not generate a unique product code.');
+  }
+
+  private async generateAvailableProductSlug(title: string) {
+    const baseSlug = this.slugifyProductText(title).slice(0, 120) || 'produto';
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const suffix = `${Date.now().toString(36)}${attempt ? `-${attempt}` : ''}`;
+      const slug = normalizeSlug(`${baseSlug}-${suffix}`).slice(0, 160);
+      const existingProduct = await this.prismaService.product.findUnique({
+        where: {
+          slug,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!existingProduct) {
+        return slug;
+      }
+    }
+
+    throw new ConflictException('Could not generate a unique product slug.');
+  }
+
+  private slugifyProductText(value: string) {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .replace(/-{2,}/g, '-');
   }
 }
 

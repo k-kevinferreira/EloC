@@ -51,6 +51,10 @@ export type Product = {
   price: string;
   imageUrl: string | null;
   images: ProductImage[];
+  source: string | null;
+  aiGenerated: boolean;
+  suggestedCategory: string | null;
+  aiTags: string[];
   isFeatured: boolean;
   isActive: boolean;
   displayOrder: number;

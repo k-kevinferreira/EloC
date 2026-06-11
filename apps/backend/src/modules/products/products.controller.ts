@@ -10,7 +10,7 @@ export class ProductsController {
 
   @Get()
   findAll(@Query() query: ListProductsQueryDto) {
-    return this.productsService.findAll(query);
+    return this.productsService.findPublicAll(query);
   }
 
   @Get(':slug')

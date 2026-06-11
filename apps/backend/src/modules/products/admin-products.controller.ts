@@ -2,11 +2,13 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 
@@ -18,6 +20,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
 import { CreateProductDto } from './dto/create-product.dto';
+import { ListProductsQueryDto } from './dto/list-products-query.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductsService } from './products.service';
 
@@ -25,6 +28,12 @@ import { ProductsService } from './products.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AdminProductsController {
   constructor(private readonly productsService: ProductsService) {}
+
+  @Get()
+  @Roles(ADMIN_ROLES.admin, ADMIN_ROLES.superAdmin)
+  findAll(@Query() query: ListProductsQueryDto) {
+    return this.productsService.findAll(query);
+  }
 
   @Post()
   @Roles(ADMIN_ROLES.admin, ADMIN_ROLES.superAdmin)

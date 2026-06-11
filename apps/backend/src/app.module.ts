@@ -7,8 +7,11 @@ import { appConfig } from './config/app/app.config';
 import { authConfig } from './config/auth/auth.config';
 import { databaseConfig } from './config/database/database.config';
 import { validateEnv } from './config/env/env.validation';
+import { geminiConfig } from './config/gemini/gemini.config';
+import { telegramConfig } from './config/telegram/telegram.config';
 import { uploadsConfig } from './config/uploads/uploads.config';
 import { AdminsModule } from './modules/admins/admins.module';
+import { GeminiModule } from './modules/ai/gemini.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { EntriesModule } from './modules/entries/entries.module';
@@ -16,6 +19,7 @@ import { ExpensesModule } from './modules/expenses/expenses.module';
 import { ProductsModule } from './modules/products/products.module';
 import { ShipmentsModule } from './modules/shipments/shipments.module';
 import { SubcategoriesModule } from './modules/subcategories/subcategories.module';
+import { TelegramModule } from './modules/telegram/telegram.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -26,7 +30,7 @@ import { PrismaModule } from './prisma/prisma.module';
       cache: true,
       expandVariables: true,
       envFilePath: '.env',
-      load: [appConfig, authConfig, databaseConfig, uploadsConfig],
+      load: [appConfig, authConfig, databaseConfig, geminiConfig, telegramConfig, uploadsConfig],
       validate: validateEnv,
     }),
     PrismaModule,
@@ -39,6 +43,8 @@ import { PrismaModule } from './prisma/prisma.module';
     ExpensesModule,
     ShipmentsModule,
     UploadsModule,
+    GeminiModule,
+    TelegramModule,
   ],
   controllers: [AppController],
   providers: [AppService],
