@@ -386,10 +386,35 @@ export class TelegramService {
     }
 
     if (text === '1') {
-      await this.sendMessage(
-        chatId,
-        'Cadastro confirmado. O produto continua pendente para revisao no painel.',
-      );
+      try {
+        const product = await this.productsService.activateTelegramAiProduct(
+          draft.productId,
+        );
+
+        await this.sendMessage(
+          chatId,
+          [
+            'Cadastro confirmado e produto ativado no catalogo.',
+            '',
+            `Nome: ${product.title}`,
+            `Categoria: ${product.category.name}`,
+            `Valor: R$ ${this.formatPrice(Number(product.price))}`,
+            'Status: Ativo',
+          ].join('\n'),
+        );
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error.';
+
+        this.logger.warn(`Could not activate Telegram product. ${message}`);
+        await this.sendMessage(
+          chatId,
+          [
+            'Antes de ativar no catalogo, edite a categoria sugerida.',
+            '',
+            'Digite 4 e informe uma categoria real, como Brincos, Aneis, Colares ou Pulseiras.',
+          ].join('\n'),
+        );
+      }
       return;
     }
 

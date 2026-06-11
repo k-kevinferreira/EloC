@@ -237,6 +237,38 @@ export class ProductsService {
     return this.serializeProduct(product);
   }
 
+  async activateTelegramAiProduct(id: string) {
+    const product = await this.prismaService.product.findUnique({
+      where: {
+        id,
+        source: 'TELEGRAM_AI',
+      },
+      include: productInclude,
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with id "${id}" was not found.`);
+    }
+
+    if (product.category.slug === 'revisar') {
+      throw new BadRequestException(
+        'Select a real category before publishing this product.',
+      );
+    }
+
+    const updatedProduct = await this.prismaService.product.update({
+      where: {
+        id,
+      },
+      data: {
+        isActive: true,
+      },
+      include: productInclude,
+    });
+
+    return this.serializeProduct(updatedProduct);
+  }
+
   async create(createProductDto: CreateProductDto) {
     await this.assertCategoryExists(createProductDto.categoryId);
     await this.assertCodeAvailable(createProductDto.code);
