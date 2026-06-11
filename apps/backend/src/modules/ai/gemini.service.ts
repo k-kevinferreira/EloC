@@ -86,37 +86,26 @@ export class GeminiService {
     }
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-          model,
-        )}:generateContent?key=${encodeURIComponent(apiKey)}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [
+      const response = await this.requestGeminiContent(apiKey, model, {
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: geminiPrompt },
               {
-                role: 'user',
-                parts: [
-                  { text: geminiPrompt },
-                  {
-                    inline_data: {
-                      mime_type: mimeType,
-                      data: imageBuffer.toString('base64'),
-                    },
-                  },
-                ],
+                inline_data: {
+                  mime_type: mimeType,
+                  data: imageBuffer.toString('base64'),
+                },
               },
             ],
-            generationConfig: {
-              responseMimeType: 'application/json',
-              temperature: 0.3,
-            },
-          }),
+          },
+        ],
+        generationConfig: {
+          responseMimeType: 'application/json',
+          temperature: 0.3,
         },
-      );
+      });
 
       if (!response.ok) {
         this.logger.error(`Gemini request failed with status ${response.status}.`);
@@ -135,6 +124,36 @@ export class GeminiService {
       this.logger.error(`Gemini request failed. ${message}`);
       return fallbackDescription;
     }
+  }
+
+  private async requestGeminiContent(apiKey: string, model: string, body: unknown) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
+      model,
+    )}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (![429, 500, 502, 503, 504].includes(response.status) || attempt === 3) {
+        return response;
+      }
+
+      await this.delay(700 * attempt);
+    }
+
+    throw new Error('Gemini request retry loop finished unexpectedly.');
+  }
+
+  private delay(milliseconds: number) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, milliseconds);
+    });
   }
 
   private parseProductDescription(text: string | undefined) {

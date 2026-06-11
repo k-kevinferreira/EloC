@@ -27,6 +27,9 @@ const processingMessage =
 const errorMessage =
   'Não consegui concluir o cadastro desse produto. Tente novamente ou verifique no painel.';
 
+const reviewOptionsMessage =
+  'Digite 1 para confirmar, 2 para editar o nome ou 3 para editar a descricao.';
+
 type TelegramImageFile = {
   buffer: Buffer;
   filename: string;
@@ -126,19 +129,26 @@ export class TelegramService {
 
     const draft = await this.findLatestWaitingDraft(chatId);
 
-    if (!draft) {
-      await this.sendMessage(chatId, 'Envie uma foto do produto para iniciar o cadastro.');
+    if (draft) {
+      const parsedPrice = this.parsePrice(normalizedText);
+
+      if (!parsedPrice.ok) {
+        await this.sendMessage(chatId, invalidPriceMessage);
+        return;
+      }
+
+      await this.processDraft(chatId, draft.id, parsedPrice.value);
       return;
     }
 
-    const parsedPrice = this.parsePrice(normalizedText);
+    const reviewDraft = await this.findLatestReviewDraft(chatId);
 
-    if (!parsedPrice.ok) {
-      await this.sendMessage(chatId, invalidPriceMessage);
+    if (reviewDraft) {
+      await this.handleReviewTextMessage(chatId, normalizedText, reviewDraft);
       return;
     }
 
-    await this.processDraft(chatId, draft.id, parsedPrice.value);
+    await this.sendMessage(chatId, 'Envie uma foto do produto para iniciar o cadastro.');
   }
 
   private async processDraft(chatId: string, draftId: string, price: number) {
@@ -200,6 +210,8 @@ export class TelegramService {
           `Descrição: ${product.shortDescription ?? aiDescription.shortDescription}`,
           `Valor: R$ ${this.formatPrice(price)}`,
           'Status: Pendente',
+          '',
+          reviewOptionsMessage,
         ].join('\n'),
       );
     } catch (error) {
@@ -221,7 +233,7 @@ export class TelegramService {
   }
 
   private async cancelLatestDraft(chatId: string) {
-    const draft = await this.findLatestWaitingDraft(chatId);
+    const draft = await this.findLatestCancellableDraft(chatId);
 
     if (!draft) {
       return;
@@ -250,6 +262,160 @@ export class TelegramService {
         id: true,
       },
     });
+  }
+
+  private findLatestReviewDraft(chatId: string) {
+    return this.prismaService.telegramProductDraft.findFirst({
+      where: {
+        chatId,
+        status: {
+          in: ['COMPLETED', 'WAITING_NAME_EDIT', 'WAITING_DESCRIPTION_EDIT'],
+        },
+        productId: {
+          not: null,
+        },
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+      select: {
+        id: true,
+        productId: true,
+        status: true,
+      },
+    });
+  }
+
+  private findLatestCancellableDraft(chatId: string) {
+    return this.prismaService.telegramProductDraft.findFirst({
+      where: {
+        chatId,
+        status: {
+          in: ['WAITING_PRICE', 'WAITING_NAME_EDIT', 'WAITING_DESCRIPTION_EDIT'],
+        },
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+      select: {
+        id: true,
+      },
+    });
+  }
+
+  private async handleReviewTextMessage(
+    chatId: string,
+    text: string,
+    draft: {
+      id: string;
+      productId: string | null;
+      status: string;
+    },
+  ) {
+    if (!draft.productId) {
+      await this.sendMessage(chatId, 'Envie uma foto do produto para iniciar o cadastro.');
+      return;
+    }
+
+    if (draft.status === 'WAITING_NAME_EDIT') {
+      const product = await this.productsService.updateTelegramAiProductTitle(
+        draft.productId,
+        text,
+      );
+
+      await this.prismaService.telegramProductDraft.update({
+        where: {
+          id: draft.id,
+        },
+        data: {
+          status: 'COMPLETED',
+        },
+      });
+
+      await this.sendProductReviewSummary(chatId, product, 'Nome atualizado.');
+      return;
+    }
+
+    if (draft.status === 'WAITING_DESCRIPTION_EDIT') {
+      const product = await this.productsService.updateTelegramAiProductShortDescription(
+        draft.productId,
+        text,
+      );
+
+      await this.prismaService.telegramProductDraft.update({
+        where: {
+          id: draft.id,
+        },
+        data: {
+          status: 'COMPLETED',
+        },
+      });
+
+      await this.sendProductReviewSummary(chatId, product, 'Descricao atualizada.');
+      return;
+    }
+
+    if (text === '1') {
+      await this.sendMessage(
+        chatId,
+        'Cadastro confirmado. O produto continua pendente para revisao no painel.',
+      );
+      return;
+    }
+
+    if (text === '2') {
+      await this.prismaService.telegramProductDraft.update({
+        where: {
+          id: draft.id,
+        },
+        data: {
+          status: 'WAITING_NAME_EDIT',
+        },
+      });
+
+      await this.sendMessage(chatId, 'Envie o novo nome do produto.');
+      return;
+    }
+
+    if (text === '3') {
+      await this.prismaService.telegramProductDraft.update({
+        where: {
+          id: draft.id,
+        },
+        data: {
+          status: 'WAITING_DESCRIPTION_EDIT',
+        },
+      });
+
+      await this.sendMessage(chatId, 'Envie a nova descricao curta do produto.');
+      return;
+    }
+
+    await this.sendMessage(chatId, reviewOptionsMessage);
+  }
+
+  private async sendProductReviewSummary(
+    chatId: string,
+    product: {
+      title: string;
+      shortDescription: string | null;
+      price: unknown;
+    },
+    heading: string,
+  ) {
+    await this.sendMessage(
+      chatId,
+      [
+        heading,
+        '',
+        `Nome sugerido: ${product.title}`,
+        `Descricao: ${product.shortDescription ?? 'Pendente de revisao'}`,
+        `Valor: R$ ${this.formatPrice(Number(product.price))}`,
+        'Status: Pendente',
+        '',
+        reviewOptionsMessage,
+      ].join('\n'),
+    );
   }
 
   private resolveBestPhoto(photos: TelegramPhotoSize[] | undefined) {

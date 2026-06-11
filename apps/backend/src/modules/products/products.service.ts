@@ -163,6 +163,49 @@ export class ProductsService {
     return this.serializeProduct(product);
   }
 
+  async updateTelegramAiProductTitle(id: string, title: string) {
+    const normalizedTitle = normalizeText(title).slice(0, 160);
+
+    if (!normalizedTitle) {
+      throw new BadRequestException('Product title is required.');
+    }
+
+    const product = await this.prismaService.product.update({
+      where: {
+        id,
+        source: 'TELEGRAM_AI',
+      },
+      data: {
+        title: normalizedTitle,
+      },
+      include: productInclude,
+    });
+
+    return this.serializeProduct(product);
+  }
+
+  async updateTelegramAiProductShortDescription(id: string, shortDescription: string) {
+    const normalizedShortDescription = normalizeText(shortDescription).slice(0, 500);
+
+    if (!normalizedShortDescription) {
+      throw new BadRequestException('Product description is required.');
+    }
+
+    const product = await this.prismaService.product.update({
+      where: {
+        id,
+        source: 'TELEGRAM_AI',
+      },
+      data: {
+        shortDescription: normalizedShortDescription,
+        description: normalizedShortDescription,
+      },
+      include: productInclude,
+    });
+
+    return this.serializeProduct(product);
+  }
+
   async create(createProductDto: CreateProductDto) {
     await this.assertCategoryExists(createProductDto.categoryId);
     await this.assertCodeAvailable(createProductDto.code);
