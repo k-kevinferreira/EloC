@@ -28,7 +28,7 @@ const errorMessage =
   'Não consegui concluir o cadastro desse produto. Tente novamente ou verifique no painel.';
 
 const reviewOptionsMessage =
-  'Digite 1 para confirmar, 2 para editar o nome ou 3 para editar a descricao.';
+  'Digite 1 para confirmar, 2 para editar o nome, 3 para editar a descricao ou 4 para editar a categoria sugerida.';
 
 type TelegramImageFile = {
   buffer: Buffer;
@@ -208,6 +208,7 @@ export class TelegramService {
           '',
           `Nome sugerido: ${product.title}`,
           `Descrição: ${product.shortDescription ?? aiDescription.shortDescription}`,
+          `Categoria sugerida: ${product.suggestedCategory ?? aiDescription.suggestedCategory}`,
           `Valor: R$ ${this.formatPrice(price)}`,
           'Status: Pendente',
           '',
@@ -269,7 +270,12 @@ export class TelegramService {
       where: {
         chatId,
         status: {
-          in: ['COMPLETED', 'WAITING_NAME_EDIT', 'WAITING_DESCRIPTION_EDIT'],
+          in: [
+            'COMPLETED',
+            'WAITING_NAME_EDIT',
+            'WAITING_DESCRIPTION_EDIT',
+            'WAITING_CATEGORY_EDIT',
+          ],
         },
         productId: {
           not: null,
@@ -291,7 +297,12 @@ export class TelegramService {
       where: {
         chatId,
         status: {
-          in: ['WAITING_PRICE', 'WAITING_NAME_EDIT', 'WAITING_DESCRIPTION_EDIT'],
+          in: [
+            'WAITING_PRICE',
+            'WAITING_NAME_EDIT',
+            'WAITING_DESCRIPTION_EDIT',
+            'WAITING_CATEGORY_EDIT',
+          ],
         },
       },
       orderBy: {
@@ -355,6 +366,25 @@ export class TelegramService {
       return;
     }
 
+    if (draft.status === 'WAITING_CATEGORY_EDIT') {
+      const product = await this.productsService.updateTelegramAiProductSuggestedCategory(
+        draft.productId,
+        text,
+      );
+
+      await this.prismaService.telegramProductDraft.update({
+        where: {
+          id: draft.id,
+        },
+        data: {
+          status: 'COMPLETED',
+        },
+      });
+
+      await this.sendProductReviewSummary(chatId, product, 'Categoria sugerida atualizada.');
+      return;
+    }
+
     if (text === '1') {
       await this.sendMessage(
         chatId,
@@ -391,6 +421,23 @@ export class TelegramService {
       return;
     }
 
+    if (text === '4') {
+      await this.prismaService.telegramProductDraft.update({
+        where: {
+          id: draft.id,
+        },
+        data: {
+          status: 'WAITING_CATEGORY_EDIT',
+        },
+      });
+
+      await this.sendMessage(
+        chatId,
+        'Envie a categoria sugerida. Exemplo: Aneis, Brincos, Colares ou Pulseiras.',
+      );
+      return;
+    }
+
     await this.sendMessage(chatId, reviewOptionsMessage);
   }
 
@@ -399,6 +446,7 @@ export class TelegramService {
     product: {
       title: string;
       shortDescription: string | null;
+      suggestedCategory?: string | null;
       price: unknown;
     },
     heading: string,
@@ -410,6 +458,7 @@ export class TelegramService {
         '',
         `Nome sugerido: ${product.title}`,
         `Descricao: ${product.shortDescription ?? 'Pendente de revisao'}`,
+        `Categoria sugerida: ${product.suggestedCategory ?? 'Revisar'}`,
         `Valor: R$ ${this.formatPrice(Number(product.price))}`,
         'Status: Pendente',
         '',

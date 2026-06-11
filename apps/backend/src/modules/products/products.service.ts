@@ -120,7 +120,9 @@ export class ProductsService {
   }
 
   async createTelegramAiProduct(input: CreateTelegramAiProductInput) {
-    const reviewTaxonomy = await this.resolveReviewTaxonomyOrThrow();
+    const productTaxonomy = await this.resolveTelegramProductTaxonomy(
+      input.suggestedCategory,
+    );
     const title = normalizeText(input.title || 'Produto pendente de revisão').slice(
       0,
       160,
@@ -130,8 +132,8 @@ export class ProductsService {
 
     const product = await this.prismaService.product.create({
       data: {
-        categoryId: reviewTaxonomy.categoryId,
-        subcategoryId: reviewTaxonomy.subcategoryId,
+        categoryId: productTaxonomy.categoryId,
+        subcategoryId: productTaxonomy.subcategoryId,
         code,
         slug,
         title,
@@ -199,6 +201,35 @@ export class ProductsService {
       data: {
         shortDescription: normalizedShortDescription,
         description: normalizedShortDescription,
+      },
+      include: productInclude,
+    });
+
+    return this.serializeProduct(product);
+  }
+
+  async updateTelegramAiProductSuggestedCategory(
+    id: string,
+    suggestedCategory: string,
+  ) {
+    const normalizedSuggestedCategory = normalizeText(suggestedCategory).slice(0, 120);
+
+    if (!normalizedSuggestedCategory) {
+      throw new BadRequestException('Suggested category is required.');
+    }
+
+    const productTaxonomy = await this.resolveTelegramProductTaxonomy(
+      normalizedSuggestedCategory,
+    );
+    const product = await this.prismaService.product.update({
+      where: {
+        id,
+        source: 'TELEGRAM_AI',
+      },
+      data: {
+        categoryId: productTaxonomy.categoryId,
+        subcategoryId: productTaxonomy.subcategoryId,
+        suggestedCategory: normalizedSuggestedCategory,
       },
       include: productInclude,
     });
@@ -627,6 +658,49 @@ export class ProductsService {
       categoryId: category.id,
       subcategoryId: subcategory.id,
     };
+  }
+
+  private async resolveTelegramProductTaxonomy(suggestedCategory: string) {
+    const matchedCategory = await this.findCategoryMatchingSuggestion(
+      suggestedCategory,
+    );
+
+    if (matchedCategory) {
+      return {
+        categoryId: matchedCategory.id,
+        subcategoryId: null,
+      };
+    }
+
+    return this.resolveReviewTaxonomyOrThrow();
+  }
+
+  private async findCategoryMatchingSuggestion(suggestedCategory: string) {
+    const normalizedSuggestion = this.slugifyProductText(suggestedCategory);
+
+    if (!normalizedSuggestion) {
+      return null;
+    }
+
+    const categories = await this.prismaService.category.findMany({
+      where: {
+        isActive: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+      },
+    });
+
+    return (
+      categories.find((category) => {
+        return (
+          category.slug === normalizedSuggestion ||
+          this.slugifyProductText(category.name) === normalizedSuggestion
+        );
+      }) ?? null
+    );
   }
 
   private async generateAvailableProductCode(title: string) {
