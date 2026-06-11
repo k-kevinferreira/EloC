@@ -78,7 +78,7 @@ export class GeminiService {
     mimeType: string,
   ): Promise<GeminiProductDescription> {
     const apiKey = this.configService.get<string | null>('gemini.apiKey', null);
-    const model = this.configService.get<string>('gemini.model', 'gemini-1.5-flash');
+    const model = this.configService.get<string>('gemini.model', 'gemini-3.5-flash');
 
     if (!apiKey) {
       this.logger.warn('GEMINI_API_KEY is not configured. Using fallback product text.');
