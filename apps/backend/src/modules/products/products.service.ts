@@ -42,6 +42,7 @@ type CreateTelegramAiProductInput = {
   price: number;
   imageUrl: string;
   suggestedCategory: string;
+  suggestedMaterial: 'prata' | 'dourado';
   aiTags: string[];
 };
 
@@ -122,6 +123,7 @@ export class ProductsService {
   async createTelegramAiProduct(input: CreateTelegramAiProductInput) {
     const productTaxonomy = await this.resolveTelegramProductTaxonomy(
       input.suggestedCategory,
+      input.suggestedMaterial,
     );
     const title = normalizeText(input.title || 'Produto pendente de revisão').slice(
       0,
@@ -218,8 +220,10 @@ export class ProductsService {
       throw new BadRequestException('Suggested category is required.');
     }
 
+    const currentProduct = await this.findByIdOrThrow(id);
     const productTaxonomy = await this.resolveTelegramProductTaxonomy(
       normalizedSuggestedCategory,
+      currentProduct.subcategory?.slug,
     );
     const product = await this.prismaService.product.update({
       where: {
@@ -230,6 +234,34 @@ export class ProductsService {
         categoryId: productTaxonomy.categoryId,
         subcategoryId: productTaxonomy.subcategoryId,
         suggestedCategory: normalizedSuggestedCategory,
+      },
+      include: productInclude,
+    });
+
+    return this.serializeProduct(product);
+  }
+
+  async updateTelegramAiProductSuggestedMaterial(id: string, suggestedMaterial: string) {
+    const normalizedSuggestedMaterial = this.normalizeTelegramProductMaterial(
+      suggestedMaterial,
+    );
+
+    if (!normalizedSuggestedMaterial) {
+      throw new BadRequestException('Suggested material must be Prata or Dourado.');
+    }
+
+    const currentProduct = await this.findByIdOrThrow(id);
+    const productTaxonomy = await this.resolveTelegramProductTaxonomy(
+      currentProduct.suggestedCategory ?? currentProduct.category.name,
+      normalizedSuggestedMaterial,
+    );
+    const product = await this.prismaService.product.update({
+      where: {
+        id,
+        source: 'TELEGRAM_AI',
+      },
+      data: {
+        subcategoryId: productTaxonomy.subcategoryId,
       },
       include: productInclude,
     });
@@ -253,6 +285,12 @@ export class ProductsService {
     if (product.category.slug === 'revisar') {
       throw new BadRequestException(
         'Select a real category before publishing this product.',
+      );
+    }
+
+    if (!product.subcategory || !['prata', 'dourado'].includes(product.subcategory.slug)) {
+      throw new BadRequestException(
+        'Select a real material before publishing this product.',
       );
     }
 
@@ -692,15 +730,21 @@ export class ProductsService {
     };
   }
 
-  private async resolveTelegramProductTaxonomy(suggestedCategory: string) {
+  private async resolveTelegramProductTaxonomy(
+    suggestedCategory: string,
+    suggestedMaterial?: string | null,
+  ) {
     const matchedCategory = await this.findCategoryMatchingSuggestion(
       suggestedCategory,
+    );
+    const matchedMaterial = await this.findMaterialMatchingSuggestion(
+      suggestedMaterial,
     );
 
     if (matchedCategory) {
       return {
         categoryId: matchedCategory.id,
-        subcategoryId: null,
+        subcategoryId: matchedMaterial?.id ?? null,
       };
     }
 
@@ -733,6 +777,42 @@ export class ProductsService {
         );
       }) ?? null
     );
+  }
+
+  private async findMaterialMatchingSuggestion(suggestedMaterial?: string | null) {
+    const normalizedMaterial = this.normalizeTelegramProductMaterial(
+      suggestedMaterial,
+    );
+
+    if (!normalizedMaterial) {
+      return null;
+    }
+
+    return this.prismaService.subcategory.findFirst({
+      where: {
+        slug: normalizedMaterial,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+      },
+    });
+  }
+
+  private normalizeTelegramProductMaterial(value?: string | null) {
+    if (!value) {
+      return null;
+    }
+
+    const normalizedValue = this.slugifyProductText(value);
+
+    if (normalizedValue === 'prata' || normalizedValue === 'dourado') {
+      return normalizedValue;
+    }
+
+    return null;
   }
 
   private async generateAvailableProductCode(title: string) {

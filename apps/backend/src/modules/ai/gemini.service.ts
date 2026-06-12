@@ -6,6 +6,7 @@ export type GeminiProductDescription = {
   shortDescription: string;
   description: string;
   suggestedCategory: string;
+  suggestedMaterial: 'prata' | 'dourado';
   tags: string[];
 };
 
@@ -20,52 +21,61 @@ type GeminiGenerateContentResponse = {
 };
 
 const fallbackDescription: GeminiProductDescription = {
-  name: 'Produto pendente de revisão',
-  shortDescription: 'Produto cadastrado automaticamente e pendente de revisão.',
-  description: 'Revise manualmente as informações antes de publicar.',
+  name: 'Produto pendente de revisao',
+  shortDescription: 'Produto cadastrado automaticamente e pendente de revisao.',
+  description: 'Revise manualmente as informacoes antes de publicar.',
   suggestedCategory: 'Revisar',
+  suggestedMaterial: 'prata',
   tags: ['review_required'],
 };
 
-const geminiPrompt = `Analise a imagem de uma joia ou semijoia para cadastro em um catálogo digital.
+const geminiPrompt = `Analise a imagem de uma joia ou semijoia para cadastro em um catalogo digital.
 
-Sua tarefa é observar a imagem e gerar um nome/título comercial e descrições para o produto.
+Sua tarefa e observar a imagem e gerar um nome/titulo comercial, descricoes, categoria e material visual para o produto.
 
-Retorne apenas um JSON válido com os seguintes campos:
+Retorne apenas um JSON valido com os seguintes campos:
 {
 "name": string,
 "shortDescription": string,
 "description": string,
 "suggestedCategory": string,
+"suggestedMaterial": "prata" | "dourado",
 "tags": string[]
 }
 
 Regras:
 
-* O name deve funcionar como título comercial do produto.
-* O nome/título deve ser elegante, curto e adequado para venda em catálogo.
+* O name deve funcionar como titulo comercial do produto.
+* O nome/titulo deve ser elegante, curto e adequado para venda em catalogo.
 * A shortDescription deve ser breve e adequada para card de produto.
-* A description deve ser clara, objetiva e adequada para página de detalhes do produto.
-* Descreva apenas características visualmente identificáveis na imagem.
+* A description deve ser clara, objetiva e adequada para pagina de detalhes do produto.
+* Descreva apenas caracteristicas visualmente identificaveis na imagem.
 * Pode mencionar cor aparente, formato, estilo, acabamento visual e detalhes decorativos.
-* Não informe preço.
-* Não informe estoque.
-* Não afirme que a peça é ouro, prata, prata 925, aço inoxidável, banhada a ouro ou semijoia se isso não for informado pelo usuário.
-* Quando não houver certeza sobre o material, use termos como acabamento dourado, acabamento prateado, tom dourado, tom prateado, peça delicada ou design elegante.
-* Não invente marca.
-* Não invente garantia.
-* Não invente quilates, banho, composição, peso ou medidas.
-* Não use markdown.
-* Não retorne texto fora do JSON.
-* Se a imagem não parecer um produto de joia ou semijoia, retorne:
+* O suggestedCategory deve sugerir uma categoria de catalogo, como Aneis, Brincos, Colares, Pulseiras, Conjuntos, Tornozeleiras ou Berloques.
+* O suggestedMaterial deve representar apenas o tom visual usado no catalogo.
+* O suggestedMaterial deve ser exatamente "prata" ou "dourado".
+* Use "prata" para peca em tom prateado, cinza claro ou metal visualmente branco.
+* Use "dourado" para peca em tom dourado, amarelo metalico ou ouro visual aparente.
+* Nao informe preco.
+* Nao informe estoque.
+* Nao afirme que a peca e ouro, prata, prata 925, aco inoxidavel, banhada a ouro ou semijoia se isso nao for informado pelo usuario.
+* O suggestedMaterial nao confirma composicao real da peca.
+* Quando nao houver certeza sobre composicao real, use termos como acabamento dourado, acabamento prateado, tom dourado, tom prateado, peca delicada ou design elegante.
+* Nao invente marca.
+* Nao invente garantia.
+* Nao invente quilates, banho, composicao, peso ou medidas.
+* Nao use markdown.
+* Nao retorne texto fora do JSON.
+* Se a imagem nao parecer um produto de joia ou semijoia, retorne:
   {
-  "name": "Produto pendente de revisão",
-  "shortDescription": "Produto cadastrado automaticamente e pendente de revisão.",
-  "description": "A imagem enviada não permitiu identificar com segurança os detalhes do produto. Revise manualmente antes de publicar.",
+  "name": "Produto pendente de revisao",
+  "shortDescription": "Produto cadastrado automaticamente e pendente de revisao.",
+  "description": "A imagem enviada nao permitiu identificar com seguranca os detalhes do produto. Revise manualmente antes de publicar.",
   "suggestedCategory": "Revisar",
+  "suggestedMaterial": "prata",
   "tags": ["review_required"]
   }
-* Se a imagem estiver desfocada, ambígua ou com baixa qualidade, gere um texto conservador e inclua a tag 'review_required'.`;
+* Se a imagem estiver desfocada, ambigua ou com baixa qualidade, gere um texto conservador e inclua a tag 'review_required'.`;
 
 @Injectable()
 export class GeminiService {
@@ -187,6 +197,7 @@ export class GeminiService {
           fallbackDescription.suggestedCategory,
           120,
         ),
+        suggestedMaterial: this.normalizeMaterial(parsed.suggestedMaterial),
         tags: this.normalizeTags(parsed.tags),
       };
     } catch {
@@ -244,5 +255,23 @@ export class GeminiService {
       .slice(0, 10);
 
     return tags.length > 0 ? tags : fallbackDescription.tags;
+  }
+
+  private normalizeMaterial(value: unknown): GeminiProductDescription['suggestedMaterial'] {
+    if (typeof value !== 'string') {
+      return fallbackDescription.suggestedMaterial;
+    }
+
+    const normalizedValue = value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+
+    if (normalizedValue === 'dourado') {
+      return 'dourado';
+    }
+
+    return 'prata';
   }
 }

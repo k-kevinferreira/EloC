@@ -28,7 +28,7 @@ const errorMessage =
   'Não consegui concluir o cadastro desse produto. Tente novamente ou verifique no painel.';
 
 const reviewOptionsMessage =
-  'Digite 1 para confirmar, 2 para editar o nome, 3 para editar a descricao ou 4 para editar a categoria sugerida.';
+  'Digite 1 para confirmar, 2 para editar o nome, 3 para editar a descricao, 4 para editar a categoria ou 5 para editar o material.';
 
 type TelegramImageFile = {
   buffer: Buffer;
@@ -185,6 +185,7 @@ export class TelegramService {
         shortDescription: aiDescription.shortDescription,
         description: aiDescription.description,
         suggestedCategory: aiDescription.suggestedCategory,
+        suggestedMaterial: aiDescription.suggestedMaterial,
         aiTags: aiDescription.tags,
         price,
         imageUrl: uploadedImage.url,
@@ -209,6 +210,7 @@ export class TelegramService {
           `Nome sugerido: ${product.title}`,
           `Descrição: ${product.shortDescription ?? aiDescription.shortDescription}`,
           `Categoria sugerida: ${product.suggestedCategory ?? aiDescription.suggestedCategory}`,
+          `Material sugerido: ${this.resolveDisplayMaterial(product.subcategory, aiDescription.suggestedMaterial)}`,
           `Valor: R$ ${this.formatPrice(price)}`,
           'Status: Pendente',
           '',
@@ -275,6 +277,7 @@ export class TelegramService {
             'WAITING_NAME_EDIT',
             'WAITING_DESCRIPTION_EDIT',
             'WAITING_CATEGORY_EDIT',
+            'WAITING_MATERIAL_EDIT',
           ],
         },
         productId: {
@@ -302,6 +305,7 @@ export class TelegramService {
             'WAITING_NAME_EDIT',
             'WAITING_DESCRIPTION_EDIT',
             'WAITING_CATEGORY_EDIT',
+            'WAITING_MATERIAL_EDIT',
           ],
         },
       },
@@ -385,6 +389,32 @@ export class TelegramService {
       return;
     }
 
+    if (draft.status === 'WAITING_MATERIAL_EDIT') {
+      try {
+        const product = await this.productsService.updateTelegramAiProductSuggestedMaterial(
+          draft.productId,
+          text,
+        );
+
+        await this.prismaService.telegramProductDraft.update({
+          where: {
+            id: draft.id,
+          },
+          data: {
+            status: 'COMPLETED',
+          },
+        });
+
+        await this.sendProductReviewSummary(chatId, product, 'Material atualizado.');
+      } catch {
+        await this.sendMessage(
+          chatId,
+          'Material invalido. Envie apenas Prata ou Dourado.',
+        );
+      }
+      return;
+    }
+
     if (text === '1') {
       try {
         const product = await this.productsService.activateTelegramAiProduct(
@@ -398,6 +428,7 @@ export class TelegramService {
             '',
             `Nome: ${product.title}`,
             `Categoria: ${product.category.name}`,
+            `Material: ${product.subcategory?.name ?? 'Pendente'}`,
             `Valor: R$ ${this.formatPrice(Number(product.price))}`,
             'Status: Ativo',
           ].join('\n'),
@@ -411,7 +442,7 @@ export class TelegramService {
           [
             'Antes de ativar no catalogo, edite a categoria sugerida.',
             '',
-            'Digite 4 e informe uma categoria real, como Brincos, Aneis, Colares ou Pulseiras.',
+            'Digite 4 para informar uma categoria real e 5 para informar Prata ou Dourado.',
           ].join('\n'),
         );
       }
@@ -463,6 +494,20 @@ export class TelegramService {
       return;
     }
 
+    if (text === '5') {
+      await this.prismaService.telegramProductDraft.update({
+        where: {
+          id: draft.id,
+        },
+        data: {
+          status: 'WAITING_MATERIAL_EDIT',
+        },
+      });
+
+      await this.sendMessage(chatId, 'Envie o material visual. Exemplo: Prata ou Dourado.');
+      return;
+    }
+
     await this.sendMessage(chatId, reviewOptionsMessage);
   }
 
@@ -472,6 +517,10 @@ export class TelegramService {
       title: string;
       shortDescription: string | null;
       suggestedCategory?: string | null;
+      subcategory?: {
+        name: string;
+        slug: string;
+      } | null;
       price: unknown;
     },
     heading: string,
@@ -484,6 +533,7 @@ export class TelegramService {
         `Nome sugerido: ${product.title}`,
         `Descricao: ${product.shortDescription ?? 'Pendente de revisao'}`,
         `Categoria sugerida: ${product.suggestedCategory ?? 'Revisar'}`,
+        `Material sugerido: ${this.resolveDisplayMaterial(product.subcategory)}`,
         `Valor: R$ ${this.formatPrice(Number(product.price))}`,
         'Status: Pendente',
         '',
@@ -641,6 +691,17 @@ export class TelegramService {
     }
 
     return '.jpg';
+  }
+
+  private resolveDisplayMaterial(
+    subcategory?: { name: string; slug: string } | null,
+    fallback = 'Pendente',
+  ) {
+    if (subcategory?.slug === 'prata' || subcategory?.slug === 'dourado') {
+      return subcategory.name;
+    }
+
+    return fallback;
   }
 
   private async sendMessage(chatId: string, text: string) {
